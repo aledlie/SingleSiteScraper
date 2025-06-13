@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@layer components {
+  .card {
+    @apply p-4 border rounded bg-white mb-4;
+  }
+
+  .input {
+    @apply block w-full p-1 border rounded;
+  }
+
+  .layout-grid {
+    @apply grid grid-cols-2 gap-4 mb-4;
+  }
+
+  .tab-button {
+    @apply px-3 py-1 border-b-2;
+  }
+
+  .tab-button-active {
+    @apply border-blue-600 font-bold;
+  }
+
+  .tab-button-inactive {
+    @apply border-transparent;
+  }
+
+  .media-thumb {
+    @apply border rounded p-2;
+  }
+
+  .text-block {
+    @apply mb-2 text-sm;
+  }
+
+  .caption {
+    @apply text-xs mt-1 text-center text-gray-600;
+  }
+}
+
