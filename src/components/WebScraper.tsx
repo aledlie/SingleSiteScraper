@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { scrapeWebsite } from '../scraper/scrapeWebsite';
-import { ScrapeOptions, ScrapedData } from '../types';
-import { ErrorAlert } from './ErrorAlert';
-import { ScrapeOptionsForm } from './ScrapeOptionsForm';
-import { ScrapeResultTabs } from './ScrapeResultTabs';
+import { scrapeWebsite } from '../scraper/scrapeWebsite.ts';
+import { ScrapeOptions, ScrapedData } from '../types/index.ts';
+import { ErrorAlert } from './ErrorAlert.tsx';
+import { ScrapeOptionsForm } from './ScrapeOptionsForm.tsx';
+import { ScrapeResultTabs } from './ScrapeResultTabs.tsx';
 
 const WebScraper: React.FC = () => {
   const [url, setUrl] = useState('');
@@ -21,7 +21,7 @@ const WebScraper: React.FC = () => {
   const [error, setError] = useState('');
   const [scrapedData, setScrapedData] = useState<ScrapedData | null>(null);
   const [progress, setProgress] = useState('');
-  const [filter, setFilter] = useState('');
+  const [filter] = useState('');
 
   const handleScrape = async () => {
     setProgress('Scraping...');

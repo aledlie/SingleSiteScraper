@@ -3,39 +3,83 @@
 @tailwind utilities;
 @layer components {
   .card {
-    @apply p-4 border rounded bg-white mb-4;
+    @apply bg-white p-6 rounded-2xl border border-gray-200 shadow-md;
   }
 
   .input {
-    @apply block w-full p-1 border rounded;
+    @apply block w-full rounded-xl border border-gray-300 px-3 py-2 shadow-sm
+      focus:border-blue-500 focus:ring focus:ring-blue-200
+      focus:ring-opacity-50 transition-colors duration-150 ease-in-out;
+  }
+
+  .form-label {
+    @apply block text-sm font-medium text-gray-800 mb-2;
+  }
+
+  .form-description {
+    @apply text-xs text-gray-500 mt-1;
   }
 
   .layout-grid {
     @apply grid grid-cols-2 gap-4 mb-4;
   }
 
+  .tab-panel {
+    @apply mt-4;
+  }
+
+  .tab-header {
+    @apply flex space-x-4 border-b mb-4;
+  }
+
   .tab-button {
-    @apply px-3 py-1 border-b-2;
+    @apply px-3 py-1 border-b-2 text-sm font-medium transition-colors;
   }
 
   .tab-button-active {
-    @apply border-blue-600 font-bold;
+    @apply border-blue-600 text-blue-600;
   }
 
   .tab-button-inactive {
-    @apply border-transparent;
+    @apply border-transparent text-gray-500 hover:text-gray-700;
   }
 
   .media-thumb {
-    @apply border rounded p-2;
+    @apply border rounded p-2 bg-gray-50 hover:bg-gray-100 transition;
   }
 
-  .text-block {
-    @apply mb-2 text-sm;
+  .responsive-img {
+    @apply w-full h-auto;
   }
 
   .caption {
     @apply text-xs mt-1 text-center text-gray-600;
+  }
+
+  .text-block {
+    @apply mb-2 text-sm text-gray-800;
+  }
+
+
+  .link-primary {
+    @apply text-blue-600 underline;
+  }
+
+  .link-subtext {
+    @apply text-xs text-gray-500;
+  }
+
+  .meta-table {
+    @apply table-auto w-full text-left border-collapse;
+  }
+
+  .meta-table th,
+  .meta-table td {
+    @apply border-t p-2 text-sm;
+  }
+
+  .meta-table th {
+    @apply font-medium border-b;
   }
 }
 

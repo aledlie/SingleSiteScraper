@@ -8,9 +8,14 @@ export default tseslint.config(
   { ignores: ['dist'] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
-    files: ['**/*.{ts,tsx}'],
+    files: ['**/*.{ts,tsx,.js,.jsx}'],
     languageOptions: {
-      ecmaVersion: 2020,
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+        sourceType: 'module',
+        ecmaFeatures: { jsx: true } // Enable JSX parsing
+      },
       globals: globals.browser,
     },
     plugins: {
@@ -18,11 +23,15 @@ export default tseslint.config(
       'react-refresh': reactRefresh,
     },
     rules: {
-      ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': [
         'warn',
         { allowConstantExport: true },
       ],
+      '@typescript-eslint/no-unused-expressions': ['error'],
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
+      'react/react-in-jsx-scope': 'off', // Not needed for React 17+
+      '@typescript-eslint/no-explicit-any': 'warn' // Soften to warn for rollup__parseAs
     },
   }
 );
+

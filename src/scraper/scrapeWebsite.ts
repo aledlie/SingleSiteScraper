@@ -1,7 +1,7 @@
 // src/scraper/scrapeWebsite.ts
-import { fetchWithTimeout } from '../utils/network';
-import { cleanText, validateUrl, normalizeUrl, makeAbsoluteUrl, sleep } from '../utils/validators';
-import { ScrapedData, ScrapeOptions } from '../types';
+import { fetchWithTimeout } from '../utils/network.ts';
+import { cleanText, validateUrl, normalizeUrl, makeAbsoluteUrl, sleep } from '../utils/validators.ts';
+import { ScrapedData, ScrapeOptions } from '../types/index.ts';
 
 export const scrapeWebsite = async (
   rawUrl: string,
@@ -64,7 +64,7 @@ export const scrapeWebsite = async (
           proxyUsed = proxy.name;
           break;
         }
-      } catch (e) {
+      } catch (_) {
         setProgress(`${proxy.name} attempt ${attempt} failed. Retrying...`);
         await sleep(attempt * 1000);
       }
@@ -78,7 +78,7 @@ export const scrapeWebsite = async (
 
   setProgress('Parsing HTML...');
   const parser = new DOMParser();
-  let doc = parser.parseFromString(responseData, 'text/html');
+  const doc = parser.parseFromString(responseData, 'text/html');
 
   const scrapedData: ScrapedData = {
     title: '',
