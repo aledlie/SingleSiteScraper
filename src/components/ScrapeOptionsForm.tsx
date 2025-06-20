@@ -36,6 +36,8 @@ export const ScrapeOptionsForm: React.FC<Props> = ({ options, onChange }) => {
         ))}
       </div>
 
+
+      <h3 className="section-title">Content Limits</h3>
       <div className="layout-grid">
         <FormInput
           label="Max Links"
@@ -61,6 +63,10 @@ export const ScrapeOptionsForm: React.FC<Props> = ({ options, onChange }) => {
           value={options.maxTextElements}
           onChange={(e) => handleChange('maxTextElements', parseInt(e.target.value))}
         />
+    </div>
+
+      <h3 className="section-title">Request Settings</h3>
+      <div className="layout-grid">
         <FormInput
           label="Timeout (ms)"
           type="number"

@@ -23,7 +23,7 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
         {['text', 'links', 'images', 'metadata'].map((key) => (
           <button
             key={key}
-            onClick={() => setTab(key as any)}
+            onClick={() => setTab(key as string)}
             className={`tab-button ${tab === key ? 'tab-button-active' : 'tab-button-inactive'}`}
           >
             {key.toUpperCase()}
