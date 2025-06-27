@@ -27,3 +27,10 @@ export interface ScrapeOptions {
   retryAttempts: number;
 }
 
+export interface TabOptions {
+  text: string;
+  links: string;
+  images: string;
+  metadata: string;
+}
+

@@ -2,6 +2,7 @@
 import { fetchWithTimeout } from '../utils/network.ts';
 import { cleanText, validateUrl, normalizeUrl, makeAbsoluteUrl, sleep } from '../utils/validators.ts';
 import { ScrapedData, ScrapeOptions } from '../types/index.ts';
+import * as cheerio from 'cheerio';
 
 export const scrapeWebsite = async (
   rawUrl: string,
@@ -41,6 +42,7 @@ export const scrapeWebsite = async (
 
   let responseData: string | null = null;
   let proxyUsed = '';
+  let contentType = 'text/html'; // Default content type
 
   for (const proxy of proxyServices) {
     setProgress(`Trying ${proxy.name}...`);
@@ -53,6 +55,7 @@ export const scrapeWebsite = async (
         );
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
+        contentType = res.headers.get('content-type') || 'text/html'; // Update content type from response
         if (proxy.name === 'AllOrigins') {
           const json = await res.json();
           responseData = json.contents || '';
@@ -62,107 +65,63 @@ export const scrapeWebsite = async (
 
         if (responseData) {
           proxyUsed = proxy.name;
-          break;
+          break; // Exit inner loop on success
         }
-      } catch (_) {
-        setProgress(`${proxy.name} attempt ${attempt} failed. Retrying...`);
-        await sleep(attempt * 1000);
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        setProgress(`Attempt ${attempt} with ${proxy.name} failed: ${errorMessage}`);
+        if (attempt < options.retryAttempts) {
+          await sleep(1000); // Wait 1 second before retrying
+        }
       }
     }
-    if (responseData) break;
+    if (responseData) break; // Exit outer loop if data is obtained
   }
 
   if (!responseData) {
-    return { error: 'All proxies failed to fetch website.', url };
+    return { error: `Failed to fetch data after ${options.retryAttempts} attempts with all proxies`, url };
   }
 
-  setProgress('Parsing HTML...');
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(responseData, 'text/html');
-
-  const scrapedData: ScrapedData = {
-    title: '',
-    description: '',
-    links: [],
-    images: [],
-    text: [],
-    metadata: {},
+  setProgress(`Parsing data from ${proxyUsed}...`);
+  const $ = cheerio.load(responseData);
+  const data: ScrapedData = {
+    title: $('title').text() || '',
+    description: $('meta[name="description"]').attr('content') || '',
+    links: options.includeLinks
+      ? $('a')
+          .map((i, el) => ({
+            text: cleanText($(el).text()),
+            url: makeAbsoluteUrl(url, $(el).attr('href') || ''),
+          }))
+          .get()
+          .slice(0, options.maxLinks)
+      : [],
+    images: options.includeImages
+      ? $('img')
+          .map((i, el) => ({
+            alt: $(el).attr('alt') || '',
+            src: makeAbsoluteUrl(url, $(el).attr('src') || ''),
+          }))
+          .get()
+          .slice(0, options.maxImages)
+      : [],
+    text: options.includeText
+      ? $('p').map((i, el) => cleanText($(el).text())).get().slice(0, options.maxTextElements)
+      : [],
+    metadata: options.includeMetadata
+      ? {
+          title: $('title').text() || '', // Include title in metadata if requested
+        }
+      : {},
     status: {
       success: true,
       contentLength: responseData.length,
       responseTime: Date.now() - startTime,
       proxyUsed,
-      contentType: 'text/html',
+      contentType,
     },
   };
 
-  const getFromSelectors = (selectors: string[]): string => {
-    for (const sel of selectors) {
-      const el = doc.querySelector(sel);
-      if (el) {
-        const content = el.getAttribute('content') || el.textContent || '';
-        const cleaned = cleanText(content);
-        if (cleaned) return cleaned;
-      }
-    }
-    return '';
-  };
-
-  scrapedData.title = getFromSelectors(['title', '[property="og:title"]', 'h1']) || 'No title found';
-  scrapedData.description = getFromSelectors([
-    'meta[name="description"]',
-    'meta[property="og:description"]',
-  ]) || 'No description found';
-
-  if (options.includeLinks) {
-    const links = Array.from(doc.querySelectorAll('a[href]'))
-      .map((a) => {
-        const href = a.getAttribute('href') || '';
-        const text = cleanText(a.textContent || '');
-        return { url: makeAbsoluteUrl(href, url), text };
-      })
-      .filter((l) => l.url && l.text && l.text.length < 200)
-      .slice(0, options.maxLinks);
-    scrapedData.links = links;
-  }
-
-  if (options.includeImages) {
-    const imgs = Array.from(doc.querySelectorAll('img[src]'))
-      .map((img) => {
-        const src = img.getAttribute('src') || '';
-        const alt = cleanText(img.getAttribute('alt') || 'Image');
-        return { src: makeAbsoluteUrl(src, url), alt };
-      })
-      .filter((img) => img.src.startsWith('http'))
-      .slice(0, options.maxImages);
-    scrapedData.images = imgs;
-  }
-
-  if (options.includeText) {
-    const nodes = Array.from(doc.querySelectorAll('p, h1, h2, h3'));
-    const texts: Set<string> = new Set();
-    for (const el of nodes) {
-      const txt = cleanText(el.textContent || '');
-      if (txt.length > 15 && txt.length < 1000 && !texts.has(txt)) {
-        texts.add(txt);
-        if (texts.size >= options.maxTextElements) break;
-      }
-    }
-    scrapedData.text = Array.from(texts);
-  }
-
-  if (options.includeMetadata) {
-    const meta = Array.from(doc.querySelectorAll('meta'));
-    for (const tag of meta) {
-      const name = tag.getAttribute('name') || tag.getAttribute('property') || '';
-      const content = tag.getAttribute('content');
-      if (name && content) {
-        scrapedData.metadata[name] = cleanText(content);
-      }
-    }
-    scrapedData.metadata['scraped-url'] = url;
-    scrapedData.metadata['scraped-date'] = new Date().toISOString();
-  }
-
-  return { data: scrapedData, url };
+  setProgress(`Completed in ${((Date.now() - startTime) / 1000).toFixed(2)}s`);
+  return { data, url };
 };

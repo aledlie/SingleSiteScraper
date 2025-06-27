@@ -12,5 +12,9 @@
     "module": "esnext",
     "target": "esnext",
     "moduleResolution": "bundler",
+    "types": ["vitest"]
+  },
+  "devDependencies": {
+    "vitest": "^1.6.0",
   }
 }

@@ -5,24 +5,9 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Beautiful Web Scraper Application</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='templates/styles.css') }}">
   </head>
-    <style>
-      body {
-          background: #1a202c url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"%3E%3Cpath fill="%23333" fill-opacity="0.1" d="M0,64L48,80C96,96,192,128,288,128C384,128,480,96,576,85.3C672,75,768,85,864,90.7C960,96,1056,96,1152,85.3C1248,75,1344,53,1392,42.7L1440,32V320H1392C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320H0Z"%3E%3C/path%3E%3C/svg%3E') no-repeat center center fixed;
-          background-size: cover;
-          color: #e2e8f0;
-      }
-      .input-field {
-          background-color: #2d3748;
-          border: 1px solid #4a5568;
-      }
-      .input-field:focus {
-          outline: none;
-          border-color: #63b3ed;
-          box-shadow: 0 0 5px #63b3ed;
-      }
-    </style>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
   <body class="flex min-h-screen items-center justify-center">
     <div class="p-6 text-center">
       <div class="mb-2 text-4xl font-bold">Web Scraper Pro</div>

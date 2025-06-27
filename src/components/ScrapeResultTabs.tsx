@@ -17,13 +17,15 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
     metadata: Object.entries(data.metadata).filter(([k, v]) => k.includes(filter) || v.includes(filter)),
   };
 
+  const tabs = ['text', 'links', 'images', 'metadata'] as const;
+
   return (
     <div className="tab-panel">
       <div className="tab-header">
-        {['text', 'links', 'images', 'metadata'].map((key) => (
+        {tabs.map((key) => (
           <button
             key={key}
-            onClick={() => setTab(key as string)}
+            onClick={() => setTab(key)}
             className={`tab-button ${tab === key ? 'tab-button-active' : 'tab-button-inactive'}`}
           >
             {key.toUpperCase()}
