@@ -35,12 +35,10 @@ const WebScraper: React.FC = () => {
   };
 
   return (
-    <div>
-      <div class="input">
-        <label for="url" class="input-label">Website URL</label>
-        <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="Enter URL" />
-        <button class="button" onClick={handleScrape}>Scrape</button>
-      </div>
+    <div class="border-card">
+      <label for="url" class="input">Website URL</label>
+      <input class="input-label" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="Enter URL" />
+      <button class="button" onClick={handleScrape}>Scrape</button>
       <ScrapeOptionsForm options={options} onChange={setOptions} />
       {progress && <p>{progress}</p>}
       {error && <ErrorAlert error={error} />}
