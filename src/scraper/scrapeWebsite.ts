@@ -42,10 +42,9 @@ export const scrapeWebsite = async (
   ];
 
   let response: Response | null = null;
-  let responseData: string | null = null;
+  const responseData: string | null = null;
   let proxyUsed = '';
   let contentType = 'text/html'; // Default content type
-  let lastError: Error | null = null;
   setIsLoading(true);
   setError('');
   setScrapedData(null);
@@ -63,26 +62,25 @@ export const scrapeWebsite = async (
 
         contentType = res.headers.get('content-type') || 'text/html'; // Update content type from response
         response = fetchResponse;
-        proxyUsed = proxy.name;
 
         // Handle different proxy response formats
         if (proxy.name === 'AllOrigins') {
-          const jsonData = await fetchResponse.json();
+          const jsonData = await response.json();
           if (jsonData.status && jsonData.status.http_code && jsonData.status.http_code !== 200) {
             throw new Error(`Target server returned HTTP ${jsonData.status.http_code}`);
           }
-          responseData = jsonData.contents || jsonData.data || jsonData;
+          response = jsonData.contents || jsonData.data || jsonData;
         } else {
-          responseData = await fetchResponse.text();
+          response = await fetchResponse.text();
         }
 
-        if (responseData) {
+        if (response) {
           proxyUsed = proxy.name;
           break; // Exit inner loop on success
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        setProgress(`Attempt ${attempt} with ${proxy.name} failed: ${errorMessage}`);
+        setProgress(`Attempt ${attempt} with ${proxyName} failed: ${errorMessage}`);
         if (attempt < options.retryAttempts) {
           await sleep(1000); // Wait 1 second before retrying
         }

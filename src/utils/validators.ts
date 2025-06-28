@@ -23,9 +23,8 @@ export const makeAbsoluteUrl = (relativeUrl: string, baseUrl: string): string =>
   }
 };
 
-export const cleanText = (text : any): string => {
-  let cleanText = typeof responseData === 'string' ? responseData : String(responseData);
-  return text
+export const cleanText = (responseData : any): string => {
+  return typeof responseData === 'string' ? responseData : String(responseData)
     .replace(/\s+/g, ' ')
     .replace(/[\r\n\t]/g, ' ')
     .replace(/[^\x20-\x7E\u00A0-\uFFFF]/g, '')
