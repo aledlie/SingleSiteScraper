@@ -1,5 +1,6 @@
 import { scrapeWebsite } from '../scraper/scrapeWebsite.ts';
-import { ScrapeOptions, ScrapedData } from '../types/index.ts';
+import { validateUrl } from '../utils/validators.ts';
+import { ScrapeOptions} from '../types/index.ts';
 import { vi } from 'vitest';
 
 // Mock the fetchWithTimeout function
@@ -28,12 +29,11 @@ describe('scrapeWebsite', async () => {
   });
 
   const options: ScrapeOptions = {
-    url: 'https://danceplace.org',
     maxLinks: 10,
     maxImages: 5,
     maxTextElements: 20,
     timeout: 10,
-    retryAttempts: 2,
+    retryAttempts: 4,
     includeLinks: true,
     includeImages: false,
     includeText: true,

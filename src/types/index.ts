@@ -15,6 +15,12 @@ export interface ScrapedData {
   };
 }
 
+export interface Proxies {
+  name: string;
+  url: string;
+  headers: string;
+}
+
 export interface ScrapeOptions {
   includeText: boolean;
   includeLinks: boolean;
@@ -34,3 +40,10 @@ export interface TabOptions {
   metadata: string;
 }
 
+export interface FetchLikeResponse {
+  ok: boolean;
+  status: number;
+  headers: Headers;
+  text: () => Promise<string>;
+  json: () => Promise<unknown>;
+}

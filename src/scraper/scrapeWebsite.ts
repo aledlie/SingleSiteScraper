@@ -9,40 +9,46 @@ export const scrapeWebsite = async (
   options: ScrapeOptions,
   setProgress: (msg: string) => void
 ): Promise<{ data?: ScrapedData; error?: string; url: string }> => {
+  setProgress('Initializing...');
   const url = normalizeUrl(rawUrl);
-  if (!validateUrl(url)) {
+  if (!validateUrl(url) || !url.trim()) {
     return { error: 'Invalid URL', url };
   }
 
-  setProgress('Initializing...');
   const startTime = Date.now();
 
   const proxyServices = [
     {
       name: 'AllOrigins',
       url: `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
-      headers: { 'Accept': 'application/json' },
     },
     {
       name: 'CORS Proxy',
       url: `https://corsproxy.io/?${encodeURIComponent(url)}`,
-      headers: { 'Accept': 'text/html' },
+      headers: {
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Cache-Control': 'no-cache'
+      }
     },
     {
       name: 'Proxy6',
       url: `https://proxy6.workers.dev/?url=${encodeURIComponent(url)}`,
-      headers: { 'Accept': 'text/html' },
     },
     {
       name: 'ThingProxy',
       url: `https://thingproxy.freeboard.io/fetch/${url}`,
-      headers: { 'Accept': 'text/html' },
     },
   ];
 
+  let response: Response | null = null;
   let responseData: string | null = null;
   let proxyUsed = '';
   let contentType = 'text/html'; // Default content type
+  let lastError: Error | null = null;
+  setIsLoading(true);
+  setError('');
+  setScrapedData(null);
 
   for (const proxy of proxyServices) {
     setProgress(`Trying ${proxy.name}...`);
@@ -56,11 +62,18 @@ export const scrapeWebsite = async (
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
         contentType = res.headers.get('content-type') || 'text/html'; // Update content type from response
+        response = fetchResponse;
+        proxyUsed = proxy.name;
+
+        // Handle different proxy response formats
         if (proxy.name === 'AllOrigins') {
-          const json = await res.json();
-          responseData = json.contents || '';
+          const jsonData = await fetchResponse.json();
+          if (jsonData.status && jsonData.status.http_code && jsonData.status.http_code !== 200) {
+            throw new Error(`Target server returned HTTP ${jsonData.status.http_code}`);
+          }
+          responseData = jsonData.contents || jsonData.data || jsonData;
         } else {
-          responseData = await res.text();
+          responseData = await fetchResponse.text();
         }
 
         if (responseData) {
@@ -78,7 +91,8 @@ export const scrapeWebsite = async (
     if (responseData) break; // Exit outer loop if data is obtained
   }
 
-  if (!responseData) {
+  // Validate response data
+  if (!responseData || (typeof responseData === 'string' && responseData.trim().length === 0)) {
     return { error: `Failed to fetch data after ${options.retryAttempts} attempts with all proxies`, url };
   }
 
@@ -125,3 +139,4 @@ export const scrapeWebsite = async (
   setProgress(`Completed in ${((Date.now() - startTime) / 1000).toFixed(2)}s`);
   return { data, url };
 };
+

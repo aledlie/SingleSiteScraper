@@ -23,12 +23,17 @@ export const makeAbsoluteUrl = (relativeUrl: string, baseUrl: string): string =>
   }
 };
 
-export const cleanText = (text: string): string => {
+export const cleanText = (text : any): string => {
+  let cleanText = typeof responseData === 'string' ? responseData : String(responseData);
   return text
     .replace(/\s+/g, ' ')
     .replace(/[\r\n\t]/g, ' ')
     .replace(/[^\x20-\x7E\u00A0-\uFFFF]/g, '')
-    .trim();
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '') // Remove scripts
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '') // Remove styles
+    .replace(/<!--[\s\S]*?-->/g, '') // Remove comments
+    .replace(/<!\[CDATA\[[\s\S]*?\]\]>/g, '') // Remove CDATA sections
+    .trim()
 };
 
 export const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
