@@ -45,5 +45,5 @@ export interface FetchLikeResponse {
   status: number;
   headers: Headers;
   text: () => Promise<string>;
-  json: () => Promise<unknown>;
+  json: () => Promise<string>;
 }

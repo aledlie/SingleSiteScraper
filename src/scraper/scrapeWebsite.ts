@@ -15,6 +15,7 @@ export const scrapeWebsite = async (
     return { error: 'Invalid URL', url };
   }
 
+  const retries = options.retryAttempts;
   const startTime = Date.now();
 
   const proxyServices = [
@@ -41,61 +42,49 @@ export const scrapeWebsite = async (
     },
   ];
 
-  let response: Response | null = null;
-  const responseData: string | null = null;
+  let response: string | null = null;
   let proxyUsed = '';
   let contentType = 'text/html'; // Default content type
-  setIsLoading(true);
-  setError('');
-  setScrapedData(null);
+  let content: string | null = null;
 
   for (const proxy of proxyServices) {
     setProgress(`Trying ${proxy.name}...`);
-    for (let attempt = 1; attempt <= options.retryAttempts; attempt++) {
+    for (let attempt = 1; attempt <= retries; attempt++) {
       try {
-        const res = await fetchWithTimeout(
+        const responseData = await fetchWithTimeout(
           proxy.url,
           { method: 'GET', headers: proxy.headers },
           options.timeout
         );
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!responseData.ok) throw new Error(`HTTP ${responseData.status}`);
 
-        contentType = res.headers.get('content-type') || 'text/html'; // Update content type from response
-        response = fetchResponse;
+        contentType = responseData.headers.get('content-type') || 'text/html'; // Update content type from response
 
         // Handle different proxy response formats
         if (proxy.name === 'AllOrigins') {
-          const jsonData = await response.json();
-          if (jsonData.status && jsonData.status.http_code && jsonData.status.http_code !== 200) {
-            throw new Error(`Target server returned HTTP ${jsonData.status.http_code}`);
-          }
-          response = jsonData.contents || jsonData.data || jsonData;
+          response = await responseData.json();
         } else {
-          response = await fetchResponse.text();
-        }
-
-        if (response) {
-          proxyUsed = proxy.name;
-          break; // Exit inner loop on success
+          response = await responseData.text();
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        setProgress(`Attempt ${attempt} with ${proxyName} failed: ${errorMessage}`);
-        if (attempt < options.retryAttempts) {
+        setProgress(`Attempt ${attempt} with ${proxyUsed} failed: ${errorMessage}`);
+        if (attempt < retries) {
           await sleep(1000); // Wait 1 second before retrying
         }
       }
+      if (response) break; // stop retries 
     }
-    if (responseData) break; // Exit outer loop if data is obtained
+    if (response) break; // Exit outer loop if data is obtained
   }
 
   // Validate response data
-  if (!responseData || (typeof responseData === 'string' && responseData.trim().length === 0)) {
-    return { error: `Failed to fetch data after ${options.retryAttempts} attempts with all proxies`, url };
+  if (!response || (typeof response === 'string' && response.trim().length === 0)) {
+    return { error: `Failed to fetch data after ${retries} attempts with all proxies`, url };
   }
 
   setProgress(`Parsing data from ${proxyUsed}...`);
-  const $ = cheerio.load(responseData);
+  const $ = cheerio.load(response);
   const data: ScrapedData = {
     title: $('title').text() || '',
     description: $('meta[name="description"]').attr('content') || '',
@@ -127,7 +116,7 @@ export const scrapeWebsite = async (
       : {},
     status: {
       success: true,
-      contentLength: responseData.length,
+      contentLength: content ? content.length : 0,
       responseTime: Date.now() - startTime,
       proxyUsed,
       contentType,

@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
+import * as vitest from 'vitest';
 import react from '@vitejs/plugin-react';
-import { configDefaults } from 'vitest';
 
 /// <reference path="./src/types/rollup__parseAst.d.ts" />
 export default defineConfig({
