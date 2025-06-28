@@ -1,6 +1,6 @@
 // src/scraper/scrapeWebsite.ts
 import { fetchWithTimeout } from '../utils/network.ts';
-import { cleanText, validateUrl, normalizeUrl, makeAbsoluteUrl, sleep } from '../utils/validators.ts';
+import { cleanText, normalizeUrl, makeAbsoluteUrl, sleep } from '../utils/validators.ts';
 import { ScrapedData, ScrapeOptions } from '../types/index.ts';
 import * as cheerio from 'cheerio';
 
@@ -11,9 +11,6 @@ export const scrapeWebsite = async (
 ): Promise<{ data?: ScrapedData; error?: string; url: string }> => {
   setProgress('Initializing...');
   const url = normalizeUrl(rawUrl);
-  if (!validateUrl(url) || !url.trim()) {
-    return { error: 'Invalid URL', url };
-  }
 
   const retries = options.retryAttempts;
   const startTime = Date.now();
@@ -43,9 +40,9 @@ export const scrapeWebsite = async (
   ];
 
   let response: string | null = null;
-  let proxyUsed = '';
+  const proxyUsed = '';
   let contentType = 'text/html'; // Default content type
-  let content: string | null = null;
+  const content: string | null = null;
 
   for (const proxy of proxyServices) {
     setProgress(`Trying ${proxy.name}...`);
@@ -62,7 +59,10 @@ export const scrapeWebsite = async (
 
         // Handle different proxy response formats
         if (proxy.name === 'AllOrigins') {
-          response = await responseData.json();
+          const json = await responseData.json();
+          if (typeof json === 'object' && json !== null && 'contents' in json) {
+            response = (json as { contents?: string }).contents || '';
+          }
         } else {
           response = await responseData.text();
         }
@@ -90,7 +90,7 @@ export const scrapeWebsite = async (
     description: $('meta[name="description"]').attr('content') || '',
     links: options.includeLinks
       ? $('a')
-          .map((i, el) => ({
+          .map((_, el) => ({
             text: cleanText($(el).text()),
             url: makeAbsoluteUrl(url, $(el).attr('href') || ''),
           }))
@@ -99,7 +99,7 @@ export const scrapeWebsite = async (
       : [],
     images: options.includeImages
       ? $('img')
-          .map((i, el) => ({
+          .map((_, el) => ({
             alt: $(el).attr('alt') || '',
             src: makeAbsoluteUrl(url, $(el).attr('src') || ''),
           }))
@@ -107,7 +107,7 @@ export const scrapeWebsite = async (
           .slice(0, options.maxImages)
       : [],
     text: options.includeText
-      ? $('p').map((i, el) => cleanText($(el).text())).get().slice(0, options.maxTextElements)
+      ? $('p').map((_, el) => cleanText($(el).text())).get().slice(0, options.maxTextElements)
       : [],
     metadata: options.includeMetadata
       ? {

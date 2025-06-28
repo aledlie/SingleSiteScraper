@@ -43,6 +43,7 @@ describe('scrapeWebsite', async () => {
   test('should scrape website successfully', async () => {
   try {
     const result = await scrapeWebsite('https://danceplace.org', options, mockSetProgress);
+    expect(result.url).toBe('https://danceplace.org');
     expect(result.error).toBeUndefined();
     expect(mockSetProgress).toHaveBeenCalled(); // Optional: check if progress was updated
   } catch (error) {
