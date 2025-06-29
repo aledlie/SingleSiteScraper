@@ -3,10 +3,6 @@
 @tailwind utilities;
 @layer components {
 
-  .button {
-    @apply mt-4 rounded bg-blue-600 p-2 text-white hover:bg-blue-700;
-  }
-
   .border-card {
     @apply backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-8 space-y-4 mb-8;
   }
@@ -31,20 +27,12 @@
     @apply flex mb-2 text-left text-gray-300
   }
 
-  .input {
-    @apply block text-sm font-medium text-left text-gray-300 mb-2;
-  }
-
   .form-label {
     @apply block text-sm font-medium text-gray-300 m-1
   }
 
-  .form-description {
-    @apply text-xs text-gray-500 mt-1;
-  }
-
   .input-label {
-    @apply text-gray-700 w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200;
+    @apply text-gray-300 bg-gray-700 w-full pl-10 pr-4 py-3 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-500;
   }
 
   .layout-grid {
@@ -107,6 +95,102 @@
 
   .meta-table th {
     @apply font-medium border-b;
+  }
+
+  .app-container {
+    @apply min-h-screen px-4 py-8;
+  }
+
+  .main-content {
+    @apply max-w-4xl mx-auto;
+  }
+
+  .header {
+    @apply text-center mb-10;
+  }
+
+  .logo {
+    @apply inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-emerald-600 rounded-full mb-4;
+  }
+
+  .logo-icon {
+    @apply w-8 h-8 text-white;
+  }
+
+  .title {
+    @apply text-4xl font-bold mb-2;
+  }
+
+  .subtitle {
+    @apply text-gray-600;
+  }
+
+  .error-alert {
+    @apply bg-red-50 border border-red-200 rounded-lg p-4 mb-6 flex items-start gap-3;
+  }
+
+  .error-icon {
+    @apply w-5 h-5 text-red-600 mt-0.5 flex-shrink-0;
+  }
+
+  .error-title {
+    @apply text-red-700 font-medium;
+  }
+
+  .error-message {
+    @apply text-red-600 text-sm mt-1;
+  }
+
+  .progress-indicator {
+    @apply mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200;
+  }
+
+  .progress-indicator-content {
+    @apply flex items-center gap-2;
+  }
+
+  .progress-indicator-icon {
+    @apply w-4 h-4 animate-spin text-blue-600;
+  }
+
+  .progress-indicator-text {
+    @apply text-sm text-blue-700;
+  }
+
+  .form-input-container {
+    @apply relative;
+  }
+
+  .form-input-icon {
+    @apply absolute left-3 top-1/2 transform -translate-y-1/2;
+  }
+
+  .show-advanced-button {
+    @apply text-sm text-gray-500 hover:text-gray-700 focus:outline-none;
+  }
+
+  .scrape-button {
+    @apply w-full bg-gradient-to-r from-blue-600 to-emerald-600 text-white py-3 rounded-lg font-semibold flex justify-center items-center gap-2;
+  }
+
+  .scrape-button-icon {
+    @apply w-5 h-5;
+  }
+
+  .scrape-button-icon-loading {
+    @apply animate-spin w-5 h-5;
+  }
+
+  .results-container {
+    @apply pt-6;
+  }
+
+  .export-button {
+    @apply mt-4 w-full bg-amber-600 hover:bg-amber-700 text-white py-2 rounded-md flex justify-center items-center gap-2;
+  }
+
+  .export-button-icon {
+    @apply w-4 h-4;
   }
 }
 

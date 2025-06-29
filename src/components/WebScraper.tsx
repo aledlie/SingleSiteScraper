@@ -61,7 +61,7 @@ const WebScraper: React.FC = () => {
       <div className="my-4">
         <button
           onClick={() => setShowAdvanced(!showAdvanced)}
-          className="text-sm text-gray-500 hover:text-gray-700 focus:outline-none"
+          className="show-advanced-button"
         >
           {showAdvanced ? 'Hide' : 'Show'} Advanced Settings
         </button>
@@ -71,9 +71,9 @@ const WebScraper: React.FC = () => {
       <button
         onClick={handleScrape}
         disabled={isLoading}
-        className="w-full bg-gradient-to-r from-blue-600 to-emerald-600 text-white py-3 rounded-lg font-semibold flex justify-center items-center gap-2"
+        className="scrape-button"
       >
-        {isLoading ? <Loader2 className="animate-spin w-5 h-5" /> : <Search className="w-5 h-5" />}
+        {isLoading ? <Loader2 className="scrape-button-icon-loading" /> : <Search className="scrape-button-icon" />}
         {isLoading ? 'Scraping...' : 'Scrape Website'}
       </button>
 
@@ -82,7 +82,7 @@ const WebScraper: React.FC = () => {
 
 
       {data && (
-        <div className="pt-6">
+        <div className="results-container">
           <FormInput
             label="Filter results"
             placeholder="Filter..."
@@ -103,9 +103,9 @@ const WebScraper: React.FC = () => {
               a.click();
               URL.revokeObjectURL(url);
             }}
-            className="mt-4 w-full bg-amber-600 hover:bg-amber-700 text-white py-2 rounded-md flex justify-center items-center gap-2"
+            className="export-button"
           >
-            <Download className="w-4 h-4" /> Export JSON
+            <Download className="export-button-icon" /> Export JSON
           </button>
         </div>
       )}

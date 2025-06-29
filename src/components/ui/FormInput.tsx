@@ -16,8 +16,8 @@ const FormInput: React.FC<FormInputProps> = ({ label, placeholder, value, onChan
   return (
     <div>
       <label className="form-label">{label}</label>
-      <div className="relative">
-        {icon && <div className="absolute left-3 top-1/2 transform -translate-y-1/2">{icon}</div>}
+      <div className="form-input-container">
+        {icon && <div className="form-input-icon">{icon}</div>}
         <input
           type={type}
           min={min}
