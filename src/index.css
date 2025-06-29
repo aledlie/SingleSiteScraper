@@ -8,11 +8,11 @@
   }
 
   .border-card {
-    @apply bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8 mb-8;
+    @apply backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8 mb-8;
   }
 
   .card {
-    @apply bg-white p-6 rounded-2xl border border-gray-200 shadow-md min-h-screen grid grid-cols-3 gap-4;
+    @apply p-6 rounded-2xl border border-gray-200 shadow-md grid grid-cols-3 gap-4;
   }
 
   .section-title {
@@ -36,7 +36,7 @@
   }
 
   .layout-grid {
-    @apply grid grid-cols-2 gap-4 mb-4 bg-gray-800 p-6 shadow-lg pr-2 text-left;
+    @apply gap-4 mb-4 bg-gray-800 p-6 shadow-lg text-left;
   }
 
   .tab-panel {

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Loader2, Search, Download, Globe } from 'lucide-react';
 import { scrapeWebsite } from '../scraper/scrapeWebsite';
+import { ScrapeOptionsForm } from './ScrapeOptionsForm';
 import type { ScrapedData, ScrapeOptions } from '../types';
 import FormInput from './ui/FormInput';
 import { ScrapeResultTabs } from './ScrapeResultTabs';
@@ -9,13 +10,13 @@ import { ProgressIndicator } from './ProgressBar';
 
 const WebScraper: React.FC = () => {
   const [url, setUrl] = useState('');
-  const [options] = useState<ScrapeOptions>({
+  const [options, setOptions] = useState<ScrapeOptions>({
     includeText: true,
     includeLinks: true,
     includeImages: true,
     includeMetadata: true,
     maxLinks: 100,
-    maxImages: 50,
+    maxImages: 10,
     maxTextElements: 200,
     timeout: 30000,
     retryAttempts: 3,
@@ -55,6 +56,8 @@ const WebScraper: React.FC = () => {
         icon={<Globe className="w-5 h-5 text-gray-400" />}
         onEnter={handleScrape}
       />
+
+      <ScrapeOptionsForm options={options} onChange={setOptions} />
 
       <button
         onClick={handleScrape}
