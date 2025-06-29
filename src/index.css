@@ -16,7 +16,7 @@
   }
 
   .checkbox-grid {
-    @apply grid grid-cols-2 gap-4 mb-4 bg-gray-800 p-2 shadow-lg;
+    @apply grid grid-cols-2 gap-4 mb-4 p-2 shadow-lg;
   }
 
   .checkbox-label {
@@ -32,11 +32,11 @@
   }
 
   .input {
-    @apply block text-sm font-medium text-left text-gray-700 mb-2;
+    @apply block text-sm font-medium text-left text-gray-300 mb-2;
   }
 
   .form-label {
-    @apply block text-sm font-medium text-gray-700 mb-1
+    @apply block text-sm font-medium text-gray-300 m-1
   }
 
   .form-description {
@@ -48,7 +48,7 @@
   }
 
   .layout-grid {
-    @apply gap-4 mb-4 bg-gray-800 p-6 shadow-lg text-left;
+    @apply gap-4 mb-4 p-2 shadow-lg text-left;
   }
 
   .tab-panel {

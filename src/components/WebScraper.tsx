@@ -26,6 +26,7 @@ const WebScraper: React.FC = () => {
   const [error, setError] = useState('');
   const [progress, setProgress] = useState('');
   const [filter, setFilter] = useState('');
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const handleScrape = async () => {
     setIsLoading(true);
@@ -57,7 +58,15 @@ const WebScraper: React.FC = () => {
         onEnter={handleScrape}
       />
 
-      <ScrapeOptionsForm options={options} onChange={setOptions} />
+      <div className="my-4">
+        <button
+          onClick={() => setShowAdvanced(!showAdvanced)}
+          className="text-sm text-gray-500 hover:text-gray-700 focus:outline-none"
+        >
+          {showAdvanced ? 'Hide' : 'Show'} Advanced Settings
+        </button>
+        {showAdvanced && <ScrapeOptionsForm options={options} onChange={setOptions} />}
+      </div>
 
       <button
         onClick={handleScrape}
