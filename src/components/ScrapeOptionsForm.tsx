@@ -18,7 +18,7 @@ export const ScrapeOptionsForm: React.FC<Props> = ({ options, onChange }) => {
       <div>
           <h3 className="section-title">Scraping Options</h3>
 
-          <div className="layout-grid">
+          <div className="checkbox-grid">
             {[
               ['includeText', 'Text'],
               ['includeLinks', 'Links'],
@@ -32,7 +32,7 @@ export const ScrapeOptionsForm: React.FC<Props> = ({ options, onChange }) => {
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(key as keyof ScrapeOptions, e.target.checked)}
                   className="checkbox"
                 />
-                <span>{label}</span>
+                {label}
               </label>
             ))}
         </div>

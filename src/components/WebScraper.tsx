@@ -47,7 +47,7 @@ const WebScraper: React.FC = () => {
   };
 
   return (
-    <div className="bg-white shadow-lg rounded-xl p-6 space-y-4">
+    <div className="border-card">
       <FormInput
         label="Website URL"
         placeholder="https://example.com"

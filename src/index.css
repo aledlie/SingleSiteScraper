@@ -8,11 +8,23 @@
   }
 
   .border-card {
-    @apply backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8 mb-8;
+    @apply backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-8 space-y-4 mb-8;
   }
 
   .card {
     @apply p-6 rounded-2xl border border-gray-200 shadow-md grid grid-cols-3 gap-4;
+  }
+
+  .checkbox-grid {
+    @apply grid grid-cols-2 gap-4 mb-4 bg-gray-800 p-2 shadow-lg;
+  }
+
+  .checkbox-label {
+    @apply p-2;
+  }
+
+  .checkbox {
+    @apply mr-2
   }
 
   .section-title {
@@ -24,7 +36,7 @@
   }
 
   .form-label {
-    @apply block text-sm text-left font-medium text-gray-800 mb-2;
+    @apply block text-sm font-medium text-gray-700 mb-1
   }
 
   .form-description {
@@ -32,7 +44,7 @@
   }
 
   .input-label {
-    @apply w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-left text-gray-300;
+    @apply text-gray-700 w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200;
   }
 
   .layout-grid {
