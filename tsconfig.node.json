@@ -1,24 +1,10 @@
 {
   "compilerOptions": {
-    "target": "esnext",
-    "lib": ["ES2023"],
-    "module": "es2015",
+    "composite": true,
     "skipLibCheck": true,
-    "noEmit": true,
-
-    /* Bundler mode */
+    "module": "ESNext",
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "isolatedModules": true,
-    "moduleDetection": "force",
-    "noEmit": true,
-    "typeRoots": ["./src/types", "./node_modules/@types"],
-
-    /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "allowSyntheticDefaultImports": true
   },
   "include": ["vite.config.ts"]
 }

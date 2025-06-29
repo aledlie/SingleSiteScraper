@@ -1,6 +1,6 @@
 // src/scraper/scrapeWebsite.ts
 import { fetchWithTimeout } from '../utils/network.ts';
-import { cleanText, normalizeUrl, makeAbsoluteUrl, sleep } from '../utils/validators.ts';
+import { cleanText, normalizeUrl, makeAbsoluteUrl, sleep, validateUrl } from '../utils/validators.ts';
 import { ScrapedData, ScrapeOptions } from '../types/index.ts';
 import * as cheerio from 'cheerio';
 
@@ -11,6 +11,9 @@ export const scrapeWebsite = async (
 ): Promise<{ data?: ScrapedData; error?: string; url: string }> => {
   setProgress('Initializing...');
   const url = normalizeUrl(rawUrl);
+  if (!validateUrl(url)) {
+    return { error: 'Invalid URL', url };
+  }
 
   const retries = options.retryAttempts;
   const startTime = Date.now();
@@ -40,9 +43,8 @@ export const scrapeWebsite = async (
   ];
 
   let response: string | null = null;
-  const proxyUsed = '';
+  let proxyUsed = '';
   let contentType = 'text/html'; // Default content type
-  const content: string | null = null;
 
   for (const proxy of proxyServices) {
     setProgress(`Trying ${proxy.name}...`);
@@ -53,9 +55,11 @@ export const scrapeWebsite = async (
           { method: 'GET', headers: proxy.headers },
           options.timeout
         );
-        if (!responseData.ok) throw new Error(`HTTP ${responseData.status}`);
-
+        if (!responseData.ok) {
+          throw new Error(`HTTP ${responseData.status}`);
+        }
         contentType = responseData.headers.get('content-type') || 'text/html'; // Update content type from response
+        proxyUsed = proxy.name;
 
         // Handle different proxy response formats
         if (proxy.name === 'AllOrigins') {
@@ -68,7 +72,7 @@ export const scrapeWebsite = async (
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        setProgress(`Attempt ${attempt} with ${proxyUsed} failed: ${errorMessage}`);
+        setProgress(`Attempt ${attempt} with ${proxy.name} failed: ${errorMessage}`);
         if (attempt < retries) {
           await sleep(1000); // Wait 1 second before retrying
         }
@@ -116,7 +120,7 @@ export const scrapeWebsite = async (
       : {},
     status: {
       success: true,
-      contentLength: content ? content.length : 0,
+      contentLength: response ? response.length : 0,
       responseTime: Date.now() - startTime,
       proxyUsed,
       contentType,

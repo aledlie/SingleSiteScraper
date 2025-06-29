@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScrapeOptions } from '../types/index.ts';
 import { Card } from './ui/Card.tsx';
-import { FormInput } from './ui/FormInput.tsx';
+import FormInput from './ui/FormInput.tsx';
 
 interface Props {
   options: ScrapeOptions;
@@ -29,7 +29,7 @@ export const ScrapeOptionsForm: React.FC<Props> = ({ options, onChange }) => {
                 <input
                   type="checkbox"
                   checked={options[key as keyof ScrapeOptions] as boolean}
-                  onChange={(e) => handleChange(key as keyof ScrapeOptions, e.target.checked)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(key as keyof ScrapeOptions, e.target.checked)}
                   className="checkbox"
                 />
                 <span>{label}</span>
@@ -46,24 +46,24 @@ export const ScrapeOptionsForm: React.FC<Props> = ({ options, onChange }) => {
             type="number"
             min={1}
             max={500}
-            value={options.maxLinks}
-            onChange={(e) => handleChange('maxLinks', parseInt(e.target.value))}
+            value={String(options.maxLinks)}
+            onChange={(val: string) => handleChange('maxLinks', parseInt(val))}
           />
           <FormInput
             label="Max Images"
             type="number"
             min={1}
             max={200}
-            value={options.maxImages}
-            onChange={(e) => handleChange('maxImages', parseInt(e.target.value))}
+            value={String(options.maxImages)}
+            onChange={(val: string) => handleChange('maxImages', parseInt(val))}
            />
           <FormInput
             label="Max Text Elements"
             type="number"
             min={1}
             max={1000}
-            value={options.maxTextElements}
-            onChange={(e) => handleChange('maxTextElements', parseInt(e.target.value))}
+            value={String(options.maxTextElements)}
+            onChange={(val: string) => handleChange('maxTextElements', parseInt(val))}
           />
         </div>
       </div>
@@ -76,16 +76,16 @@ export const ScrapeOptionsForm: React.FC<Props> = ({ options, onChange }) => {
             type="number"
             min={5000}
             max={120000}
-            value={options.timeout}
-            onChange={(e) => handleChange('timeout', parseInt(e.target.value))}
+            value={String(options.timeout)}
+            onChange={(val: string) => handleChange('timeout', parseInt(val))}
           />
           <FormInput
             label="Retry Attempts"
             type="number"
             min={1}
             max={5}
-            value={options.retryAttempts}
-            onChange={(e) => handleChange('retryAttempts', parseInt(e.target.value))}
+            value={String(options.retryAttempts)}
+            onChange={(val: string) => handleChange('retryAttempts', parseInt(val))}
           />
         </div>
       </div>

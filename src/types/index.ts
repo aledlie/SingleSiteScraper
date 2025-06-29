@@ -18,7 +18,7 @@ export interface ScrapedData {
 export interface Proxies {
   name: string;
   url: string;
-  headers: string;
+  headers: Record<string, string>;
 }
 
 export interface ScrapeOptions {
