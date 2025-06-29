@@ -5,15 +5,25 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Beautiful Web Scraper Application</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='/templates/styles.css') }}">
+    <style>
+      body {
+          background: #1a202c;
+          background-size: cover;
+          color: #e2e8f0;
+      }
+      .input-field {
+          background-color: #2d3748;
+          border: 1px solid #4a5568;
+      }
+      .input-field:focus {
+          outline: none;
+          border-color: #63b3ed;
+          box-shadow: 0 0 5px #63b3ed;
+      }
+    </style>
   </head>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <body class="flex min-h-screen items-center justify-center">
-    <div class="p-6 text-center">
-      <div class="mb-2 text-4xl font-bold">Web Scraper Pro</div>
-      <div class="mb-6 text-gray-400">Extract valuable data from any website with enhanced reliability and error handling</div>
-      <div id="root"></div>
-      <script type="module" src="/src/main.tsx"></script>
-    </div>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

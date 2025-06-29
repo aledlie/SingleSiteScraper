@@ -1,4 +1,3 @@
-import puppeteer from 'puppeteer';
 import {FetchLikeResponse} from '../types/index.ts';
 
 /**
@@ -29,11 +28,6 @@ export async function fetchWithTimeout(
     const res = await fetch(url, fullOptions);
     clearTimeout(id);
 
-    if (res.status === 403) {
-      console.warn(`403 Forbidden from ${url}, falling back to Puppeteer...`);
-      return await fetchWithPuppeteer(url);
-    }
-
     return {
       ok: res.ok,
       status: res.status,
@@ -44,51 +38,9 @@ export async function fetchWithTimeout(
   } catch (err: unknown) {
     clearTimeout(id);
     const errorMsg = err instanceof Error ? err.message : String(err);
-    console.warn(`Fetch failed (${errorMsg}), falling back to Puppeteer...`);
-    return await fetchWithPuppeteer(url);
+    console.warn(errorMsg);
+    throw err;
   }
 }
 
-/**
- * Puppeteer fallback when fetch fails or is blocked.
- */
-async function fetchWithPuppeteer(url: string): Promise<FetchLikeResponse> {
-  const browser = await puppeteer.launch({ headless: true });
-  const page = await browser.newPage();
-
-  try {
-    await page.goto(url, { waitUntil: 'networkidle2', timeout: 15000 });
-    const html = await page.content();
-
-    const headers = new Headers({ 'content-type': 'text/html' });
-
-    return {
-      ok: true,
-      status: 200,
-      headers,
-      text: async () => html,
-      json: async () => {
-        try {
-          return JSON.parse(html);
-        } catch {
-          throw new Error('Invalid JSON returned from Puppeteer');
-        }
-      },
-    };
-  } catch (err: unknown) {
-    const errorMsg = err instanceof Error ? err.message : String(err);
-    console.error(`Puppeteer error: ${errorMsg}`);
-    return {
-      ok: false,
-      status: 500,
-      headers: new Headers(),
-      text: async () => '',
-      json: async () => {
-        throw new Error('No JSON available due to Puppeteer failure');
-      },
-    };
-  } finally {
-    await browser.close();
-  }
-}
 

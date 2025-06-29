@@ -39,7 +39,7 @@
     "vitest": "^3.2.4"
   },
   "description": "",
-  "main": "eslint.config.js",
+  "main": "index.html",
   "keywords": [],
   "author": "",
   "license": "ISC"
