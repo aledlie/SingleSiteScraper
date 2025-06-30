@@ -5,6 +5,7 @@ export interface ScrapedData {
   images: Array<{ src: string; alt: string }>;
   text: string[];
   metadata: Record<string, string>;
+  events: Array<EventData>;
   status: {
     success: boolean;
     statusCode?: number;
@@ -26,9 +27,11 @@ export interface ScrapeOptions {
   includeLinks: boolean;
   includeImages: boolean;
   includeMetadata: boolean;
+  includeEvents: boolean;
   maxLinks: number;
   maxImages: number;
   maxTextElements: number;
+  maxEvents: number;
   timeout: number;
   retryAttempts: number;
 }
@@ -38,6 +41,7 @@ export interface TabOptions {
   links: string;
   images: string;
   metadata: string;
+  events: string;
 }
 
 export interface FetchLikeResponse {
@@ -48,4 +52,11 @@ export interface FetchLikeResponse {
   json: () => Promise<unknown>;
 }
 
-
+export interface EventData {
+  summary: string;
+  start: { date?: string; timeZone?: string };
+  end: { date?: string; timeZone?: string };
+  location?: string;
+  description?: string;
+  eventType?: string;
+}

@@ -15,9 +15,11 @@ const WebScraper: React.FC = () => {
     includeLinks: true,
     includeImages: true,
     includeMetadata: true,
+    includeEvents: true,
     maxLinks: 100,
     maxImages: 10,
     maxTextElements: 200,
+    maxEvents: 20,
     timeout: 30000,
     retryAttempts: 3,
   });

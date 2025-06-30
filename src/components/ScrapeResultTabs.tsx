@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ScrapedData } from '../types/index.ts';
 import { Card } from './ui/Card.tsx';
+//mport {format} from 'date-fns';
 
 interface Props {
   data: ScrapedData;
@@ -8,16 +9,17 @@ interface Props {
 }
 
 export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
-  const [tab, setTab] = useState<'text' | 'links' | 'images' | 'metadata'>('text');
+  const [tab, setTab] = useState<'text' | 'links' | 'images' | 'metadata' | 'events'>('text');
 
   const filtered = {
     text: data.text.filter((t) => t.toLowerCase().includes(filter.toLowerCase())),
     links: data.links.filter((l) => l.text.toLowerCase().includes(filter.toLowerCase()) || l.url.toLowerCase().includes(filter.toLowerCase())),
     images: data.images.filter((i) => i.alt.toLowerCase().includes(filter.toLowerCase()) || i.src.toLowerCase().includes(filter.toLowerCase())),
     metadata: Object.entries(data.metadata).filter(([k, v]) => k.includes(filter) || v.includes(filter)),
+    events: data.events.filter((e) => e.summary.includes(filter))
   };
 
-  const tabs = ['text', 'links', 'images', 'metadata'] as const;
+  const tabs = ['text', 'links', 'images', 'metadata', 'events'] as const;
 
   return (
     <div className="tab-panel">
@@ -37,6 +39,34 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
         {tab === 'text' && filtered.text.map((t, i) => (
           <p key={i} className="text-block">{t}</p>
         ))}
+
+        {tab === 'events' && (
+          <table className="meta-table">
+            <thead>
+              <tr>
+                <th>Description</th>
+                <th>Summary</th>
+                <th>Location</th>
+                <th>Event Type</th>
+                <th>start</th>
+                <th>end</th>
+                <th>Summary</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.events.map((e, i) => (
+                <tr key={i}>
+                  <td className="text-block">{e.summary}</td>
+                  <td className="text-block">{e.description || 'Failed to parse'}</td>
+                  <td className="text-block">{e.location || 'Failed to parse'}</td>
+                  <td className="text-block">{e.eventType || 'Failed to parse'}</td>
+                  <td className="text-block">{e.start.toString()}</td>
+                  <td className="text-block">{e.end.toString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
 
         {tab === 'links' && filtered.links.map((l, i) => (
           <div key={i} className="text-block">

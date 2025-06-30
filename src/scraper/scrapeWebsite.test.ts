@@ -29,12 +29,14 @@ describe('scrapeWebsite', () => {
     maxLinks: 10,
     maxImages: 5,
     maxTextElements: 20,
+    maxEvents: 10,
     timeout: 1000,
     retryAttempts: 1,
     includeLinks: true,
     includeImages: true,
     includeText: true,
     includeMetadata: true,
+    includeEvents: true
   };
 
   it('should return an error for an invalid URL', async () => {

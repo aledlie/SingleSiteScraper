@@ -24,6 +24,7 @@ export const ScrapeOptionsForm: React.FC<Props> = ({ options, onChange }) => {
               ['includeLinks', 'Links'],
               ['includeImages', 'Images'],
               ['includeMetadata', 'Metadata'],
+              ['includeEvents', 'Events'],
             ].map(([key, label]) => (
               <label key={key} className="checkbox-label">
                 <input
@@ -59,6 +60,14 @@ export const ScrapeOptionsForm: React.FC<Props> = ({ options, onChange }) => {
            />
           <FormInput
             label="Max Text Elements"
+            type="number"
+            min={1}
+            max={1000}
+            value={String(options.maxTextElements)}
+            onChange={(val: string) => handleChange('maxTextElements', parseInt(val))}
+          />
+          <FormInput
+            label="Max Events"
             type="number"
             min={1}
             max={1000}

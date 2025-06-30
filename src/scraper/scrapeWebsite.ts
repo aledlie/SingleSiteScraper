@@ -3,6 +3,7 @@ import { normalizeUrl, sleep, validateUrl } from '../utils/validators.ts';
 import { ScrapedData, ScrapeOptions } from '../types/index.ts';
 import {getText, getMetadata, getLinks, getTitle, getImages, getDescription} from '../utils/parse.ts';
 import {parse} from 'node-html-parser';
+import { extractEvents } from '../utils/parseEvents.ts';
 
 export const scrapeWebsite = async (
   rawUrl: string,
@@ -66,9 +67,9 @@ export const scrapeWebsite = async (
   if (!response || (typeof response === 'string' && response.trim().length === 0)) {
     return { error: `Failed to fetch data after ${retries} attempts with all proxies`, url };
   }
-
   setProgress(`Parsing data from ${proxyUsed}...`);
   const $ = parse(response);
+
   const data: ScrapedData = {
     title: getTitle($),
     description: getDescription($),
@@ -76,6 +77,7 @@ export const scrapeWebsite = async (
     images: options.includeImages ? getImages($, options.maxImages) : [],
     text: options.includeText ? getText($, options.maxTextElements) : [],
     metadata: options.includeMetadata ? getMetadata($) : {},
+    events: options.includeEvents ? extractEvents(response): [],
     status: {
       success: true,
       contentLength: response ? response.length : 0,
