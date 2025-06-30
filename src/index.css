@@ -81,7 +81,7 @@
   }
 
   .link-subtext {
-    @apply text-xs text-gray-500;
+    @apply text-xs text-gray-500 break-words;
   }
 
   .meta-table {

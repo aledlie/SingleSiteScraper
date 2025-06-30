@@ -4,7 +4,7 @@ import { HTMLElement } from 'node-html-parser';
 
 export function getMetadata(root: HTMLElement): Record<string, string> {
   const metaTags: Record<string, string> = {};
-  metaTags['h2'] = extractH2Titles(root);
+  metaTags['subheaders'] = extractH2Titles(root);
 
   root.querySelectorAll('meta').forEach(meta => {
     const name = meta.getAttribute('name');
@@ -29,7 +29,7 @@ function extractH2Titles(root: HTMLElement): string {
     .querySelectorAll('h2')
     .map(el => el.innerText.trim())
     .filter(Boolean)
-    .join(', ');
+    .join('\n');
 }
 
 export const getDescription = (
