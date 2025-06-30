@@ -1,6 +1,6 @@
 import { scrapeWebsite } from '../scraper/scrapeWebsite.ts';
 import { ScrapeOptions } from '../types/index.ts';
-import { vi } from 'vitest';
+import { afterEach, expect, describe, it, vi } from 'vitest';
 import * as network from '../utils/network.ts';
 import * as validators from '../utils/validators.ts';
 

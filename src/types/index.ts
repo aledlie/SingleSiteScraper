@@ -18,7 +18,7 @@ export interface ScrapedData {
 export interface Proxies {
   name: string;
   url: string;
-  headers: Record<string, string>;
+  headers?: Record<string, string>;
 }
 
 export interface ScrapeOptions {
@@ -47,3 +47,5 @@ export interface FetchLikeResponse {
   text: () => Promise<string>;
   json: () => Promise<unknown>;
 }
+
+

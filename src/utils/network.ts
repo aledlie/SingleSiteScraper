@@ -1,4 +1,4 @@
-import {FetchLikeResponse} from '../types/index.ts';
+import {FetchLikeResponse, Proxies} from '../types/index.ts';
 
 /**
  * Fetch with timeout and browser-like headers.
@@ -43,4 +43,28 @@ export async function fetchWithTimeout(
   }
 }
 
-
+export const proxyServices = (url : string): Array<Proxies> => {
+  return [
+    {
+      name: 'AllOrigins',
+      url: `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+    },
+    {
+      name: 'CORS Proxy',
+      url: `https://corsproxy.io/?${encodeURIComponent(url)}`,
+      headers: {
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Cache-Control': 'no-cache'
+      }
+    },
+    {
+      name: 'Proxy6',
+      url: `https://proxy6.workers.dev/?url=${encodeURIComponent(url)}`,
+    },
+    {
+      name: 'ThingProxy',
+      url: `https://thingproxy.freeboard.io/fetch/${url}`,
+    },
+  ];
+};

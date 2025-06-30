@@ -12,5 +12,10 @@ export default defineConfig({
       provider: 'v8', // or 'istanbul' if preferred
       reporter: ['text', 'html'],
     },
+    typecheck: {
+      tsconfig: './tsconfig.json',
+      checker: 'tsc',
+      enabled: true,
+    },
   },
 });
