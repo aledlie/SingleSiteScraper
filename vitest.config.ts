@@ -6,10 +6,11 @@ export default defineConfig({
   plugins: [react()],
   test: {
     globals: true,
-    environment: 'jsdom', // For DOM-related tests (e.g., cheerio)
+    environment: 'jsdom',
+    setupFiles: ['./src/test-setup.ts'],
     exclude: ['**/node_modules/**', '**/dist/**'],
     coverage: {
-      provider: 'v8', // or 'istanbul' if preferred
+      provider: 'v8',
       reporter: ['text', 'html'],
     },
     typecheck: {
