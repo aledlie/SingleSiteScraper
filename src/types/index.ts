@@ -60,3 +60,31 @@ export interface EventData {
   description?: string;
   eventType?: string;
 }
+
+export interface AnalyticsConfig {
+  enableAnalytics: boolean;
+  enablePerformanceMonitoring: boolean;
+  enableSQLStorage: boolean;
+  generateGraphML: boolean;
+  generateSchemaOrg: boolean;
+  sqlConfig?: {
+    host: string;
+    port: number;
+    database: string;
+    username?: string;
+    password?: string;
+    ssl?: boolean;
+  };
+}
+
+export interface EnhancedScrapedData extends ScrapedData {
+  analytics?: {
+    objectCount: number;
+    relationshipCount: number;
+    complexity: number;
+    analysisTime: number;
+    insights: string[];
+  };
+  graphML?: string;
+  schemaOrg?: Record<string, any>;
+}
