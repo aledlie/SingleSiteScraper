@@ -42,7 +42,7 @@ const App: React.FC = () => {
               className={`mode-button ${mode === 'visualization' ? 'active' : ''}`}
             >
               <BarChart3 className="w-4 h-4" />
-              Fisterra Analysis
+              Example Analytics Page
             </button>
           </div>
         </div>
