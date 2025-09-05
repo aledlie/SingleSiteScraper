@@ -54,8 +54,8 @@ export interface FetchLikeResponse {
 
 export interface EventData {
   summary: string;
-  start: { date?: string; timeZone?: string };
-  end: { date?: string; timeZone?: string };
+  start: string;
+  end: string;
   location?: string;
   description?: string;
   eventType?: string;

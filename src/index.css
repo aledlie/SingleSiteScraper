@@ -192,4 +192,53 @@
   .export-button-icon {
     @apply w-4 h-4;
   }
+
+  /* Event Cards Styles */
+  .events-container {
+    @apply space-y-4;
+  }
+
+  .event-card {
+    @apply transition-all duration-200 hover:shadow-lg;
+  }
+
+  .empty-state {
+    @apply text-center py-8 text-gray-500;
+  }
+
+  /* Responsive design for event cards */
+  @media (max-width: 768px) {
+    .event-card {
+      padding: 16px !important;
+      margin-bottom: 12px !important;
+    }
+    
+    .event-header {
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 8px;
+    }
+    
+    .event-type-badge {
+      margin-left: 0 !important;
+      align-self: flex-start;
+    }
+    
+    .event-datetime {
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 4px !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .event-card h3 {
+      font-size: 16px !important;
+      line-height: 1.4 !important;
+    }
+    
+    .event-description p {
+      font-size: 13px !important;
+    }
+  }
 }

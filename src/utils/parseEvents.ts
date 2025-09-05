@@ -2,6 +2,39 @@ import { parse } from 'node-html-parser';
 import { format, parse as parseDate, isValid } from 'date-fns';
 import { EventData } from '../types/index';
 
+// Helper to classify event type based on title
+function classifyEventType(title: string): string {
+  const titleLower = title.toLowerCase();
+  
+  // Event type patterns (ordered by specificity)
+  if (titleLower.includes('hackathon') || titleLower.includes('competition') || titleLower.includes('contest')) {
+    return 'competition';
+  }
+  if (titleLower.includes('workshop') || titleLower.includes('training') || titleLower.includes('class') || titleLower.includes('course')) {
+    return 'workshop';
+  }
+  if (titleLower.includes('conference') || titleLower.includes('summit') || titleLower.includes('symposium')) {
+    return 'conference';
+  }
+  if (titleLower.includes('presentation') || titleLower.includes('talk') || titleLower.includes('speaker') || titleLower.includes('pitch') || titleLower.includes('demo')) {
+    return 'presentation';
+  }
+  if (titleLower.includes('coworking') || titleLower.includes('co-working') || titleLower.includes('open workspace')) {
+    return 'coworking';
+  }
+  if (titleLower.includes('networking') || titleLower.includes('mixer') || titleLower.includes('connect')) {
+    return 'networking';
+  }
+  if (titleLower.includes('startup') || titleLower.includes('entrepreneur') || titleLower.includes('founder')) {
+    return 'startup';
+  }
+  if (titleLower.includes('meetup') || titleLower.includes('meet up') || titleLower.includes('gathering')) {
+    return 'meetup';
+  }
+  
+  return 'default';
+}
+
 // Helper to parse dates into ISO 8601 format
 function parseEventDate(dateStr: string, timeZone: string = 'America/Chicago'): string | null {
   // Handle Capital Factory format like "Sep. 4 / 5:00 PM - 12:00 AM"
@@ -73,7 +106,7 @@ export function extractEvents(html: string): EventData[] {
             end: end || start,
             location: json.location?.name || json.location?.address?.streetAddress || '',
             description: json.description || '',
-            eventType: 'default',
+            eventType: classifyEventType(json.name || ''),
           });
         }
       }
@@ -108,7 +141,7 @@ export function extractEvents(html: string): EventData[] {
         end: start, // Default end to start if not specified
         location: inferredLocation || undefined,
         description: description || undefined,
-        eventType: 'default',
+        eventType: classifyEventType(title),
       });
     }
   }
