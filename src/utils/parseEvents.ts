@@ -3,7 +3,7 @@ import { format, parse as parseDate, isValid } from 'date-fns';
 import { EventData } from '../types/index';
 
 // Helper to parse dates into ISO 8601 format
-function parseEventDate(dateStr: string, timeZone: string = 'America/Chicago'): { date?: string; timeZone: string } | null {
+function parseEventDate(dateStr: string, timeZone: string = 'America/Chicago'): string | null {
   // Handle Capital Factory format like "Sep. 4 / 5:00 PM - 12:00 AM"
   let cleanDateStr = dateStr;
   
@@ -46,8 +46,8 @@ function parseEventDate(dateStr: string, timeZone: string = 'America/Chicago'): 
       return null;
     }
 
-    // Otherwise, return all-day date
-    return { date: format(date, 'dd/MM/yyyy'), timeZone };
+    // Return ISO string instead of object
+    return date.toISOString();
   } catch {
     return null;
   }
@@ -92,11 +92,21 @@ export function extractEvents(html: string): EventData[] {
 
     const start = parseEventDate(dateTime);
     if (start && title) {
+      // Infer location when not explicitly provided
+      let inferredLocation = location;
+      if (!inferredLocation) {
+        // Check if this appears to be a Capital Factory event
+        if (html.toLowerCase().includes('capitalfactory.com') || 
+            html.toLowerCase().includes('capital factory')) {
+          inferredLocation = 'Capital Factory, Austin, TX';
+        }
+      }
+      
       events.push({
         summary: title,
         start,
         end: start, // Default end to start if not specified
-        location: location || undefined,
+        location: inferredLocation || undefined,
         description: description || undefined,
         eventType: 'default',
       });
