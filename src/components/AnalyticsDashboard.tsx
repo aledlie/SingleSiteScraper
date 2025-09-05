@@ -11,6 +11,69 @@ interface AnalyticsDashboardProps {
   alerts?: PerformanceAlert[];
 }
 
+interface DonutChartProps {
+  data: Array<{ label: string; value: number; color: string }>;
+  size: number;
+  centerText?: string;
+}
+
+const DonutChart: React.FC<DonutChartProps> = ({ data, size, centerText }) => {
+  const total = data.reduce((sum, item) => sum + item.value, 0);
+  let cumulativePercentage = 0;
+
+  const radius = size / 2 - 10;
+  const strokeWidth = 20;
+  const normalizedRadius = radius - strokeWidth / 2;
+  const circumference = 2 * Math.PI * normalizedRadius;
+
+  return (
+    <div style={{ position: 'relative', width: size, height: size }}>
+      <svg width={size} height={size}>
+        {data.map((item, index) => {
+          const percentage = (item.value / total) * 100;
+          const strokeDasharray = `${(percentage / 100) * circumference} ${circumference}`;
+          const strokeDashoffset = -cumulativePercentage / 100 * circumference;
+          
+          cumulativePercentage += percentage;
+
+          return (
+            <circle
+              key={index}
+              cx={size / 2}
+              cy={size / 2}
+              r={normalizedRadius}
+              stroke={item.color}
+              strokeWidth={strokeWidth}
+              strokeDasharray={strokeDasharray}
+              strokeDashoffset={strokeDashoffset}
+              fill="transparent"
+              style={{
+                transform: 'rotate(-90deg)',
+                transformOrigin: '50% 50%'
+              }}
+            />
+          );
+        })}
+      </svg>
+      
+      {centerText && (
+        <div style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          textAlign: 'center',
+          fontSize: '18px',
+          fontWeight: 'bold',
+          color: '#374151'
+        }}>
+          {centerText}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ 
   result, 
   insights,
@@ -130,26 +193,71 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
               </div>
             </div>
 
-            {/* Object Type Distribution */}
-            <div className="distribution-section">
-              <h3>Object Type Distribution</h3>
-              <div className="distribution-chart">
-                {Object.entries(insights.objectTypeDistribution).map(([type, count]) => (
-                  <div key={type} className="distribution-bar">
-                    <div className="distribution-label">
-                      <span className="type-name">{type}</span>
-                      <span className="type-count">{count}</span>
-                    </div>
-                    <div className="distribution-progress">
-                      <div 
-                        className="distribution-fill" 
-                        style={{ 
-                          width: `${(count / Math.max(...Object.values(insights.objectTypeDistribution))) * 100}%` 
-                        }}
-                      />
-                    </div>
-                  </div>
-                ))}
+            {/* Enhanced Object Type Distribution */}
+            <div className="chart-card" style={{
+              background: 'white',
+              padding: '24px',
+              borderRadius: '8px',
+              border: '1px solid #e5e7eb',
+              marginBottom: '24px'
+            }}>
+              <h3 style={{ 
+                fontSize: '18px', 
+                fontWeight: '600', 
+                marginBottom: '20px',
+                color: '#374151'
+              }}>
+                Element Type Distribution
+              </h3>
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+                <DonutChart 
+                  data={(() => {
+                    const typeDistribution = insights.objectTypeDistribution;
+                    const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#84cc16'];
+                    return Object.entries(typeDistribution).map(([type, count], index) => ({
+                      label: type,
+                      value: count,
+                      color: colors[index % colors.length]
+                    }));
+                  })()} 
+                  size={200}
+                  centerText={`${Object.keys(insights.objectTypeDistribution).length} Types`}
+                />
+                
+                <div className="chart-legend" style={{ flex: 1 }}>
+                  {(() => {
+                    const typeDistribution = insights.objectTypeDistribution;
+                    const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#84cc16'];
+                    return Object.entries(typeDistribution).map(([type, count], index) => (
+                      <div key={type} style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        marginBottom: '8px',
+                        padding: '8px',
+                        backgroundColor: '#f9fafb',
+                        borderRadius: '4px'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          <div style={{
+                            width: '12px',
+                            height: '12px',
+                            backgroundColor: colors[index % colors.length],
+                            marginRight: '12px',
+                            borderRadius: '2px'
+                          }}></div>
+                          <span style={{ textTransform: 'capitalize', fontSize: '14px' }}>
+                            {type}
+                          </span>
+                        </div>
+                        <span style={{ fontWeight: '600', color: '#374151' }}>
+                          {count}
+                        </span>
+                      </div>
+                    ));
+                  })()}
+                </div>
               </div>
             </div>
 

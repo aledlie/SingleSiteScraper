@@ -185,20 +185,16 @@ const inspectHtmlStructure = async () => {
         
         // Show immediate children structure
         const children = item.children;
-        if (children && children.length !== undefined) {
-          console.log(`   🌳 Direct children (${children.length}):`);
-          Array.from(children).slice(0, 5).forEach((child, childIndex) => {
-            const tag = child.tagName?.toLowerCase() || 'unknown';
-            const classes = child.getAttribute('class') || '';
-            const text = child.textContent?.trim().substring(0, 40) || '';
-            console.log(`       ${childIndex + 1}. <${tag}${classes ? ` class="${classes}"` : ''}> "${text}${child.textContent && child.textContent.length > 40 ? '...' : ''}"`);
-          });
-          
-          if (children.length > 5) {
-            console.log(`       ... and ${children.length - 5} more children`);
-          }
-        } else {
-          console.log(`   🌳 Direct children: Could not access children (parsing issue)`);
+        console.log(`   🌳 Direct children (${children.length}):`);
+        Array.from(children).slice(0, 5).forEach((child, childIndex) => {
+          const tag = child.tagName.toLowerCase();
+          const classes = child.getAttribute('class') || '';
+          const text = child.textContent?.trim().substring(0, 40) || '';
+          console.log(`       ${childIndex + 1}. <${tag}${classes ? ` class="${classes}"` : ''}> "${text}${child.textContent && child.textContent.length > 40 ? '...' : ''}"`);
+        });
+        
+        if (children.length > 5) {
+          console.log(`       ... and ${children.length - 5} more children`);
         }
         
         console.log();

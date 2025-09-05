@@ -1,0 +1,156 @@
+# SEO/LLM/Performance Testing Suite Requirements
+# Install with: pip install -r requirements_testing.txt
+
+# Core web scraping and HTTP handling
+requests>=2.31.0
+urllib3>=2.0.0
+httpx>=0.25.0
+
+# HTML parsing and analysis
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+html5lib>=1.1
+
+# Browser automation for performance testing
+selenium>=4.15.0
+webdriver-manager>=4.0.0
+chromedriver-binary>=117.0.0
+
+# Natural language processing and content analysis
+spacy>=3.7.0
+textstat>=0.7.0
+nltk>=3.8.1
+transformers>=4.35.0
+
+# Data analysis and manipulation
+pandas>=2.1.0
+numpy>=1.25.0
+scipy>=1.11.0
+
+# Visualization and reporting
+matplotlib>=3.8.0
+seaborn>=0.13.0
+plotly>=5.17.0
+pillow>=10.1.0
+
+# Performance monitoring and lighthouse integration
+lighthouse>=0.3.0
+pytest>=7.4.0
+pytest-benchmark>=4.0.0
+
+# Database connectivity (for SQLMagic integration)
+sqlalchemy>=2.0.0
+sqlite3worker>=1.1.7
+psycopg2-binary>=2.9.0
+pymongo>=4.6.0
+
+# Configuration and environment management
+python-dotenv>=1.0.0
+pyyaml>=6.0.1
+toml>=0.10.2
+
+# API and webhook integrations
+fastapi>=0.104.0
+uvicorn>=0.24.0
+aiohttp>=3.9.0
+
+# Caching and performance optimization
+redis>=5.0.0
+memcached>=1.61
+
+# Testing and quality assurance
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+black>=23.10.0
+flake8>=6.1.0
+mypy>=1.7.0
+
+# Monitoring and alerting
+prometheus-client>=0.19.0
+statsd>=4.0.1
+
+# Security and validation
+cryptography>=41.0.7
+validators>=0.22.0
+certifi>=2023.7.22
+
+# Development and debugging
+ipython>=8.17.0
+jupyter>=1.0.0
+debugpy>=1.8.0
+
+# Image processing and optimization
+opencv-python>=4.8.0
+imageio>=2.33.0
+
+# Content extraction and readability
+readability>=0.3.1
+newspaper3k>=0.2.8
+trafilatura>=1.6.0
+
+# Accessibility testing
+axe-core-python>=4.8.0
+pa11y>=1.0.0
+
+# Schema.org and structured data validation
+rdflib>=7.0.0
+jsonschema>=4.20.0
+extruct>=0.15.0
+
+# Performance profiling
+py-spy>=0.3.14
+memory-profiler>=0.61.0
+line-profiler>=4.1.1
+
+# Machine learning for content analysis
+scikit-learn>=1.3.0
+torch>=2.1.0
+sentence-transformers>=2.2.2
+
+# Async processing and task queues
+celery>=5.3.0
+kombu>=5.3.0
+billiard>=4.2.0
+
+# Time series analysis for performance trends
+statsmodels>=0.14.0
+prophet>=1.1.4
+
+# Cloud storage and CDN testing
+boto3>=1.34.0
+google-cloud-storage>=2.10.0
+azure-storage-blob>=12.19.0
+
+# Internationalization and localization testing
+babel>=2.13.0
+python-gettext>=4.1
+
+# Content compression and optimization
+brotli>=1.1.0
+zstandard>=0.22.0
+
+# URL analysis and validation
+furl>=2.1.3
+tldextract>=5.1.0
+
+# XML and sitemap processing
+xmltodict>=0.13.0
+advertools>=0.14.1
+
+# Social media and Open Graph validation
+opengraph-py3>=0.71
+twitter-text-python>=1.1.1
+
+# Email and contact form testing
+email-validator>=2.1.0
+phonenumbers>=8.13.0
+
+# Geographic and location data
+geoip2>=4.7.0
+geopy>=2.4.0
+
+# Additional utilities
+tqdm>=4.66.0  # Progress bars
+click>=8.1.0  # CLI framework
+rich>=13.7.0  # Rich text and beautiful formatting
+tabulate>=0.9.0  # Table formatting
