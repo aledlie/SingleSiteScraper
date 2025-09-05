@@ -74,6 +74,45 @@ const DonutChart: React.FC<DonutChartProps> = ({ data, size, centerText }) => {
   );
 };
 
+interface ChartBarProps {
+  label: string;
+  value: number;
+  maxValue: number;
+  color: string;
+  percentage?: number;
+}
+
+const ChartBar: React.FC<ChartBarProps> = ({ label, value, maxValue, color, percentage }) => (
+  <div className="chart-bar-item" style={{ marginBottom: '12px' }}>
+    <div style={{
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: '4px',
+      fontSize: '14px'
+    }}>
+      <span style={{ fontWeight: '500' }}>{label}</span>
+      <span style={{ color: '#666' }}>
+        {percentage !== undefined ? `${percentage.toFixed(1)}%` : value}
+      </span>
+    </div>
+    <div style={{
+      width: '100%',
+      height: '8px',
+      backgroundColor: '#f3f4f6',
+      borderRadius: '4px',
+      overflow: 'hidden'
+    }}>
+      <div style={{
+        width: `${Math.min(100, (value / maxValue) * 100)}%`,
+        height: '100%',
+        backgroundColor: color,
+        transition: 'width 0.3s ease'
+      }} />
+    </div>
+  </div>
+);
+
 export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ 
   result, 
   insights,
@@ -257,6 +296,150 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                       </div>
                     ));
                   })()}
+                </div>
+              </div>
+            </div>
+
+            {/* Quality Metrics */}
+            <div className="chart-card" style={{
+              background: 'white',
+              padding: '24px',
+              borderRadius: '8px',
+              border: '1px solid #e5e7eb',
+              marginBottom: '24px'
+            }}>
+              <h3 style={{ 
+                fontSize: '18px', 
+                fontWeight: '600', 
+                marginBottom: '20px',
+                color: '#374151'
+              }}>
+                Quality Metrics
+              </h3>
+              
+              <ChartBar
+                label="Structured Data Coverage"
+                value={insights.qualityMetrics?.structuredDataCoverage * 100 || 0}
+                maxValue={100}
+                color="#10b981"
+                percentage={insights.qualityMetrics?.structuredDataCoverage * 100 || 0}
+              />
+              
+              <ChartBar
+                label="Accessibility Score"
+                value={insights.qualityMetrics?.accessibilityScore * 100 || 0}
+                maxValue={100}
+                color="#3b82f6"
+                percentage={insights.qualityMetrics?.accessibilityScore * 100 || 0}
+              />
+              
+              <ChartBar
+                label="Semantic Richness"
+                value={insights.qualityMetrics?.semanticRichness * 100 || 0}
+                maxValue={100}
+                color="#f59e0b"
+                percentage={insights.qualityMetrics?.semanticRichness * 100 || 0}
+              />
+            </div>
+
+            {/* Performance Breakdown */}
+            <div className="chart-card" style={{
+              background: 'white',
+              padding: '24px',
+              borderRadius: '8px',
+              border: '1px solid #e5e7eb',
+              marginBottom: '24px'
+            }}>
+              <h3 style={{ 
+                fontSize: '18px', 
+                fontWeight: '600', 
+                marginBottom: '20px',
+                color: '#374151'
+              }}>
+                Performance Breakdown
+              </h3>
+              
+              <ChartBar
+                label="Fetch Time"
+                value={result.performanceMetrics?.scraping.fetchTime || 0}
+                maxValue={result.performanceMetrics?.scraping.totalTime || 1}
+                color="#ef4444"
+              />
+              
+              <ChartBar
+                label="Parse Time"
+                value={result.performanceMetrics?.scraping.parseTime || 0}
+                maxValue={result.performanceMetrics?.scraping.totalTime || 1}
+                color="#f59e0b"
+              />
+              
+              <ChartBar
+                label="Analysis Time"
+                value={result.performanceMetrics?.scraping.analysisTime || 0}
+                maxValue={result.performanceMetrics?.scraping.totalTime || 1}
+                color="#10b981"
+              />
+              
+              <div style={{
+                marginTop: '16px',
+                padding: '12px',
+                backgroundColor: '#f3f4f6',
+                borderRadius: '6px',
+                fontSize: '14px',
+                color: '#374151'
+              }}>
+                <strong>Efficiency:</strong> {((result.performanceMetrics?.scraping.totalTime || 0) > 0 ? (result.htmlGraph.metadata.totalObjects / ((result.performanceMetrics?.scraping.totalTime || 1) / 1000)).toFixed(1) : '0')} elements/second
+              </div>
+            </div>
+
+            {/* Content Analysis */}
+            <div className="chart-card" style={{
+              background: 'white',
+              padding: '24px',
+              borderRadius: '8px',
+              border: '1px solid #e5e7eb',
+              marginBottom: '24px'
+            }}>
+              <h3 style={{ 
+                fontSize: '18px', 
+                fontWeight: '600', 
+                marginBottom: '20px',
+                color: '#374151'
+              }}>
+                Content Analysis
+              </h3>
+              
+              <div className="content-metrics" style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '16px'
+              }}>
+                <div className="metric-item">
+                  <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#3b82f6' }}>
+                    {((result.performanceMetrics?.content.htmlSize || 0) / 1024).toFixed(1)}KB
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#6b7280' }}>HTML Size</div>
+                </div>
+                
+                <div className="metric-item">
+                  <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#10b981' }}>
+                    {insights.complexityAnalysis.relationshipDensity.toFixed(2)}
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#6b7280' }}>Relationship Density</div>
+                </div>
+                
+                <div className="metric-item">
+                  <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#f59e0b' }}>
+                    {insights.complexityAnalysis.averageDepth.toFixed(1)}
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#6b7280' }}>Average Depth</div>
+                </div>
+                
+                <div className="metric-item">
+                  <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#8b5cf6' }}>
+                    {result.htmlGraph.metadata.totalRelationships}
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#6b7280' }}>Total Relationships</div>
                 </div>
               </div>
             </div>
