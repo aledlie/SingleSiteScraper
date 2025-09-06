@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense, lazy } from 'react';
 import { Globe, Zap, BarChart3 } from 'lucide-react';
-import WebScraper from './components/WebScraper';
-import EnhancedWebScraper from './components/EnhancedWebScraper';
-import { FisterraVisualizationDashboard } from './components/FisterraVisualizationDashboard';
+
+// Lazy load components for better performance
+const WebScraper = lazy(() => import('./components/WebScraper'));
+const EnhancedWebScraper = lazy(() => import('./components/EnhancedWebScraper'));
+const FisterraVisualizationDashboard = lazy(() => import('./components/FisterraVisualizationDashboard').then(module => ({ default: module.FisterraVisualizationDashboard })));
 
 type ScraperMode = 'basic' | 'enhanced' | 'visualization';
 
@@ -47,9 +49,24 @@ const App: React.FC = () => {
           </div>
         </div>
         
-        {mode === 'basic' && <WebScraper />}
-        {mode === 'enhanced' && <EnhancedWebScraper />}
-        {mode === 'visualization' && <FisterraVisualizationDashboard />}
+        <Suspense fallback={
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            padding: '40px',
+            color: '#6b7280' 
+          }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ marginBottom: '8px' }}>⚡</div>
+              Loading scraper...
+            </div>
+          </div>
+        }>
+          {mode === 'basic' && <WebScraper />}
+          {mode === 'enhanced' && <EnhancedWebScraper />}
+          {mode === 'visualization' && <FisterraVisualizationDashboard />}
+        </Suspense>
         
         <footer className="app-footer">
           <div className="footer-content">

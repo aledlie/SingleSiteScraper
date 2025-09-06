@@ -31,9 +31,40 @@ export class SQLMagicIntegration {
   private config: SQLMagicConfig;
   private connected: boolean = false;
   private queryLog: SQLMagicQuery[] = [];
+  private timeouts: Set<NodeJS.Timeout> = new Set();
+  private abortController: AbortController = new AbortController();
 
   constructor(config: SQLMagicConfig) {
     this.config = config;
+  }
+
+  private delay(ms: number): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (this.abortController.signal.aborted) {
+        reject(new Error('Operation aborted'));
+        return;
+      }
+      
+      const timeout = setTimeout(resolve, ms);
+      this.timeouts.add(timeout);
+      
+      this.abortController.signal.addEventListener('abort', () => {
+        clearTimeout(timeout);
+        this.timeouts.delete(timeout);
+        reject(new Error('Operation aborted'));
+      });
+      
+      // Clean up timeout when promise resolves
+      timeout.unref && timeout.unref();
+    });
+  }
+
+  public cleanup(): void {
+    this.abortController.abort();
+    this.timeouts.forEach(timeout => clearTimeout(timeout));
+    this.timeouts.clear();
+    this.connected = false;
+    this.abortController = new AbortController();
   }
 
   private generateQueryId(): string {
@@ -66,7 +97,7 @@ export class SQLMagicIntegration {
       console.log(`Connecting to SQLMagic server at ${this.config.host}:${this.config.port}`);
       
       // Mock connection delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await this.delay(1000);
       
       this.connected = true;
       console.log('Connected to SQLMagic server');
@@ -209,7 +240,7 @@ CREATE TABLE IF NOT EXISTS ${table.name} (
     try {
       // Mock table creation
       console.log(`Creating table: ${table.name}`);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await this.delay(100);
       
       const executionTime = Date.now() - startTime;
       this.updateQueryLog(queryId, executionTime, 0);
@@ -234,7 +265,7 @@ CREATE TABLE IF NOT EXISTS ${table.name} (
     
     try {
       // Mock index creation
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await this.delay(50);
       
       const executionTime = Date.now() - startTime;
       this.updateQueryLog(queryId, executionTime, 0);
@@ -292,7 +323,7 @@ INSERT INTO html_graphs (
     
     try {
       // Mock insert
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await this.delay(100);
       
       const executionTime = Date.now() - startTime;
       this.updateQueryLog(queryId, executionTime, 1);
@@ -334,7 +365,7 @@ INSERT INTO html_objects (
         };
         
         // Mock insert
-        await new Promise(resolve => setTimeout(resolve, 10));
+        await this.delay(10);
         insertCount++;
       }
       
@@ -371,7 +402,7 @@ INSERT INTO html_relationships (
         };
         
         // Mock insert
-        await new Promise(resolve => setTimeout(resolve, 5));
+        await this.delay(5);
         insertCount++;
       }
       
@@ -416,7 +447,7 @@ INSERT INTO schema_org_data (id, graph_id, schema_type, data) VALUES (?, ?, ?, ?
         };
         
         // Mock insert
-        await new Promise(resolve => setTimeout(resolve, 10));
+        await this.delay(10);
         insertCount++;
       }
       
@@ -470,7 +501,7 @@ INSERT INTO performance_metrics (
     
     try {
       // Mock insert
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await this.delay(50);
       
       const executionTime = Date.now() - startTime;
       this.updateQueryLog(queryId, executionTime, 1);
@@ -510,7 +541,7 @@ LIMIT ?`;
         }
       ];
       
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await this.delay(100);
       
       const executionTime = Date.now() - startTime;
       this.updateQueryLog(queryId, executionTime, mockResults.length);
@@ -550,7 +581,7 @@ ORDER BY hour`;
         scrape_count: Math.floor(Math.random() * 10) + 1
       }));
       
-      await new Promise(resolve => setTimeout(resolve, 150));
+      await this.delay(150);
       
       const executionTime = Date.now() - startTime;
       this.updateQueryLog(queryId, executionTime, mockTrends.length);

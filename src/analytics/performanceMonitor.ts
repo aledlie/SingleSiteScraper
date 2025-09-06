@@ -146,7 +146,7 @@ export class PerformanceMonitor {
       this.alerts.push({
         id: this.generateId(),
         type: 'warning',
-        category: 'performance',
+        category: 'network',
         message: `Slow response time detected`,
         value: metrics.network.responseTime,
         threshold: this.thresholds.responseTime,
@@ -161,7 +161,7 @@ export class PerformanceMonitor {
         id: this.generateId(),
         type: 'warning',
         category: 'performance',
-        message: `Long scraping time detected`,
+        message: `Long processing time detected`,
         value: metrics.scraping.totalTime,
         threshold: this.thresholds.scrapeTime,
         timestamp,
@@ -174,7 +174,7 @@ export class PerformanceMonitor {
       this.alerts.push({
         id: this.generateId(),
         type: 'info',
-        category: 'content',
+        category: 'complexity',
         message: `High page complexity detected`,
         value: metrics.content.complexity,
         threshold: this.thresholds.complexity,
@@ -224,6 +224,20 @@ export class PerformanceMonitor {
         url
       });
     }
+
+    // Success rate alert
+    if (metrics.quality.successRate < 0.8) { // Less than 80% success rate
+      this.alerts.push({
+        id: this.generateId(),
+        type: 'error',
+        category: 'quality',
+        message: `Low success rate detected`,
+        value: metrics.quality.successRate,
+        threshold: 0.8,
+        timestamp,
+        url
+      });
+    }
   }
 
   public generateReport(timeRangeHours: number = 24): PerformanceReport {
@@ -269,6 +283,7 @@ export class PerformanceMonitor {
     return {
       id: this.generateId(),
       generatedAt: now.toISOString(),
+      period: `${timeRangeHours} hours`,
       timeRange: {
         start: start.toISOString(),
         end: now.toISOString()
@@ -355,16 +370,24 @@ export class PerformanceMonitor {
     return limit ? sorted.slice(0, limit) : sorted;
   }
 
-  public getAlerts(type?: PerformanceAlert['type'], limit?: number): PerformanceAlert[] {
+  public getAlerts(urlOrType?: string | PerformanceAlert['type'], limit?: number): PerformanceAlert[] {
     let filtered = this.alerts.sort((a, b) => 
       new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
     );
     
-    if (type) {
-      filtered = filtered.filter(a => a.type === type);
+    if (typeof urlOrType === 'string' && urlOrType.includes('://')) {
+      // URL filtering
+      filtered = filtered.filter(a => a.url === urlOrType);
+    } else if (urlOrType) {
+      // Type filtering
+      filtered = filtered.filter(a => a.type === urlOrType as PerformanceAlert['type']);
     }
     
     return limit ? filtered.slice(0, limit) : filtered;
+  }
+
+  public setThresholds(newThresholds: Partial<PerformanceThresholds>): void {
+    this.thresholds = { ...this.thresholds, ...newThresholds };
   }
 
   public clearOldData(olderThanDays: number = 7): void {
