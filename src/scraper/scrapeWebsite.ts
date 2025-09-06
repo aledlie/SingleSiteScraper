@@ -1,7 +1,7 @@
 import { fetchWithTimeout, proxyServices } from '../utils/network.ts';
 import { normalizeUrl, sleep, validateUrl } from '../utils/validators.ts';
 import { ScrapedData, ScrapeOptions } from '../types/index.ts';
-import {getText, getMetadata, getLinks, getTitle, getImages, getDescription} from '../utils/parse.ts';
+import {getText, getMetadata, getLinks, getTitle, getImages, getDescription, getWebSite, getWebPage} from '../utils/parse.ts';
 import {parse} from 'node-html-parser';
 import { extractEvents } from '../utils/parseEvents.ts';
 
@@ -70,7 +70,13 @@ export const scrapeWebsite = async (
   setProgress(`Parsing data from ${proxyUsed}...`);
   const $ = parse(response);
 
+  // Create schema.org structured data
+  const webSite = getWebSite($, url);
+  const webPage = getWebPage($, url, webSite);
+
   const data: ScrapedData = {
+    '@context': 'https://schema.org',
+    '@type': 'Dataset',
     title: getTitle($),
     description: getDescription($),
     links: options.includeLinks ? getLinks($, options.maxLinks) : [],
@@ -78,6 +84,8 @@ export const scrapeWebsite = async (
     text: options.includeText ? getText($, options.maxTextElements) : [],
     metadata: options.includeMetadata ? getMetadata($) : {},
     events: options.includeEvents ? extractEvents(response): [],
+    webSite: webSite,
+    webPage: webPage,
     status: {
       success: true,
       contentLength: response ? response.length : 0,

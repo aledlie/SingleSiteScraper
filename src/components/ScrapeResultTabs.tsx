@@ -9,17 +9,17 @@ interface Props {
 }
 
 export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
-  const [tab, setTab] = useState<'text' | 'links' | 'images' | 'metadata' | 'events'>('text');
+  const [tab, setTab] = useState<'text' | 'links' | 'images' | 'metadata' | 'events' | 'schema'>('text');
 
   const filtered = {
     text: data.text.filter((t) => t.toLowerCase().includes(filter.toLowerCase())),
     links: data.links.filter((l) => l.text.toLowerCase().includes(filter.toLowerCase()) || l.url.toLowerCase().includes(filter.toLowerCase())),
-    images: data.images.filter((i) => i.alt.toLowerCase().includes(filter.toLowerCase()) || i.src.toLowerCase().includes(filter.toLowerCase())),
+    images: data.images.filter((i) => (i.alternateName || '').toLowerCase().includes(filter.toLowerCase()) || i.url.toLowerCase().includes(filter.toLowerCase())),
     metadata: Object.entries(data.metadata).filter(([k, v]) => k.includes(filter) || v.includes(filter)),
-    events: data.events.filter((e) => e.summary.includes(filter))
+    events: data.events.filter((e) => e.name.includes(filter))
   };
 
-  const tabs = ['text', 'links', 'images', 'metadata', 'events'] as const;
+  const tabs = ['text', 'links', 'images', 'metadata', 'events', 'schema'] as const;
 
   return (
     <div className="tab-panel">
@@ -58,9 +58,9 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
                   }
                 };
 
-                const startDate = formatEventDate(event.start);
-                const endDate = formatEventDate(event.end);
-                const isMultiDay = event.start !== event.end;
+                const startDate = formatEventDate(event.startDate);
+                const endDate = formatEventDate(event.endDate);
+                const isMultiDay = event.startDate !== event.endDate;
 
                 // Get event type color
                 const getEventTypeColor = (type: string) => {
@@ -110,7 +110,7 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
                         color: '#1e293b',
                         lineHeight: '1.3'
                       }}>
-                        {event.summary}
+                        {event.name}
                       </h3>
                       <span 
                         className="event-type-badge"
@@ -156,7 +156,7 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
                         <div className="event-location" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <span style={{ fontSize: '16px' }}>📍</span>
                           <span style={{ color: '#374151', fontWeight: '500' }}>
-                            {event.location}
+                            {typeof event.location === 'string' ? event.location : event.location.name || 'Location'}
                           </span>
                         </div>
                       )}
@@ -197,8 +197,13 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
           <div className="layout-grid">
             {filtered.images.map((img, i) => (
               <div key={i} className="media-thumb">
-                <img src={img.src} alt={img.alt} className="responsive-img" />
-                <p className="caption">{img.alt}</p>
+                <img src={img.url} alt={img.alternateName || img.name || ''} className="responsive-img" />
+                <p className="caption">{img.name || img.alternateName || 'Image'}</p>
+                {img.description && img.description !== img.alternateName && (
+                  <p className="description" style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+                    {img.description}
+                  </p>
+                )}
               </div>
             ))}
           </div>
@@ -221,6 +226,133 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
               ))}
             </tbody>
           </table>
+        )}
+
+        {tab === 'schema' && (
+          <div className="schema-org-container" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <div className="schema-section">
+              <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '12px', color: '#1e293b' }}>
+                📄 Web Page Schema
+              </h3>
+              <pre style={{ 
+                backgroundColor: '#f8fafc', 
+                padding: '16px', 
+                borderRadius: '8px', 
+                overflow: 'auto',
+                fontSize: '14px',
+                border: '1px solid #e2e8f0'
+              }}>
+                {JSON.stringify(data.webPage, null, 2)}
+              </pre>
+            </div>
+
+            <div className="schema-section">
+              <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '12px', color: '#1e293b' }}>
+                🌐 Web Site Schema
+              </h3>
+              <pre style={{ 
+                backgroundColor: '#f8fafc', 
+                padding: '16px', 
+                borderRadius: '8px', 
+                overflow: 'auto',
+                fontSize: '14px',
+                border: '1px solid #e2e8f0'
+              }}>
+                {JSON.stringify(data.webSite, null, 2)}
+              </pre>
+            </div>
+
+            {data.events && data.events.length > 0 && (
+              <div className="schema-section">
+                <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '12px', color: '#1e293b' }}>
+                  📅 Events Schema ({data.events.length} events)
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {data.events.slice(0, 3).map((event, i) => (
+                    <div key={i}>
+                      <h4 style={{ fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#374151' }}>
+                        Event {i + 1}: {event.name}
+                      </h4>
+                      <pre style={{ 
+                        backgroundColor: '#f8fafc', 
+                        padding: '16px', 
+                        borderRadius: '8px', 
+                        overflow: 'auto',
+                        fontSize: '12px',
+                        border: '1px solid #e2e8f0'
+                      }}>
+                        {JSON.stringify(event, null, 2)}
+                      </pre>
+                    </div>
+                  ))}
+                  {data.events.length > 3 && (
+                    <p style={{ fontSize: '14px', color: '#6b7280', fontStyle: 'italic' }}>
+                      ... and {data.events.length - 3} more events
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {data.images && data.images.length > 0 && (
+              <div className="schema-section">
+                <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '12px', color: '#1e293b' }}>
+                  🖼️ Image Objects Schema ({data.images.length} images)
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {data.images.slice(0, 2).map((image, i) => (
+                    <div key={i}>
+                      <h4 style={{ fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#374151' }}>
+                        Image {i + 1}: {image.name || 'Unnamed'}
+                      </h4>
+                      <pre style={{ 
+                        backgroundColor: '#f8fafc', 
+                        padding: '16px', 
+                        borderRadius: '8px', 
+                        overflow: 'auto',
+                        fontSize: '12px',
+                        border: '1px solid #e2e8f0'
+                      }}>
+                        {JSON.stringify(image, null, 2)}
+                      </pre>
+                    </div>
+                  ))}
+                  {data.images.length > 2 && (
+                    <p style={{ fontSize: '14px', color: '#6b7280', fontStyle: 'italic' }}>
+                      ... and {data.images.length - 2} more images
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div className="schema-section">
+              <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '12px', color: '#1e293b' }}>
+                📊 Complete Dataset Schema
+              </h3>
+              <pre style={{ 
+                backgroundColor: '#f8fafc', 
+                padding: '16px', 
+                borderRadius: '8px', 
+                overflow: 'auto',
+                fontSize: '12px',
+                border: '1px solid #e2e8f0',
+                maxHeight: '400px'
+              }}>
+                {JSON.stringify({
+                  '@context': data['@context'],
+                  '@type': data['@type'],
+                  title: data.title,
+                  description: data.description,
+                  webSite: data.webSite,
+                  webPage: data.webPage,
+                  events: data.events,
+                  images: data.images,
+                  status: data.status
+                }, null, 2)}
+              </pre>
+            </div>
+          </div>
         )}
       </Card>
     </div>

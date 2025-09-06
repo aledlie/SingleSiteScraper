@@ -51,27 +51,50 @@ describe('scrapeWebsite', () => {
 
     expect(result.error).toBeUndefined();
     expect(result.data).toMatchObject({
+      '@context': 'https://schema.org',
+      '@type': 'Dataset',
       title: 'Test Page',
       description: 'Test description',
       links: [{ text: 'Link', url: '/link' }],
-      images: [{ alt: 'Image', src: '/image.jpg' }],
+      images: [expect.objectContaining({
+        '@type': 'ImageObject',
+        url: '/image.jpg',
+        alternateName: 'Image'
+      })],
       text: ['Test paragraph'],
-      metadata: { title: 'Test Page' },
+      metadata: expect.objectContaining({
+        description: 'Test description',
+        subheaders: ''
+      }),
       events: [
         {
-          summary: 'Sample Event',
-          start: { dateTime: '2025-07-01T09:00:00-05:00', timeZone: 'America/Chicago' },
-          end: { dateTime: '2025-07-01T10:00:00-05:00', timeZone: 'America/Chicago' },
-          location: 'Community Center',
+          '@context': 'https://schema.org',
+          '@type': 'Event',
+          name: 'Sample Event',
+          startDate: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/),
+          endDate: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/),
+          location: expect.any(Object),
           description: 'A sample event description',
           eventType: 'default',
+          eventStatus: 'EventScheduled',
+          eventAttendanceMode: 'OfflineEventAttendanceMode',
         },
       ],
+      webSite: expect.objectContaining({
+        '@type': 'WebSite',
+        name: 'Test Page',
+        url: 'https://example.com'
+      }),
+      webPage: expect.objectContaining({
+        '@type': 'WebPage',
+        name: 'Test Page',
+        url: 'https://example.com'
+      }),
       status: {
         success: true,
         contentLength: expect.any(Number),
         responseTime: expect.any(Number),
-        proxyUsed: 'AllOrigins',
+        proxyUsed: expect.any(String),
         contentType: 'text/html',
       },
     });
