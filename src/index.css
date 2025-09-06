@@ -72,7 +72,7 @@
   }
 
   .text-block {
-    @apply mb-2 text-sm text-gray-900;
+    @apply mb-2 text-sm text-adaptive;
   }
 
 
@@ -81,7 +81,7 @@
   }
 
   .link-subtext {
-    @apply text-xs text-gray-500 break-words;
+    @apply text-xs text-gray-600 break-words;
   }
 
   .meta-table {
@@ -90,7 +90,7 @@
 
   .meta-table th,
   .meta-table td {
-    @apply border-t p-2 text-sm;
+    @apply border-t p-2 text-sm text-adaptive;
   }
 
   .meta-table th {
@@ -204,6 +204,27 @@
 
   .empty-state {
     @apply text-center py-8 text-gray-500;
+  }
+
+  /* Dark background text readability */
+  .text-on-dark {
+    @apply text-gray-100;
+  }
+
+  .text-on-light {
+    @apply text-gray-900;
+  }
+
+  .text-adaptive {
+    @apply text-gray-900;
+  }
+
+  /* For elements with dark backgrounds, use lighter text */
+  .bg-gray-700 .text-adaptive,
+  .bg-gray-800 .text-adaptive,
+  .bg-gray-900 .text-adaptive,
+  .bg-black .text-adaptive {
+    @apply text-gray-100;
   }
 
   /* Responsive design for event cards */
