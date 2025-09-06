@@ -229,8 +229,8 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
         )}
 
         {tab === 'schema' && (
-          <div className="schema-org-container" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <div className="schema-section">
+          <div className="schema-org-container" style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%' }}>
+            <div className="schema-section" style={{ width: '100%' }}>
               <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '12px', color: '#1e293b' }}>
                 📄 Web Page Schema
               </h3>
@@ -240,13 +240,15 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
                 borderRadius: '8px', 
                 overflow: 'auto',
                 fontSize: '14px',
-                border: '1px solid #e2e8f0'
+                border: '1px solid #e2e8f0',
+                width: '100%',
+                boxSizing: 'border-box'
               }}>
                 {JSON.stringify(data.webPage, null, 2)}
               </pre>
             </div>
 
-            <div className="schema-section">
+            <div className="schema-section" style={{ width: '100%' }}>
               <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '12px', color: '#1e293b' }}>
                 🌐 Web Site Schema
               </h3>
@@ -256,18 +258,20 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
                 borderRadius: '8px', 
                 overflow: 'auto',
                 fontSize: '14px',
-                border: '1px solid #e2e8f0'
+                border: '1px solid #e2e8f0',
+                width: '100%',
+                boxSizing: 'border-box'
               }}>
                 {JSON.stringify(data.webSite, null, 2)}
               </pre>
             </div>
 
             {data.events && data.events.length > 0 && (
-              <div className="schema-section">
+              <div className="schema-section" style={{ width: '100%' }}>
                 <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '12px', color: '#1e293b' }}>
                   📅 Events Schema ({data.events.length} events)
                 </h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%' }}>
                   {data.events.slice(0, 3).map((event, i) => (
                     <div key={i}>
                       <h4 style={{ fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#374151' }}>
@@ -279,7 +283,9 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
                         borderRadius: '8px', 
                         overflow: 'auto',
                         fontSize: '12px',
-                        border: '1px solid #e2e8f0'
+                        border: '1px solid #e2e8f0',
+                        width: '100%',
+                        boxSizing: 'border-box'
                       }}>
                         {JSON.stringify(event, null, 2)}
                       </pre>
@@ -295,11 +301,11 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
             )}
 
             {data.images && data.images.length > 0 && (
-              <div className="schema-section">
+              <div className="schema-section" style={{ width: '100%' }}>
                 <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '12px', color: '#1e293b' }}>
                   🖼️ Image Objects Schema ({data.images.length} images)
                 </h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%' }}>
                   {data.images.slice(0, 2).map((image, i) => (
                     <div key={i}>
                       <h4 style={{ fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#374151' }}>
@@ -311,7 +317,9 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
                         borderRadius: '8px', 
                         overflow: 'auto',
                         fontSize: '12px',
-                        border: '1px solid #e2e8f0'
+                        border: '1px solid #e2e8f0',
+                        width: '100%',
+                        boxSizing: 'border-box'
                       }}>
                         {JSON.stringify(image, null, 2)}
                       </pre>
@@ -326,7 +334,7 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
               </div>
             )}
 
-            <div className="schema-section">
+            <div className="schema-section" style={{ width: '100%' }}>
               <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '12px', color: '#1e293b' }}>
                 📊 Complete Dataset Schema
               </h3>
@@ -337,7 +345,9 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
                 overflow: 'auto',
                 fontSize: '12px',
                 border: '1px solid #e2e8f0',
-                maxHeight: '400px'
+                maxHeight: '400px',
+                width: '100%',
+                boxSizing: 'border-box'
               }}>
                 {JSON.stringify({
                   '@context': data['@context'],
