@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { Loader2, Search, Download, Globe, BarChart3, Settings, Database } from 'lucide-react';
 import { EnhancedScraper, EnhancedScrapeOptions, EnhancedScrapeResult, AnalyticsInsights } from '../analytics/enhancedScraper';
 import { SQLMagicConfig } from '../analytics/sqlMagicIntegration';
@@ -56,7 +56,53 @@ const EnhancedWebScraper: React.FC = () => {
 
   const [enhancedScraper] = useState(() => new EnhancedScraper());
 
-  const handleScrape = async () => {
+  // Memoized event handlers for better performance
+  const handleActiveViewChange = useCallback((view: 'scraper' | 'analytics') => {
+    setActiveView(view);
+  }, []);
+
+  const handleUrlChange = useCallback((val: string) => {
+    setUrl(val);
+  }, []);
+
+  const handleShowAdvancedToggle = useCallback(() => {
+    setShowAdvanced(prev => !prev);
+  }, []);
+
+  const handleShowAnalyticsToggle = useCallback(() => {
+    setShowAnalytics(prev => !prev);
+  }, []);
+
+  const handleOptionsChange = useCallback((newOptions: EnhancedScrapeOptions) => {
+    setOptions(newOptions);
+  }, []);
+
+  const handleAnalyticsConfigChange = useCallback((newConfig: AnalyticsConfig) => {
+    setAnalyticsConfig(newConfig);
+  }, []);
+
+  // Memoized option toggle handlers
+  const handleEnableAnalyticsToggle = useCallback((checked: boolean) => {
+    setOptions(prev => ({ ...prev, enableAnalytics: checked }));
+  }, []);
+
+  const handlePerformanceMonitoringToggle = useCallback((checked: boolean) => {
+    setOptions(prev => ({ ...prev, enablePerformanceMonitoring: checked }));
+  }, []);
+
+  const handleGenerateGraphMLToggle = useCallback((checked: boolean) => {
+    setOptions(prev => ({ ...prev, generateGraphML: checked }));
+  }, []);
+
+  const handleGenerateSchemaOrgToggle = useCallback((checked: boolean) => {
+    setOptions(prev => ({ ...prev, generateSchemaOrg: checked }));
+  }, []);
+
+  const handleSQLStorageToggle = useCallback((checked: boolean) => {
+    setOptions(prev => ({ ...prev, enableSQLStorage: checked }));
+  }, []);
+
+  const handleScrape = useCallback(async () => {
     setIsLoading(true);
     setError('');
     setResult(null);
@@ -109,9 +155,9 @@ const EnhancedWebScraper: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [url, options, analyticsConfig, enhancedScraper]);
 
-  const handleExportData = async (format: 'json' | 'csv' | 'all' = 'json') => {
+  const handleExportData = useCallback(async (format: 'json' | 'csv' | 'all' = 'json') => {
     try {
       if (format === 'all') {
         // Export multiple formats
@@ -149,7 +195,7 @@ const EnhancedWebScraper: React.FC = () => {
     } catch (error) {
       setError(`Failed to export data: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
-  };
+  }, [enhancedScraper, result]);
 
   return (
     <div className="border-card">
@@ -157,7 +203,7 @@ const EnhancedWebScraper: React.FC = () => {
       <div className="mb-6">
         <div className="flex bg-gray-50 rounded-lg p-1 w-fit border border-gray-200 mx-auto">
           <button
-            onClick={() => setActiveView('scraper')}
+            onClick={() => handleActiveViewChange('scraper')}
             className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
               activeView === 'scraper' 
                 ? 'bg-blue-500 text-white shadow-sm' 
@@ -168,7 +214,7 @@ const EnhancedWebScraper: React.FC = () => {
             Scraper
           </button>
           <button
-            onClick={() => setActiveView('analytics')}
+            onClick={() => handleActiveViewChange('analytics')}
             className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
               activeView === 'analytics' 
                 ? 'bg-blue-500 text-white shadow-sm' 
@@ -189,7 +235,7 @@ const EnhancedWebScraper: React.FC = () => {
               label="Website URL"
               placeholder="https://example.com"
               value={url}
-              onChange={(val: string) => setUrl(val)}
+              onChange={handleUrlChange}
               icon={<Globe className="w-5 h-5 text-gray-400" />}
               onEnter={handleScrape}
             />
@@ -197,7 +243,7 @@ const EnhancedWebScraper: React.FC = () => {
             {/* Basic Options */}
             <div className="mb-4">
               <button
-                onClick={() => setShowAdvanced(!showAdvanced)}
+                onClick={handleShowAdvancedToggle}
                 className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors"
               >
                 <Settings className="w-4 h-4" />
@@ -206,7 +252,7 @@ const EnhancedWebScraper: React.FC = () => {
             
               {showAdvanced && (
                 <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <ScrapeOptionsForm options={options} onChange={setOptions} />
+                  <ScrapeOptionsForm options={options} onChange={handleOptionsChange} />
                 </div>
               )}
             </div>
@@ -214,7 +260,7 @@ const EnhancedWebScraper: React.FC = () => {
             {/* Analytics Configuration */}
             <div className="mb-6">
               <button
-                onClick={() => setShowAnalytics(!showAnalytics)}
+                onClick={handleShowAnalyticsToggle}
                 className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors"
               >
                 <BarChart3 className="w-4 h-4" />
@@ -228,7 +274,7 @@ const EnhancedWebScraper: React.FC = () => {
                       <input
                         type="checkbox"
                         checked={options.enableAnalytics}
-                        onChange={(e) => setOptions({...options, enableAnalytics: e.target.checked})}
+                        onChange={(e) => handleEnableAnalyticsToggle(e.target.checked)}
                       />
                       <span>Enable HTML Analysis</span>
                     </label>
@@ -237,7 +283,7 @@ const EnhancedWebScraper: React.FC = () => {
                       <input
                         type="checkbox"
                         checked={options.enablePerformanceMonitoring}
-                        onChange={(e) => setOptions({...options, enablePerformanceMonitoring: e.target.checked})}
+                        onChange={(e) => handlePerformanceMonitoringToggle(e.target.checked)}
                       />
                       <span>Performance Monitoring</span>
                     </label>
@@ -246,7 +292,7 @@ const EnhancedWebScraper: React.FC = () => {
                       <input
                         type="checkbox"
                         checked={options.generateGraphML}
-                        onChange={(e) => setOptions({...options, generateGraphML: e.target.checked})}
+                        onChange={(e) => handleGenerateGraphMLToggle(e.target.checked)}
                       />
                       <span>Generate GraphML</span>
                     </label>
@@ -255,7 +301,7 @@ const EnhancedWebScraper: React.FC = () => {
                       <input
                         type="checkbox"
                         checked={options.generateSchemaOrg}
-                        onChange={(e) => setOptions({...options, generateSchemaOrg: e.target.checked})}
+                        onChange={(e) => handleGenerateSchemaOrgToggle(e.target.checked)}
                       />
                       <span>Generate Schema.org</span>
                     </label>
@@ -267,7 +313,7 @@ const EnhancedWebScraper: React.FC = () => {
                       <input
                         type="checkbox"
                         checked={options.enableSQLStorage}
-                        onChange={(e) => setOptions({...options, enableSQLStorage: e.target.checked})}
+                        onChange={(e) => handleSQLStorageToggle(e.target.checked)}
                       />
                       <span>Enable SQL Storage</span>
                     </label>
@@ -382,7 +428,7 @@ const EnhancedWebScraper: React.FC = () => {
                 <div className="flex flex-wrap gap-2">
                   {insights && (
                     <button
-                      onClick={() => setActiveView('analytics')}
+                      onClick={() => handleActiveViewChange('analytics')}
                       className="flex items-center gap-2 px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition-colors text-sm"
                     >
                       <BarChart3 className="w-4 h-4" />

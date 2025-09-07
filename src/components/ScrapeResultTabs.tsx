@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { ScrapedData } from '../types/index.ts';
 import { Card } from './ui/Card.tsx';
 import { format } from 'date-fns';
@@ -11,13 +11,48 @@ interface Props {
 export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
   const [tab, setTab] = useState<'text' | 'links' | 'images' | 'metadata' | 'events' | 'schema'>('text');
 
-  const filtered = {
-    text: data.text.filter((t) => t.toLowerCase().includes(filter.toLowerCase())),
-    links: data.links.filter((l) => l.text.toLowerCase().includes(filter.toLowerCase()) || l.url.toLowerCase().includes(filter.toLowerCase())),
-    images: data.images.filter((i) => (i.alternateName || '').toLowerCase().includes(filter.toLowerCase()) || i.url.toLowerCase().includes(filter.toLowerCase())),
-    metadata: Object.entries(data.metadata).filter(([k, v]) => k.includes(filter) || v.includes(filter)),
-    events: data.events.filter((e) => e.name.includes(filter))
-  };
+  // Memoize expensive filtering operations
+  const filtered = useMemo(() => {
+    const lowerFilter = filter.toLowerCase();
+    return {
+      text: data.text.filter((t) => t.toLowerCase().includes(lowerFilter)),
+      links: data.links.filter((l) => l.text.toLowerCase().includes(lowerFilter) || l.url.toLowerCase().includes(lowerFilter)),
+      images: data.images.filter((i) => (i.alternateName || '').toLowerCase().includes(lowerFilter) || i.url.toLowerCase().includes(lowerFilter)),
+      metadata: Object.entries(data.metadata).filter(([k, v]) => k.includes(filter) || v.includes(filter)),
+      events: data.events.filter((e) => e.name.includes(filter))
+    };
+  }, [data.text, data.links, data.images, data.metadata, data.events, filter]);
+
+  // Memoize the tab click handler to prevent unnecessary re-renders
+  const handleTabClick = useCallback((tabName: typeof tab) => {
+    setTab(tabName);
+  }, []);
+
+  // Memoize date formatting function
+  const formatEventDate = useCallback((dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return format(date, 'MMMM d, yyyy \'at\' h:mm a');
+    } catch (error) {
+      return dateString; // Fallback to original string
+    }
+  }, []);
+
+  // Memoize event type color mapping
+  const getEventTypeColor = useCallback((type: string) => {
+    const colors = {
+      'meetup': '#3B82F6',      // Blue
+      'workshop': '#10B981',    // Green
+      'conference': '#8B5CF6',  // Purple
+      'networking': '#F59E0B',  // Amber
+      'startup': '#EF4444',     // Red
+      'coworking': '#06B6D4',   // Cyan
+      'presentation': '#EC4899', // Pink
+      'competition': '#F97316',  // Orange
+      'default': '#6B7280'      // Gray
+    };
+    return colors[type as keyof typeof colors] || colors['default'];
+  }, []);
 
   const tabs = ['text', 'links', 'images', 'metadata', 'events', 'schema'] as const;
 
@@ -27,7 +62,7 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
         {tabs.map((key) => (
           <button
             key={key}
-            onClick={() => setTab(key)}
+            onClick={() => handleTabClick(key)}
             className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
               tab === key 
                 ? 'bg-white text-blue-600 shadow-sm' 
@@ -68,35 +103,10 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-min">
                 {filtered.events.map((event, i) => {
-                // Format dates to be human-readable
-                const formatEventDate = (dateString: string) => {
-                  try {
-                    const date = new Date(dateString);
-                    return format(date, 'MMMM d, yyyy \'at\' h:mm a');
-                  } catch (error) {
-                    return dateString; // Fallback to original string
-                  }
-                };
-
+                // Use memoized functions for performance
                 const startDate = formatEventDate(event.startDate);
                 const endDate = formatEventDate(event.endDate);
                 const isMultiDay = event.startDate !== event.endDate;
-
-                // Get event type color
-                const getEventTypeColor = (type: string) => {
-                  const colors = {
-                    'meetup': '#3B82F6',      // Blue
-                    'workshop': '#10B981',    // Green
-                    'conference': '#8B5CF6',  // Purple
-                    'networking': '#F59E0B',  // Amber
-                    'startup': '#EF4444',     // Red
-                    'coworking': '#06B6D4',   // Cyan
-                    'presentation': '#EC4899', // Pink
-                    'competition': '#F97316',  // Orange
-                    'default': '#6B7280'      // Gray
-                  };
-                  return colors[type] || colors['default'];
-                };
 
                 return (
                   <div 
