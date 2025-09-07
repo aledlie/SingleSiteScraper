@@ -5,7 +5,7 @@
  * Run with: node test-enhanced-scraper.js
  */
 
-import { EnhancedScraper } from './src/scraper/enhancedScraper.js';
+import { EnhancedScraper } from '../src/scraper/enhancedScraper.js';
 
 async function testEnhancedScraper() {
   console.log('🚀 Testing Enhanced Scraper System...\n');

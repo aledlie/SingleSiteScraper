@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
-import { BarChart3, Network, Database, Activity, TrendingUp, AlertTriangle, Table } from 'lucide-react';
+import React, { useState, Suspense, lazy } from 'react';
+import { BarChart3, Network, Database, Activity, TrendingUp, AlertTriangle, Table, Loader2 } from 'lucide-react';
 import { EnhancedScrapeResult, AnalyticsInsights } from '../analytics/enhancedScraper';
 import { PerformanceAlert } from '../analytics/performanceMonitor';
-import { DatabaseSchemaViz } from '../visualizations/DatabaseSchemaViz';
 import { SQLMagicIntegration } from '../analytics/sqlMagicIntegration';
+
+// Lazy load heavy visualization components
+const DatabaseSchemaViz = lazy(() => import('../visualizations/DatabaseSchemaViz').then(module => ({ default: module.DatabaseSchemaViz })));
 
 interface AnalyticsDashboardProps {
   result?: EnhancedScrapeResult;
@@ -645,14 +647,20 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
               padding: '8px',
               position: 'relative'
             }}>
-              <DatabaseSchemaViz
-                tables={new SQLMagicIntegration({
-                  host: 'localhost',
-                  port: 5432,
-                  database: 'scraper_analytics'
-                }).getDatabaseSchema()}
-                width={1100}
-                height={700}
+              <Suspense fallback={
+                <div className="flex items-center justify-center h-96">
+                  <Loader2 className="w-8 h-8 animate-spin mr-2" />
+                  <span>Loading database schema visualization...</span>
+                </div>
+              }>
+                <DatabaseSchemaViz
+                  tables={new SQLMagicIntegration({
+                    host: 'localhost',
+                    port: 5432,
+                    database: 'scraper_analytics'
+                  }).getDatabaseSchema()}
+                  width={1100}
+                  height={700}
                 onExport={() => {
                   // Custom export handler for database schema
                   const schemaJson = {
@@ -684,6 +692,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                   URL.revokeObjectURL(url);
                 }}
               />
+              </Suspense>
             </div>
 
             {/* Schema Information Panel */}

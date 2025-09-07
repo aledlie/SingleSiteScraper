@@ -1,14 +1,16 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, Suspense, lazy } from 'react';
 import { Loader2, Search, Download, Globe, BarChart3, Settings, Database } from 'lucide-react';
 import { EnhancedScraper, EnhancedScrapeOptions, EnhancedScrapeResult, AnalyticsInsights } from '../analytics/enhancedScraper';
 import { SQLMagicConfig } from '../analytics/sqlMagicIntegration';
 import { PerformanceAlert } from '../analytics/performanceMonitor';
 import { ScrapeOptionsForm } from './ScrapeOptionsForm';
-import { AnalyticsDashboard } from './AnalyticsDashboard';
 import type { AnalyticsConfig } from '../types';
 import FormInput from './ui/FormInput';
 import { ErrorAlert } from './ErrorAlert';
 import { ProgressIndicator } from './ProgressBar';
+
+// Lazy load heavy analytics components
+const AnalyticsDashboard = lazy(() => import('./AnalyticsDashboard').then(module => ({ default: module.AnalyticsDashboard })));
 
 const EnhancedWebScraper: React.FC = () => {
   const [url, setUrl] = useState('');
@@ -465,11 +467,18 @@ const EnhancedWebScraper: React.FC = () => {
 
       {activeView === 'analytics' && (
         <div className="analytics-view">
-          <AnalyticsDashboard 
-            result={result || undefined} 
-            insights={insights || undefined}
-            alerts={alerts}
-          />
+          <Suspense fallback={
+            <div className="flex items-center justify-center p-8">
+              <Loader2 className="w-6 h-6 animate-spin mr-2" />
+              <span>Loading analytics dashboard...</span>
+            </div>
+          }>
+            <AnalyticsDashboard 
+              result={result || undefined} 
+              insights={insights || undefined}
+              alerts={alerts}
+            />
+          </Suspense>
         </div>
       )}
     </div>

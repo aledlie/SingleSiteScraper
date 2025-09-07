@@ -27,24 +27,34 @@ export class PlaywrightProvider extends BaseScrapeProvider {
 
   private async checkPlaywrightAvailability() {
     try {
+      // Only run in Node.js environment, not in browser
+      if (typeof window !== 'undefined') {
+        console.warn('Playwright provider not available in browser environment');
+        this.isPlaywrightAvailable = false;
+        return;
+      }
+
       // Dynamic import to avoid breaking if playwright isn't installed
-      const { chromium } = await import('playwright');
-      this.isPlaywrightAvailable = true;
+      // TODO: Re-enable when Playwright bundling issues are resolved
+      // const { chromium } = await import('playwright');
+      console.log('Playwright provider temporarily disabled due to bundling issues');
+      this.isPlaywrightAvailable = false;
       
       // Pre-warm browser for better performance
-      if (!this.browser) {
-        this.browser = await chromium.launch({
-          headless: true,
-          args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--disable-accelerated-2d-canvas',
-            '--disable-gpu',
-            '--window-size=1920,1080'
-          ]
-        });
-      }
+      // TODO: Re-enable when Playwright bundling issues are resolved
+      // if (!this.browser) {
+      //   this.browser = await chromium.launch({
+      //     headless: true,
+      //     args: [
+      //       '--no-sandbox',
+      //       '--disable-setuid-sandbox',
+      //       '--disable-dev-shm-usage',
+      //       '--disable-accelerated-2d-canvas',
+      //       '--disable-gpu',
+      //       '--window-size=1920,1080'
+      //     ]
+      //   });
+      // }
     } catch (error) {
       console.warn('Playwright not available:', error);
       this.isPlaywrightAvailable = false;
@@ -52,6 +62,10 @@ export class PlaywrightProvider extends BaseScrapeProvider {
   }
 
   async scrape(url: string, options?: ScrapingOptions): Promise<ScrapingResult> {
+    if (typeof window !== 'undefined') {
+      throw new Error('Playwright provider cannot run in browser environment');
+    }
+    
     if (!this.isPlaywrightAvailable) {
       throw new Error('Playwright is not available. Install with: npm install playwright && npx playwright install');
     }
@@ -63,21 +77,24 @@ export class PlaywrightProvider extends BaseScrapeProvider {
 
     try {
       // Dynamic import
-      const { chromium } = await import('playwright');
+      // TODO: Re-enable when Playwright bundling issues are resolved
+      // const { chromium } = await import('playwright');
       
-      if (!this.browser) {
-        this.browser = await chromium.launch({
-          headless: true,
-          args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--disable-accelerated-2d-canvas',
-            '--disable-gpu',
-            '--window-size=1920,1080'
-          ]
-        });
-      }
+      throw new Error('Playwright temporarily disabled due to bundling issues');
+      
+      // if (!this.browser) {
+      //   this.browser = await chromium.launch({
+      //     headless: true,
+      //     args: [
+      //       '--no-sandbox',
+      //       '--disable-setuid-sandbox',
+      //       '--disable-dev-shm-usage',
+      //       '--disable-accelerated-2d-canvas',
+      //       '--disable-gpu',
+      //       '--window-size=1920,1080'
+      //     ]
+      //   });
+      // }
 
       // Create new context with stealth options
       context = await this.browser.newContext({
@@ -203,6 +220,21 @@ export class PlaywrightProvider extends BaseScrapeProvider {
     }
   }
 
+  /**
+   * Cleanup browser resources - should be called when provider is no longer needed
+   */
+  async cleanup(): Promise<void> {
+    try {
+      if (this.browser) {
+        await this.browser.close();
+        this.browser = null;
+        console.log('Playwright browser instance cleaned up');
+      }
+    } catch (error) {
+      console.warn('Error cleaning up Playwright browser:', error);
+    }
+  }
+
   async getHealthStatus(): Promise<ProviderHealthCheck> {
     try {
       const isHealthy = await this.isAvailable();
@@ -225,19 +257,6 @@ export class PlaywrightProvider extends BaseScrapeProvider {
     }
   }
 
-  /**
-   * Clean up browser resources
-   */
-  async cleanup() {
-    if (this.browser) {
-      try {
-        await this.browser.close();
-        this.browser = null;
-      } catch (error) {
-        console.warn('Error closing browser:', error);
-      }
-    }
-  }
 
   /**
    * Get browser info for debugging

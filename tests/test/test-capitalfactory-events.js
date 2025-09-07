@@ -1,4 +1,4 @@
-import { scrapeWebsite } from '../src/scraper/scrapeWebsite.ts';
+import { scrapeWebsite } from '../../src/scraper/scrapeWebsite.js';
 
 const testCapitalFactoryEvents = async () => {
   console.log('🧪 Testing Capital Factory Event Parsing');

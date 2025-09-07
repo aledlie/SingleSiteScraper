@@ -59,13 +59,6 @@ export class SQLMagicIntegration {
     });
   }
 
-  public cleanup(): void {
-    this.abortController.abort();
-    this.timeouts.forEach(timeout => clearTimeout(timeout));
-    this.timeouts.clear();
-    this.connected = false;
-    this.abortController = new AbortController();
-  }
 
   private generateQueryId(): string {
     return `sql_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -741,5 +734,27 @@ ORDER BY hour`;
         constraints: ['FOREIGN KEY (graph_id) REFERENCES html_graphs(id)']
       }
     ];
+  }
+
+  /**
+   * Cleanup method to properly dispose of resources and prevent memory leaks
+   */
+  cleanup(): void {
+    try {
+      // Clear all timeouts
+      this.timeouts.forEach(timeoutId => {
+        clearTimeout(timeoutId);
+      });
+      this.timeouts.clear();
+
+      // Abort any pending operations
+      if (this.abortController && !this.abortController.signal.aborted) {
+        this.abortController.abort();
+      }
+
+      console.log('SQLMagicIntegration cleanup completed');
+    } catch (error) {
+      console.warn('Error during SQLMagicIntegration cleanup:', error);
+    }
   }
 }

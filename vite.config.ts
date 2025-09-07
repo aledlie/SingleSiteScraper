@@ -7,41 +7,73 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
+        manualChunks: (id) => {
           // Vendor libraries
-          'react-vendor': ['react', 'react-dom'],
-          'ui-vendor': ['lucide-react', 'date-fns'],
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'react-vendor';
+            }
+            if (id.includes('lucide-react') || id.includes('date-fns')) {
+              return 'ui-vendor';
+            }
+            if (id.includes('node-html-parser')) {
+              return 'parser-vendor';
+            }
+            return 'vendor';
+          }
+          
+          // Large scraping modules
+          if (id.includes('scraper/')) {
+            return 'scraper';
+          }
           
           // Analytics and performance modules
-          'analytics': [
-            './src/analytics/enhancedScraper.ts',
-            './src/analytics/performanceMonitor.ts',
-            './src/analytics/sqlMagicIntegration.ts',
-            './src/analytics/htmlObjectAnalyzer.ts'
-          ],
+          if (id.includes('analytics/')) {
+            return 'analytics';
+          }
           
           // Visualization components
-          'visualizations': [
-            './src/visualizations/DatabaseSchemaViz.tsx',
-            './src/visualizations/MetricsCharts.tsx',
-            './src/visualizations/NetworkGraphViz.tsx'
-          ],
+          if (id.includes('visualizations/')) {
+            return 'visualizations';
+          }
           
           // Large dashboard components
-          'dashboards': [
-            './src/components/AnalyticsDashboard.tsx',
-            './src/components/FisterraVisualizationDashboard.tsx'
-          ]
+          if (id.includes('AnalyticsDashboard') || id.includes('FisterraVisualizationDashboard')) {
+            return 'dashboards';
+          }
+          
+          // Utils and smaller components
+          if (id.includes('utils/') || id.includes('types/')) {
+            return 'utils';
+          }
         }
+      },
+      // Enable tree shaking
+      treeshake: {
+        moduleSideEffects: false,
+        propertyReadSideEffects: false,
+        unknownGlobalSideEffects: false
       }
     },
     // Reduce chunk size warning threshold
-    chunkSizeWarningLimit: 300,
+    chunkSizeWarningLimit: 200,
     // Enable sourcemaps for debugging but smaller inline maps
-    sourcemap: 'hidden'
+    sourcemap: 'hidden',
+    // Optimize minification
+    minify: 'esbuild'
   },
   // Optimize deps for faster dev server
   optimizeDeps: {
-    include: ['react', 'react-dom', 'lucide-react', 'date-fns', 'node-html-parser']
+    include: ['react', 'react-dom', 'lucide-react', 'date-fns', 'node-html-parser'],
+    // Exclude Playwright and other Node.js-only dependencies
+    exclude: ['playwright', 'playwright-core']
+  },
+  // Define external dependencies that shouldn't be bundled
+  define: {
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
+  },
+  // Configure externals for Node.js dependencies
+  ssr: {
+    external: ['playwright', 'playwright-core', 'chromium-bidi']
   }
 });

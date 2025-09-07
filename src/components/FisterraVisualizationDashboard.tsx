@@ -199,12 +199,21 @@ export const FisterraVisualizationDashboard: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+    let timeoutId: NodeJS.Timeout;
+    
     // Simulate loading and processing data
     const loadData = async () => {
       setIsLoading(true);
       
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Simulate API delay with cleanup
+      await new Promise<void>(resolve => {
+        timeoutId = setTimeout(() => {
+          if (isMounted) {
+            resolve();
+          }
+        }, 1500);
+      });
       
       const mockData = createFisterraMockData();
       setData(mockData);
@@ -234,6 +243,14 @@ export const FisterraVisualizationDashboard: React.FC = () => {
     };
 
     loadData();
+    
+    // Cleanup function
+    return () => {
+      isMounted = false;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
   }, []);
 
   if (isLoading) {
