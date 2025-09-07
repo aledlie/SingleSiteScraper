@@ -39,10 +39,23 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
         ))}
       </div>
 
-      <Card>
-        {tab === 'text' && filtered.text.map((t, i) => (
-          <p key={i} className="mb-4 text-gray-700 leading-relaxed">{t}</p>
-        ))}
+      {tab !== 'schema' && (
+        <Card>
+          {tab === 'text' && (
+          <div className="space-y-4">
+            {filtered.text.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <p className="text-gray-500">No text content found matching your filter.</p>
+              </div>
+            ) : (
+              filtered.text.map((t, i) => (
+                <div key={i} className="bg-gradient-to-r from-white to-blue-50 border border-blue-100 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
+                  <p className="text-gray-700 leading-relaxed text-base break-words">{t}</p>
+                </div>
+              ))
+            )}
+          </div>
+        )}
 
         {tab === 'events' && (
           <div className="space-y-4">
@@ -150,139 +163,212 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
           </div>
         )}
 
-        {tab === 'links' && filtered.links.map((l, i) => (
-          <div key={i} className="mb-4 p-3 border border-gray-200 rounded-lg">
-            <a href={l.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 font-medium">{l.text}</a>
-            <p className="text-sm text-gray-500 mt-1">{l.url}</p>
+        {tab === 'links' && (
+          <div className="space-y-4">
+            {filtered.links.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <p className="text-gray-500">No links found matching your filter.</p>
+              </div>
+            ) : (
+              filtered.links.map((l, i) => (
+                <div key={i} className="bg-gradient-to-r from-white to-blue-50 border border-blue-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-all duration-200 hover:border-blue-300">
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0 w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-0.5">
+                        <span className="text-blue-600 text-sm">🔗</span>
+                      </div>
+                      <div className="flex-grow min-w-0">
+                        <a 
+                          href={l.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="text-blue-700 hover:text-blue-900 font-semibold text-lg leading-snug break-words transition-colors duration-150"
+                          title={l.text}
+                        >
+                          {l.text}
+                        </a>
+                      </div>
+                    </div>
+                    <div className="ml-9 pl-2 border-l-2 border-gray-100">
+                      <p className="text-sm text-gray-600 break-all font-mono bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
+                        {l.url}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
-        ))}
+        )}
 
         {tab === 'images' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filtered.images.map((img, i) => (
-              <div key={i} className="border border-gray-200 rounded-lg overflow-hidden">
-                <img src={img.url} alt={img.alternateName || img.name || ''} className="w-full h-48 object-cover" />
-                <p className="p-3 font-medium text-gray-900">{img.name || img.alternateName || 'Image'}</p>
-                {img.description && img.description !== img.alternateName && (
-                  <p className="px-3 pb-3 text-xs text-gray-500">
-                    {img.description}
-                  </p>
-                )}
+          <div className="space-y-4">
+            {filtered.images.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <p className="text-gray-500">No images found matching your filter.</p>
               </div>
-            ))}
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filtered.images.map((img, i) => (
+                  <div key={i} className="bg-gradient-to-b from-white to-gray-50 border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 hover:border-gray-300">
+                    <div className="aspect-video overflow-hidden">
+                      <img 
+                        src={img.url} 
+                        alt={img.alternateName || img.name || ''} 
+                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" 
+                        loading="lazy"
+                      />
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-semibold text-gray-900 text-base leading-snug mb-2 break-words">
+                        {img.name || img.alternateName || 'Image'}
+                      </h3>
+                      {img.description && img.description !== img.alternateName && (
+                        <p className="text-sm text-gray-600 leading-relaxed break-words">
+                          {img.description}
+                        </p>
+                      )}
+                      <div className="mt-3 pt-2 border-t border-gray-100">
+                        <p className="text-xs text-gray-400 font-mono break-all">
+                          {img.url}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
         {tab === 'metadata' && (
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Key</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.metadata.map(([k, v]) => (
-                <tr key={k} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{k}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{v}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-
-        {tab === 'schema' && (
-          <div className="flex flex-col gap-6 w-full">
-            <div className="w-full">
-              <h3 className="text-lg font-semibold mb-3 text-slate-800">
-                📄 Web Page Schema
-              </h3>
-              <pre className="bg-slate-800 text-slate-200 p-5 rounded-lg overflow-auto text-sm font-mono border border-slate-600 w-full box-border leading-6 whitespace-pre" style={{ tabSize: 2 }}>
-                {JSON.stringify(data.webPage, null, 2)}
-              </pre>
-            </div>
-
-            <div className="w-full">
-              <h3 className="text-lg font-semibold mb-3 text-slate-800">
-                🌐 Web Site Schema
-              </h3>
-              <pre className="bg-slate-800 text-slate-200 p-5 rounded-lg overflow-auto text-sm font-mono border border-slate-600 w-full box-border leading-6 whitespace-pre" style={{ tabSize: 2 }}>
-                {JSON.stringify(data.webSite, null, 2)}
-              </pre>
-            </div>
-
-            {data.events && data.events.length > 0 && (
-              <div className="w-full">
-                <h3 className="text-lg font-semibold mb-3 text-slate-800">
-                  📅 Events Schema ({data.events.length} events)
-                </h3>
-                <div className="flex flex-col gap-4 w-full">
-                  {data.events.slice(0, 3).map((event, i) => (
-                    <div key={i}>
-                      <h4 className="text-sm font-medium mb-2 text-gray-700">
-                        Event {i + 1}: {event.name}
-                      </h4>
-                      <pre className="bg-slate-50 p-4 rounded-lg overflow-auto text-xs border border-slate-200 w-full box-border">
-                        {JSON.stringify(event, null, 2)}
-                      </pre>
-                    </div>
-                  ))}
-                  {data.events.length > 3 && (
-                    <p className="text-sm text-gray-500 italic">
-                      ... and {data.events.length - 3} more events
-                    </p>
-                  )}
-                </div>
+          <div className="space-y-4">
+            {filtered.metadata.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <p className="text-gray-500">No metadata found matching your filter.</p>
+              </div>
+            ) : (
+              <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gradient-to-r from-gray-50 to-blue-50">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Key</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Value</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-100">
+                    {filtered.metadata.map(([k, v]) => (
+                      <tr key={k} className="hover:bg-blue-50 transition-colors duration-150">
+                        <td className="px-6 py-4 text-sm font-medium text-gray-900 break-words">{k}</td>
+                        <td className="px-6 py-4 text-sm text-gray-600 break-words leading-relaxed">{v}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
-
-            {data.images && data.images.length > 0 && (
-              <div className="w-full">
-                <h3 className="text-lg font-semibold mb-3 text-slate-800">
-                  🖼️ Image Objects Schema ({data.images.length} images)
-                </h3>
-                <div className="flex flex-col gap-4 w-full">
-                  {data.images.slice(0, 2).map((image, i) => (
-                    <div key={i}>
-                      <h4 className="text-sm font-medium mb-2 text-gray-700">
-                        Image {i + 1}: {image.name || 'Unnamed'}
-                      </h4>
-                      <pre className="bg-slate-50 p-4 rounded-lg overflow-auto text-xs border border-slate-200 w-full box-border">
-                        {JSON.stringify(image, null, 2)}
-                      </pre>
-                    </div>
-                  ))}
-                  {data.images.length > 2 && (
-                    <p className="text-sm text-gray-500 italic">
-                      ... and {data.images.length - 2} more images
-                    </p>
-                  )}
-                </div>
-              </div>
-            )}
-
-            <div className="w-full">
-              <h3 className="text-lg font-semibold mb-3 text-slate-800">
-                📊 Complete Dataset Schema
-              </h3>
-              <pre className="bg-slate-50 p-4 rounded-lg overflow-auto text-xs border border-slate-200 max-h-96 w-full box-border">
-                {JSON.stringify({
-                  '@context': data['@context'],
-                  '@type': data['@type'],
-                  title: data.title,
-                  description: data.description,
-                  webSite: data.webSite,
-                  webPage: data.webPage,
-                  events: data.events,
-                  images: data.images,
-                  status: data.status
-                }, null, 2)}
-              </pre>
-            </div>
           </div>
         )}
-      </Card>
+
+        </Card>
+      )}
+
+      {tab === 'schema' && (
+        <div className="-mx-6 -mb-6">
+          <div className="px-6 py-6 bg-gray-50">
+            <div className="max-w-full">
+              <div className="flex flex-col gap-8">
+                <div className="w-full">
+                  <h3 className="text-lg font-semibold mb-4 text-slate-800">
+                    📄 Web Page Schema
+                  </h3>
+                  <pre className="bg-slate-800 text-slate-200 p-6 rounded-lg overflow-auto text-sm font-mono border border-slate-600 w-full max-w-full leading-6 whitespace-pre" style={{ tabSize: 2 }}>
+                    {JSON.stringify(data.webPage, null, 2)}
+                  </pre>
+                </div>
+
+                <div className="w-full">
+                  <h3 className="text-lg font-semibold mb-4 text-slate-800">
+                    🌐 Web Site Schema
+                  </h3>
+                  <pre className="bg-slate-800 text-slate-200 p-6 rounded-lg overflow-auto text-sm font-mono border border-slate-600 w-full max-w-full leading-6 whitespace-pre" style={{ tabSize: 2 }}>
+                    {JSON.stringify(data.webSite, null, 2)}
+                  </pre>
+                </div>
+
+                {data.events && data.events.length > 0 && (
+                  <div className="w-full">
+                    <h3 className="text-lg font-semibold mb-4 text-slate-800">
+                      📅 Events Schema ({data.events.length} events)
+                    </h3>
+                    <div className="flex flex-col gap-6 w-full">
+                      {data.events.slice(0, 3).map((event, i) => (
+                        <div key={i}>
+                          <h4 className="text-sm font-medium mb-3 text-gray-700">
+                            Event {i + 1}: {event.name}
+                          </h4>
+                          <pre className="bg-slate-50 p-4 rounded-lg overflow-auto text-xs border border-slate-200 w-full max-w-full">
+                            {JSON.stringify(event, null, 2)}
+                          </pre>
+                        </div>
+                      ))}
+                      {data.events.length > 3 && (
+                        <p className="text-sm text-gray-500 italic">
+                          ... and {data.events.length - 3} more events
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {data.images && data.images.length > 0 && (
+                  <div className="w-full">
+                    <h3 className="text-lg font-semibold mb-4 text-slate-800">
+                      🖼️ Image Objects Schema ({data.images.length} images)
+                    </h3>
+                    <div className="flex flex-col gap-6 w-full">
+                      {data.images.slice(0, 2).map((image, i) => (
+                        <div key={i}>
+                          <h4 className="text-sm font-medium mb-3 text-gray-700">
+                            Image {i + 1}: {image.name || 'Unnamed'}
+                          </h4>
+                          <pre className="bg-slate-50 p-4 rounded-lg overflow-auto text-xs border border-slate-200 w-full max-w-full">
+                            {JSON.stringify(image, null, 2)}
+                          </pre>
+                        </div>
+                      ))}
+                      {data.images.length > 2 && (
+                        <p className="text-sm text-gray-500 italic">
+                          ... and {data.images.length - 2} more images
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <div className="w-full">
+                  <h3 className="text-lg font-semibold mb-4 text-slate-800">
+                    📊 Complete Dataset Schema
+                  </h3>
+                  <pre className="bg-slate-50 p-4 rounded-lg overflow-auto text-xs border border-slate-200 max-h-96 w-full max-w-full">
+                    {JSON.stringify({
+                      '@context': data['@context'],
+                      '@type': data['@type'],
+                      title: data.title,
+                      description: data.description,
+                      webSite: data.webSite,
+                      webPage: data.webPage,
+                      events: data.events,
+                      images: data.images,
+                      status: data.status
+                    }, null, 2)}
+                  </pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
