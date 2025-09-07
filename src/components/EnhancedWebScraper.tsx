@@ -311,7 +311,7 @@ const EnhancedWebScraper: React.FC = () => {
             <button
               onClick={handleScrape}
               disabled={isLoading || !url}
-              className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium rounded-lg transition-colors disabled:cursor-not-allowed"
+              className={`scrape-button ${isLoading || !url ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               {isLoading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />

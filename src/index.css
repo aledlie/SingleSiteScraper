@@ -91,7 +91,7 @@
   }
 
   .header {
-    @apply text-center mb-10;
+    @apply text-center;
   }
 
   .logo {
@@ -107,15 +107,15 @@
   }
 
   .subtitle {
-    @apply text-gray-300;
+    @apply text-gray-400;
   }
 
   .mode-toggle {
-    @apply flex gap-4 mx-auto w-fit mt-8;
+    @apply flex gap-2 mx-auto w-fit mt-4;
   }
 
   .mode-button {
-    @apply flex items-center gap-3 px-8 py-4 rounded-xl text-base font-medium transition-colors shadow-lg border bg-white text-gray-700 border-gray-200 hover:bg-gray-50;
+    @apply flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-medium transition-colors shadow-lg border bg-white text-gray-700 border-gray-200 hover:bg-gray-50;
   }
 
   .mode-button.active {
@@ -167,7 +167,10 @@
   }
 
   .scrape-button {
-    @apply w-full bg-gradient-to-r from-blue-600 to-emerald-600 text-white py-3 rounded-lg font-semibold flex justify-center items-center gap-2;
+    @apply w-full py-3 rounded-lg font-bold flex justify-center items-center gap-2;
+    background-image: linear-gradient(to right, #2563eb, #059669);
+    color: #e2e8f0;
+    opacity: 1 !important;
   }
 
   .scrape-button-icon {
