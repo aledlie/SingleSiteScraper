@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Database Schema - SingleSiteScraper</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.2em;
+        }
+
+        .view-toggle {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .toggle-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            margin: 0 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn.active {
+            background: #2c3e50;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-btn:hover {
+            background: #2980b9;
+        }
+
+        .schema-container {
+            position: relative;
+            width: 100%;
+            height: 800px;
+            border: 2px solid #ecf0f1;
+            border-radius: 12px;
+            background: #fafbfc;
+            overflow: hidden;
+        }
+
+        .table {
+            position: absolute;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            min-width: 280px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .table:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .table-header {
+            padding: 16px 20px;
+            border-radius: 10px 10px 0 0;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            position: relative;
+        }
+
+        .table-header .business-name {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+
+        .performance-metrics {
+            top: 50px;
+            left: 50px;
+            border-color: #3498db;
+        }
+
+        .performance-metrics .table-header {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+
+        .schema-org-data {
+            top: 50px;
+            right: 50px;
+            border-color: #2ecc71;
+        }
+
+        .schema-org-data .table-header {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+        }
+
+        .html-graphs {
+            bottom: 200px;
+            left: 50px;
+            border-color: #e74c3c;
+        }
+
+        .html-graphs .table-header {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .html-objects {
+            bottom: 50px;
+            right: 50px;
+            border-color: #f39c12;
+        }
+
+        .html-objects .table-header {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+        }
+
+        .table-body {
+            padding: 0;
+        }
+
+        .field {
+            padding: 12px 20px;
+            border-bottom: 1px solid #ecf0f1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background-color 0.2s ease;
+        }
+
+        .field:hover {
+            background: #f8f9fa;
+        }
+
+        .field:last-child {
+            border-bottom: none;
+        }
+
+        .field-info {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+
+        .field-name {
+            font-weight: 500;
+            color: #2c3e50;
+            margin-right: 8px;
+        }
+
+        .field-type {
+            background: #ecf0f1;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #7f8c8d;
+            margin-right: 8px;
+        }
+
+        .constraints {
+            display: flex;
+            gap: 4px;
+        }
+
+        .constraint {
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: white;
+        }
+
+        .pk { background: #e74c3c; }
+        .fk { background: #3498db; }
+        .nn { background: #95a5a6; }
+        .idx { background: #f39c12; }
+
+        .relationship-line {
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .relationship-line svg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .relationship-line path {
+            fill: none;
+            stroke: #3498db;
+            stroke-width: 2;
+            marker-end: url(#arrowhead);
+        }
+
+        .field-tooltip {
+            position: absolute;
+            background: #2c3e50;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            max-width: 300px;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .field-tooltip.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .business-view .field-type,
+        .business-view .constraints {
+            display: none;
+        }
+
+        .business-view .field-name {
+            font-size: 14px;
+        }
+
+        .legend {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            font-size: 12px;
+        }
+
+        .legend h4 {
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗄️ SingleSiteScraper Database Schema</h1>
+            <p>Interactive database documentation with enhanced metadata</p>
+        </div>
+
+        <div class="view-toggle">
+            <button class="toggle-btn active" onclick="setView('technical')">🔧 Technical View</button>
+            <button class="toggle-btn" onclick="setView('business')">👔 Business View</button>
+        </div>
+
+        <div class="schema-container" id="schemaContainer">
+            <!-- Performance Metrics Table -->
+            <div class="table performance-metrics">
+                <div class="table-header">
+                    <div>performance_metrics</div>
+                    <div class="business-name">Website Performance Data</div>
+                </div>
+                <div class="table-body">
+                    <div class="field" data-tooltip="Unique identifier for each performance measurement">
+                        <div class="field-info">
+                            <span class="field-name">id</span>
+                            <span class="field-type">VARCHAR(255)</span>
+                        </div>
+                        <div class="constraints">
+                            <span class="constraint pk">PK</span>
+                        </div>
+                    </div>
+                    <div class="field" data-tooltip="URL of the webpage being analyzed for performance metrics">
+                        <div class="field-info">
+                            <span class="field-name">url</span>
+                            <span class="field-type">TEXT</span>
+                        </div>
+                        <div class="constraints">
+                            <span class="constraint nn">NOT NULL</span>
+                            <span class="constraint idx">IDX</span>
+                        </div>
+                    </div>
+                    <div class="field" data-tooltip="Timestamp when the performance analysis was conducted">
+                        <div class="field-info">
+                            <span class="field-name">timestamp</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                        <div class="constraints">
+                            <span class="constraint nn">DEFAULT CURRENT_TIMESTAMP</span>
+                        </div>
+                    </div>
+                    <div class="field" data-tooltip="Total time taken for complete page analysis (milliseconds)">
+                        <div class="field-info">
+                            <span class="field-name">total_time</span>
+                            <span class="field-type">INTEGER</span>
+                        </div>
+                    </div>
+                    <div class="field" data-tooltip="Time spent fetching the webpage content (milliseconds)">
+                        <div class="field-info">
+                            <span class="field-name">fetch_time</span>
+                            <span class="field-type">INTEGER</span>
+                        </div>
+                    </div>
+                    <div class="field" data-tooltip="Time spent parsing HTML structure (milliseconds)">
+                        <div class="field-info">
+                            <span class="field-name">parse_time</span>
+                            <span class="field-type">INTEGER</span>
+                        </div>
+                    </div>
+                    <div class="field" data-tooltip="Time spent analyzing semantic content and relationships (milliseconds)">
+                        <div class="field-info">
+                            <span class="field-name">analysis_time</span>
+                            <span class="field-type">INTEGER</span>
+                        </div>
+                    </div>
+                    <div class="field" data-tooltip="Number of retry attempts made due to failures or timeouts">
+                        <div class="field-info">
+                            <span class="field-name">retry_attempts</span>
+                            <span class="field-type">INTEGER</span>
+                        </div>
+                    </div>
+                    <div class="field" data-tooltip="Proxy server configuration used for the request">
+                        <div class="field-info">
+                            <span class="field-name">proxy_used</span>
+                            <span class="field-type">VARCHAR(100)</span>
+                        </div>
+                    </div>
+                    <div class="field" data-tooltip="Total size of HTML content in bytes">
+                        <div class="field-info">
+                            <span class="field-name">html_size</span>
+                            <span class="field-type">BIGINT</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schema.org Data Table -->
+            <div class="table schema-org-data">
+                <div class="table-header">
+                    <div>schema_org_data</div>
+                    <div class="business-name">Structured Content Metadata</div>
+                </div>
+                <div class="table-body">
+                    <div class="field" data-tooltip="Unique identifier for each schema.org data entry">
+                        <div class="field-info">
+                            <span class="field-name">id</span>
+                            <span class="field-type">VARCHAR(255)</span>
+                        </div>
+                        <div class="constraints">
+                            <span class="constraint pk">PK</span>
+                        </div>
+                    </div>
+                    <div class="field" data-tooltip="Reference to the HTML graph this schema data belongs to">
+                        <div class="field-info">
+                            <span class="field-name">graph_id</span>
+                            <span class="field-type">VARCHAR(255)</span>
+                        </div>
+                        <div class="constraints">
+                            <span class="constraint fk">FK</span>
+                            <span class="constraint idx">IDX</span>
+                        </div>
+                    </div>
+                    <div class="field" data-tooltip="Type of schema.org structured data (e.g., Article, Product, Organization)">
+                        <div class="field-info">
+                            <span class="field-name">schema_type</span>
+                            <span class="field-type">VARCHAR(100)</span>
+                        </div>
+                    </div>
+                    <div class="field" data-tooltip="Complete JSON payload of the structured data">
+                        <div class="field-info">
+                            <span class="field-name">data</span>
+                            <span class="field-type">JSON</span>
+                        </div>
+                    </div>
+                    <div class="field" data-tooltip="Timestamp when this schema data was extracted and stored">
+                        <div class="field-info">
+                            <span class="field-name">created_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                        <div class="constraints">
+                            <span class="constraint nn">DEFAULT CURRENT_TIMESTAMP</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HTML Graphs Table -->
+            <div class="table html-graphs">
+                <div class="table-header">
+                    <div>html_graphs</div>
+                    <div class="business-name">Visual Chart Definitions</div>
+                </div>
+                <div class="table-body">
+                    <div class="field" data-tooltip="Unique identifier for each HTML graph visualization">
+                        <div class="field-info">
+                            <span class="field-name">id</span>
+                            <span class="field-type">VARCHAR(255)</span>
+                        </div>
+                        <div class="constraints">
+                            <span class="constraint pk">PK</span>
+                        </div>
+                    </div>
+                    <div class="field" data-tooltip="URL of the webpage that was analyzed to create this graph">
+                        <div class="field-info">
+                            <span class="field-name">url</span>
+                            <span class="field-type">TEXT</span>
+                        </div>
+                        <div class="constraints">
+                            <span class="constraint idx">IDX</span>
+                        </div>
+                    </div>
+                    <div class="field" data-tooltip="Human-readable title or name for this graph visualization">
+                        <div class="field-info">
+                            <span class="field-name">title</span>
+                            <span class="field-type">TEXT</span>
+                        </div>
+                    </div>
+                    <div class="field" data-tooltip="Timestamp when the HTML structure was analyzed">
+                        <div class="field-info">
+                            <span class="field-name">analyzed_at</span>
+                            <span class="field-type">TIMESTAMP</span>
+                        </div>
+                        <div class="constraints">
+                            <span class="constraint nn">DEFAULT CURRENT_TIMESTAMP</span>
+                        </div>
+                    </div>
+                    <div class="field" data-tooltip="Total number of HTML elements identified in the page">
+                        <div class="field-info">
+                            <span class="field-name">total_objects</span>
+                            <span class="field-type">INTEGER</span>
+                        </div>
+                    </div>
+                    <div class="field" data-tooltip="Total number of relationships between HTML elements">
+                        <div class="field-info">
+                            <span class="field-name">total_relationships</span>
+                            <span class="field-type">INTEGER</span>
+                        </div>
+                    </div>
+                    <div class="field" data-tooltip="Calculated complexity score based on DOM depth and relationships (0.0-10.0)">
+                        <div class="field-info">
+                            <span class="field-name">complexity</span>
+                            <span class="field-type">DECIMAL(10,2)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HTML Objects Table -->
+            <div class="table html-objects">
+                <div class="table-header">
+                    <div>html_objects</div>
+                    <div class="business-name">Web Page Elements</div>
+                </div>
+                <div class="table-body">
+                    <div class="field" data-tooltip="Unique identifier for each HTML element">
+                        <div class="field-info">
+                            <span class="field-name">id</span>
+                            <span class="field-type">VARCHAR(255)</span>
+                        </div>
+                        <div class="constraints">
+                            <span class="constraint pk">PK</span>
+                        </div>
+                    </div>
+                    <div class="field" data-tooltip="Reference to the parent HTML graph containing this element">
+                        <div class="field-info">
+                            <span class="field-name">graph_id</span>
+                            <span class="field-type">VARCHAR(255)</span>
+                        </div>
+                        <div class="constraints">
+                            <span class="constraint fk">FK</span>
+                            <span class="constraint idx">IDX</span>
+                        </div>
+                    </div>
+                    <div class="field" data-tooltip="Classification of the HTML element (e.g., content, navigation, footer)">
+                        <div class="field-info">
+                            <span class="field-name">object_type</span>
+                            <span class="field-type">VARCHAR(100)</span>
+                        </div>
+                    </div>
+                    <div class="field" data-tooltip="HTML tag name (e.g., div, p, h1, img, a)">
+                        <div class="field-info">
+                            <span class="field-name">tag</span>
+                            <span class="field-type">VARCHAR(50)</span>
+                        </div>
+                        <div class="constraints">
+                            <span class="constraint idx">IDX</span>
+                        </div>
+                    </div>
+                    <div class="field" data-tooltip="Semantic role of the element in page structure (header, main, aside, etc.)">
+                        <div class="field-info">
+                            <span class="field-name">semantic_role</span>
+                            <span class="field-type">VARCHAR(100)</span>
+                        </div>
+                    </div>
+                    <div class="field" data-tooltip="Associated schema.org type if element contains structured data">
+                        <div class="field-info">
+                            <span class="field-name">schema_org_type</span>
+                            <span class="field-type">VARCHAR(100)</span>
+                        </div>
+                    </div>
+                    <div class="field" data-tooltip="Extracted text content from the HTML element (truncated if > 1000 chars)">
+                        <div class="field-info">
+                            <span class="field-name">text_content</span>
+                            <span class="field-type">TEXT</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Relationship Lines -->
+            <svg width="100%" height="100%" style="position: absolute; top: 0; left: 0; pointer-events: none;">
+                <defs>
+                    <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+                            refX="9" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#3498db" />
+                    </marker>
+                </defs>
+                
+                <!-- schema_org_data.graph_id -> html_graphs.id -->
+                <path d="M 570 200 Q 400 150 330 350" stroke="#3498db" stroke-width="2" fill="none" marker-end="url(#arrowhead)" />
+                
+                <!-- html_objects.graph_id -> html_graphs.id -->
+                <path d="M 570 650 Q 400 600 330 550" stroke="#3498db" stroke-width="2" fill="none" marker-end="url(#arrowhead)" />
+            </svg>
+
+            <!-- Tooltip -->
+            <div class="field-tooltip" id="tooltip"></div>
+
+            <!-- Legend -->
+            <div class="legend">
+                <h4>Legend</h4>
+                <div class="legend-item">
+                    <div class="legend-color pk"></div>
+                    <span>Primary Key</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color fk"></div>
+                    <span>Foreign Key</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color nn"></div>
+                    <span>Not Null / Default</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color idx"></div>
+                    <span>Indexed</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentView = 'technical';
+
+        function setView(view) {
+            currentView = view;
+            const container = document.getElementById('schemaContainer');
+            const buttons = document.querySelectorAll('.toggle-btn');
+            
+            // Update button states
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Toggle view class
+            if (view === 'business') {
+                container.classList.add('business-view');
+            } else {
+                container.classList.remove('business-view');
+            }
+        }
+
+        // Tooltip functionality
+        const tooltip = document.getElementById('tooltip');
+        const fields = document.querySelectorAll('.field');
+
+        fields.forEach(field => {
+            field.addEventListener('mouseenter', (e) => {
+                const tooltipText = e.currentTarget.getAttribute('data-tooltip');
+                if (tooltipText) {
+                    tooltip.textContent = tooltipText;
+                    tooltip.classList.add('show');
+                    
+                    // Position tooltip
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const containerRect = document.querySelector('.schema-container').getBoundingClientRect();
+                    
+                    tooltip.style.left = (rect.left - containerRect.left + rect.width / 2) + 'px';
+                    tooltip.style.top = (rect.top - containerRect.top - tooltip.offsetHeight - 10) + 'px';
+                }
+            });
+
+            field.addEventListener('mouseleave', () => {
+                tooltip.classList.remove('show');
+            });
+        });
+
+        // Add hover effects to tables
+        const tables = document.querySelectorAll('.table');
+        tables.forEach(table => {
+            table.addEventListener('mouseenter', () => {
+                table.style.zIndex = '10';
+            });
+            
+            table.addEventListener('mouseleave', () => {
+                table.style.zIndex = '1';
+            });
+        });
+    </script>
+</body>
+</html>
