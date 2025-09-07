@@ -39,7 +39,7 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
         ))}
       </div>
 
-      {tab !== 'schema' && (
+      {tab !== 'schema' && tab !== 'images' && tab !== 'metadata' && (
         <Card>
           {tab === 'text' && (
           <div className="space-y-4">
@@ -201,74 +201,6 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
           </div>
         )}
 
-        {tab === 'images' && (
-          <div className="space-y-4">
-            {filtered.images.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <p className="text-gray-500">No images found matching your filter.</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filtered.images.map((img, i) => (
-                  <div key={i} className="bg-gradient-to-b from-white to-gray-50 border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 hover:border-gray-300">
-                    <div className="aspect-video overflow-hidden">
-                      <img 
-                        src={img.url} 
-                        alt={img.alternateName || img.name || ''} 
-                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" 
-                        loading="lazy"
-                      />
-                    </div>
-                    <div className="p-4">
-                      <h3 className="font-semibold text-gray-900 text-base leading-snug mb-2 break-words">
-                        {img.name || img.alternateName || 'Image'}
-                      </h3>
-                      {img.description && img.description !== img.alternateName && (
-                        <p className="text-sm text-gray-600 leading-relaxed break-words">
-                          {img.description}
-                        </p>
-                      )}
-                      <div className="mt-3 pt-2 border-t border-gray-100">
-                        <p className="text-xs text-gray-400 font-mono break-all">
-                          {img.url}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {tab === 'metadata' && (
-          <div className="space-y-4">
-            {filtered.metadata.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <p className="text-gray-500">No metadata found matching your filter.</p>
-              </div>
-            ) : (
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gradient-to-r from-gray-50 to-blue-50">
-                    <tr>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Key</th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Value</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-100">
-                    {filtered.metadata.map(([k, v]) => (
-                      <tr key={k} className="hover:bg-blue-50 transition-colors duration-150">
-                        <td className="px-6 py-4 text-sm font-medium text-gray-900 break-words">{k}</td>
-                        <td className="px-6 py-4 text-sm text-gray-600 break-words leading-relaxed">{v}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        )}
 
         </Card>
       )}
@@ -365,6 +297,85 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
                 </div>
               </div>
             </div>
+        </div>
+      )}
+
+      {tab === 'images' && (
+        <div className="bg-gray-50 rounded-b-lg p-6 -mt-1 min-w-0">
+          <div className="max-w-full overflow-hidden min-w-0">
+            <div className="space-y-6">
+              {filtered.images.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <p className="text-gray-500">No images found matching your filter.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                  {filtered.images.map((img, i) => (
+                    <div key={i} className="bg-gradient-to-b from-white to-gray-50 border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 hover:border-gray-300">
+                      <div className="aspect-video overflow-hidden">
+                        <img 
+                          src={img.url} 
+                          alt={img.alternateName || img.name || ''} 
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" 
+                          loading="lazy"
+                        />
+                      </div>
+                      <div className="p-4">
+                        <h3 className="font-semibold text-gray-900 text-sm leading-snug mb-2 break-words">
+                          {img.name || img.alternateName || 'Image'}
+                        </h3>
+                        {img.description && img.description !== img.alternateName && (
+                          <p className="text-xs text-gray-600 leading-relaxed break-words line-clamp-2">
+                            {img.description}
+                          </p>
+                        )}
+                        <div className="mt-2 pt-2 border-t border-gray-100">
+                          <p className="text-xs text-gray-400 font-mono break-all line-clamp-1" title={img.url}>
+                            {img.url}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {tab === 'metadata' && (
+        <div className="bg-gray-50 rounded-b-lg p-6 -mt-1 min-w-0">
+          <div className="max-w-full overflow-hidden min-w-0">
+            <div className="space-y-6">
+              {filtered.metadata.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <p className="text-gray-500">No metadata found matching your filter.</p>
+                </div>
+              ) : (
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gradient-to-r from-gray-50 to-blue-50">
+                        <tr>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider min-w-0">Key</th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider min-w-0">Value</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-100">
+                        {filtered.metadata.map(([k, v]) => (
+                          <tr key={k} className="hover:bg-blue-50 transition-colors duration-150">
+                            <td className="px-6 py-4 text-sm font-medium text-gray-900 break-words align-top min-w-0">{k}</td>
+                            <td className="px-6 py-4 text-sm text-gray-600 break-words leading-relaxed min-w-0 max-w-md">{v}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>
