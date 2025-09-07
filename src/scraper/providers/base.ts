@@ -1,205 +1,154 @@
 /**
- * Base interfaces and types for the modular scraping provider system
- * Supports multiple scraping methods with fallback strategies and performance monitoring
+ * Base interface for all scraping providers
+ * Defines standard contract for scraping services
  */
 
-export interface ScrapingConfig {
-  timeout: number;
-  retryAttempts: number;
+export interface ScrapingCapabilities {
+  supportsJavaScript: boolean;
+  supportsStealth: boolean;
+  isCommercial: boolean;
+  costPerRequest: number; // in credits/cents
+  maxConcurrency: number;
+  avgResponseTime: number; // ms
+}
+
+export interface ScrapingMetrics {
+  requestCount: number;
+  successCount: number;
+  failureCount: number;
+  avgResponseTime: number;
+  totalCost: number;
+  lastUsed: Date;
+  successRate: number;
+}
+
+export interface ScrapingOptions {
+  timeout?: number;
   userAgent?: string;
   headers?: Record<string, string>;
-  proxy?: {
-    server: string;
-    username?: string;
-    password?: string;
-  };
-  enableJavaScript?: boolean;
   waitForSelector?: string;
-  screenshot?: boolean;
-  blockResources?: string[]; // ['image', 'stylesheet', 'font', 'media']
+  waitForNetwork?: boolean;
+  blockResources?: boolean;
+  stealth?: boolean;
+  maxRetries?: number;
+  priority?: 'speed' | 'cost' | 'reliability';
 }
 
 export interface ScrapingResult {
-  success: boolean;
-  content?: string;
-  statusCode?: number;
-  contentType?: string;
+  html: string;
+  url: string;
+  status: number;
   responseTime: number;
-  providerUsed: string;
-  error?: string;
-  screenshot?: Buffer;
+  provider: string;
+  cost: number;
   metadata: {
-    requestId: string;
-    timestamp: number;
-    finalUrl: string;
-    redirectCount: number;
-    resourcesBlocked?: number;
-    jsExecutionTime?: number;
+    userAgent?: string;
+    headers?: Record<string, string>;
+    finalUrl?: string;
+    redirects?: number;
   };
 }
 
-export interface ProviderMetrics {
-  totalRequests: number;
-  successfulRequests: number;
-  avgResponseTime: number;
+export interface ProviderHealthCheck {
+  isHealthy: boolean;
+  lastCheck: Date;
   errorRate: number;
-  lastUsed: number;
-  costPerRequest?: number;
-  reliability: number; // 0-1 score based on recent performance
+  avgResponseTime: number;
+  message?: string;
 }
 
-export interface ProviderCapabilities {
-  supportsJavaScript: boolean;
-  supportsProxy: boolean;
-  supportsScreenshots: boolean;
-  supportsCustomHeaders: boolean;
-  maxConcurrentRequests: number;
-  rateLimitPerMinute: number;
-  costTier: 'free' | 'low' | 'medium' | 'high';
-  reliability: 'low' | 'medium' | 'high';
-  antiDetectionLevel: 'basic' | 'advanced' | 'premium';
-}
+export abstract class BaseScrapeProvider {
+  abstract name: string;
+  abstract capabilities: ScrapingCapabilities;
+  public metrics: ScrapingMetrics;
+  protected healthCheck: ProviderHealthCheck;
 
-export abstract class ScrapingProvider {
-  public readonly name: string;
-  public readonly capabilities: ProviderCapabilities;
-  public metrics: ProviderMetrics;
-  protected config: ScrapingConfig;
-
-  constructor(name: string, capabilities: ProviderCapabilities, defaultConfig: ScrapingConfig) {
-    this.name = name;
-    this.capabilities = capabilities;
-    this.config = defaultConfig;
+  constructor() {
     this.metrics = {
-      totalRequests: 0,
-      successfulRequests: 0,
+      requestCount: 0,
+      successCount: 0,
+      failureCount: 0,
       avgResponseTime: 0,
+      totalCost: 0,
+      lastUsed: new Date(),
+      successRate: 0,
+    };
+
+    this.healthCheck = {
+      isHealthy: true,
+      lastCheck: new Date(),
       errorRate: 0,
-      lastUsed: 0,
-      reliability: 1.0
+      avgResponseTime: 0,
     };
   }
 
-  /**
-   * Main scraping method to be implemented by each provider
-   */
-  abstract scrape(url: string, config?: Partial<ScrapingConfig>): Promise<ScrapingResult>;
-
-  /**
-   * Initialize the provider (setup connections, authenticate, etc.)
-   */
-  abstract initialize(): Promise<void>;
-
-  /**
-   * Cleanup resources when provider is no longer needed
-   */
-  abstract cleanup(): Promise<void>;
-
-  /**
-   * Health check to determine if provider is operational
-   */
-  abstract healthCheck(): Promise<boolean>;
-
-  /**
-   * Update provider configuration
-   */
-  updateConfig(newConfig: Partial<ScrapingConfig>): void {
-    this.config = { ...this.config, ...newConfig };
-  }
+  abstract scrape(url: string, options?: ScrapingOptions): Promise<ScrapingResult>;
+  abstract isAvailable(): Promise<boolean>;
+  abstract getHealthStatus(): Promise<ProviderHealthCheck>;
 
   /**
    * Update metrics after a scraping attempt
    */
-  protected updateMetrics(result: ScrapingResult): void {
-    this.metrics.totalRequests++;
-    this.metrics.lastUsed = Date.now();
+  protected updateMetrics(success: boolean, responseTime: number, cost: number = 0) {
+    this.metrics.requestCount++;
+    this.metrics.lastUsed = new Date();
+    this.metrics.totalCost += cost;
 
-    if (result.success) {
-      this.metrics.successfulRequests++;
+    if (success) {
+      this.metrics.successCount++;
+    } else {
+      this.metrics.failureCount++;
     }
 
-    // Update average response time
-    const currentAvg = this.metrics.avgResponseTime;
-    const count = this.metrics.totalRequests;
-    this.metrics.avgResponseTime = (currentAvg * (count - 1) + result.responseTime) / count;
+    // Update average response time (rolling average)
+    this.metrics.avgResponseTime = 
+      (this.metrics.avgResponseTime * (this.metrics.requestCount - 1) + responseTime) / 
+      this.metrics.requestCount;
 
-    // Update error rate
-    this.metrics.errorRate = 1 - (this.metrics.successfulRequests / this.metrics.totalRequests);
+    // Update success rate
+    this.metrics.successRate = this.metrics.successCount / this.metrics.requestCount;
 
-    // Calculate reliability score (success rate weighted by recent performance)
-    const recentWeight = 0.3; // Weight recent results more heavily
-    const overallSuccessRate = this.metrics.successfulRequests / this.metrics.totalRequests;
-    const recentSuccess = result.success ? 1 : 0;
-    this.metrics.reliability = overallSuccessRate * (1 - recentWeight) + recentSuccess * recentWeight;
+    // Update health check
+    this.healthCheck.lastCheck = new Date();
+    this.healthCheck.errorRate = this.metrics.failureCount / this.metrics.requestCount;
+    this.healthCheck.avgResponseTime = this.metrics.avgResponseTime;
+    this.healthCheck.isHealthy = this.metrics.successRate > 0.5 && this.healthCheck.errorRate < 0.5;
   }
 
   /**
-   * Check if provider should be used based on current metrics and config
+   * Get provider performance score (0-100)
    */
-  shouldUse(): boolean {
-    // Don't use if reliability is too low
-    if (this.metrics.reliability < 0.3) {
-      return false;
-    }
-
-    // Don't use if too many recent failures
-    if (this.metrics.errorRate > 0.7 && this.metrics.totalRequests > 10) {
-      return false;
-    }
-
-    return true;
-  }
-
-  /**
-   * Get provider priority score for fallback ordering
-   * Higher score = higher priority
-   */
-  getPriorityScore(): number {
-    const reliabilityWeight = 0.4;
+  getPerformanceScore(): number {
+    const successWeight = 0.4;
     const speedWeight = 0.3;
-    const costWeight = 0.3;
+    const costWeight = 0.2;
+    const availabilityWeight = 0.1;
 
-    const reliabilityScore = this.metrics.reliability;
-    const speedScore = this.metrics.avgResponseTime > 0 
-      ? Math.max(0, 1 - (this.metrics.avgResponseTime / 30000)) // Normalize against 30s max
-      : 0.5;
-    
-    const costScore = {
-      'free': 1.0,
-      'low': 0.8,
-      'medium': 0.6,
-      'high': 0.4
-    }[this.capabilities.costTier];
+    const successScore = this.metrics.successRate * 100;
+    const speedScore = Math.max(0, 100 - (this.metrics.avgResponseTime / 100));
+    const costScore = Math.max(0, 100 - (this.capabilities.costPerRequest * 10));
+    const availabilityScore = this.healthCheck.isHealthy ? 100 : 0;
 
-    return reliabilityScore * reliabilityWeight + 
-           speedScore * speedWeight + 
-           costScore * costWeight;
+    return (
+      successScore * successWeight +
+      speedScore * speedWeight +
+      costScore * costWeight +
+      availabilityScore * availabilityWeight
+    );
   }
 
   /**
-   * Generate request ID for tracking
+   * Reset metrics (useful for testing)
    */
-  protected generateRequestId(): string {
-    return `${this.name}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  resetMetrics() {
+    this.metrics = {
+      requestCount: 0,
+      successCount: 0,
+      failureCount: 0,
+      avgResponseTime: 0,
+      totalCost: 0,
+      lastUsed: new Date(),
+      successRate: 0,
+    };
   }
-}
-
-/**
- * Provider selection strategies
- */
-export enum FallbackStrategy {
-  PRIORITY_ORDER = 'priority_order',     // Use providers in order of priority score
-  COST_OPTIMIZED = 'cost_optimized',     // Start with cheapest, fallback to more expensive
-  SPEED_OPTIMIZED = 'speed_optimized',   // Start with fastest, fallback to slower
-  RELIABILITY_FIRST = 'reliability_first', // Start with most reliable
-  ROUND_ROBIN = 'round_robin'            // Distribute load evenly
-}
-
-export interface FallbackConfig {
-  strategy: FallbackStrategy;
-  maxProviders: number;
-  skipUnhealthy: boolean;
-  requireJavaScript?: boolean;
-  maxCostTier?: 'free' | 'low' | 'medium' | 'high';
-  minReliability?: number;
 }

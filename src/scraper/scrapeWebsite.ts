@@ -4,13 +4,15 @@ import { ScrapedData, ScrapeOptions } from '../types/index.ts';
 import {getText, getMetadata, getLinks, getTitle, getImages, getDescription, getWebSite, getWebPage} from '../utils/parse.ts';
 import {parse} from 'node-html-parser';
 import { extractEvents } from '../utils/parseEvents.ts';
+import { EnhancedScraper, EnhancedScrapingOptions } from './enhancedScraper';
 
-export const scrapeWebsite = async (
+// Legacy scraping function - maintained for backwards compatibility
+export const scrapeWebsiteLegacy = async (
   rawUrl: string,
   options: ScrapeOptions,
   setProgress: (msg: string) => void
 ): Promise<{ data?: ScrapedData; error?: string; url: string }> => {
-  setProgress('Initializing...');
+  setProgress('Initializing legacy scraper...');
   const startTime = Date.now();
   let response: string | null = null;
   let contentType = 'text/html';
@@ -97,5 +99,93 @@ export const scrapeWebsite = async (
 
   setProgress(`Completed in ${((Date.now() - startTime) / 1000).toFixed(2)}s`);
   return { data, url };
+};
+
+// Enhanced scraping function with modern provider system
+let enhancedScraper: EnhancedScraper | null = null;
+
+export const scrapeWebsite = async (
+  rawUrl: string,
+  options: ScrapeOptions & { useEnhancedScraper?: boolean; enhancedOptions?: Partial<EnhancedScrapingOptions> },
+  setProgress: (msg: string) => void
+): Promise<{ data?: ScrapedData; error?: string; url: string }> => {
+  
+  // Allow opt-out to legacy scraper
+  if (options.useEnhancedScraper === false) {
+    setProgress('Using legacy scraper (as requested)...');
+    return scrapeWebsiteLegacy(rawUrl, options, setProgress);
+  }
+
+  const startTime = Date.now();
+  const url = normalizeUrl(rawUrl);
+  
+  if (!validateUrl(url)) {
+    return { error: 'Invalid URL', url };
+  }
+
+  try {
+    // Initialize enhanced scraper if not already done
+    if (!enhancedScraper) {
+      setProgress('Initializing enhanced scraper with modern providers...');
+      enhancedScraper = new EnhancedScraper({
+        strategy: 'cost-optimized',
+        maxCostPerRequest: 0.01,
+      });
+    }
+
+    // Convert legacy options to enhanced options
+    const enhancedOptions: EnhancedScrapingOptions = {
+      timeout: options.requestTimeout || 30000,
+      strategy: options.enhancedOptions?.strategy || 'cost-optimized',
+      maxCostPerRequest: options.enhancedOptions?.maxCostPerRequest || 0.01,
+      maxRetries: options.retryAttempts || 3,
+      stealth: true,
+      blockResources: true,
+      ...options.enhancedOptions,
+    };
+
+    setProgress('Scraping with intelligent provider fallback...');
+    
+    const result = await enhancedScraper.scrape(url, enhancedOptions);
+    
+    setProgress('Processing scraped content...');
+    
+    // Parse the HTML using existing parsing logic
+    const root = parse(result.html);
+    
+    const data: ScrapedData = {
+      url: result.url,
+      title: getTitle(root),
+      description: getDescription(root),
+      text: getText(root),
+      links: getLinks(root, result.url),
+      images: getImages(root, result.url),
+      metadata: getMetadata(root),
+      events: extractEvents(root),
+      webSite: getWebSite(root, result.url),
+      webPage: getWebPage(root, result.url),
+      '@context': 'https://schema.org',
+      '@type': 'Dataset',
+      status: {
+        success: true,
+        provider: result.provider,
+        contentLength: result.html.length,
+        responseTime: result.responseTime,
+        proxyUsed: result.provider,
+        contentType: 'text/html',
+        cost: result.cost,
+      },
+    };
+
+    setProgress(`✅ Enhanced scraping completed in ${((Date.now() - startTime) / 1000).toFixed(2)}s with ${result.provider}`);
+    
+    return { data, url: result.url };
+
+  } catch (error) {
+    // Fallback to legacy scraper if enhanced scraper fails
+    console.warn('Enhanced scraper failed, falling back to legacy:', error);
+    setProgress('Enhanced scraper failed, using legacy fallback...');
+    return scrapeWebsiteLegacy(rawUrl, options, setProgress);
+  }
 };
 
