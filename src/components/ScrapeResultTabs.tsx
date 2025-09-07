@@ -274,30 +274,29 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
       )}
 
       {tab === 'schema' && (
-        <div className="-mx-6 -mb-6">
-          <div className="px-6 py-6 bg-gray-50">
-            <div className="max-w-full">
+        <div className="bg-gray-50 rounded-b-lg p-6 -mt-1 min-w-0">
+          <div className="max-w-full overflow-hidden min-w-0">
               <div className="flex flex-col gap-8">
-                <div className="w-full">
+                <div className="w-full min-w-0">
                   <h3 className="text-lg font-semibold mb-4 text-slate-800">
                     📄 Web Page Schema
                   </h3>
-                  <pre className="bg-slate-800 text-slate-200 p-6 rounded-lg overflow-auto text-sm font-mono border border-slate-600 w-full max-w-full leading-6 whitespace-pre" style={{ tabSize: 2 }}>
+                  <pre className="bg-slate-800 text-slate-200 p-6 rounded-lg overflow-x-auto overflow-y-auto text-sm font-mono border border-slate-600 w-full leading-6 whitespace-pre" style={{ tabSize: 2 }}>
                     {JSON.stringify(data.webPage, null, 2)}
                   </pre>
                 </div>
 
-                <div className="w-full">
+                <div className="w-full min-w-0">
                   <h3 className="text-lg font-semibold mb-4 text-slate-800">
                     🌐 Web Site Schema
                   </h3>
-                  <pre className="bg-slate-800 text-slate-200 p-6 rounded-lg overflow-auto text-sm font-mono border border-slate-600 w-full max-w-full leading-6 whitespace-pre" style={{ tabSize: 2 }}>
+                  <pre className="bg-slate-800 text-slate-200 p-6 rounded-lg overflow-x-auto overflow-y-auto text-sm font-mono border border-slate-600 w-full leading-6 whitespace-pre" style={{ tabSize: 2 }}>
                     {JSON.stringify(data.webSite, null, 2)}
                   </pre>
                 </div>
 
                 {data.events && data.events.length > 0 && (
-                  <div className="w-full">
+                  <div className="w-full min-w-0">
                     <h3 className="text-lg font-semibold mb-4 text-slate-800">
                       📅 Events Schema ({data.events.length} events)
                     </h3>
@@ -307,7 +306,7 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
                           <h4 className="text-sm font-medium mb-3 text-gray-700">
                             Event {i + 1}: {event.name}
                           </h4>
-                          <pre className="bg-slate-50 p-4 rounded-lg overflow-auto text-xs border border-slate-200 w-full max-w-full">
+                          <pre className="bg-slate-50 p-4 rounded-lg overflow-x-auto overflow-y-auto text-xs border border-slate-200 w-full">
                             {JSON.stringify(event, null, 2)}
                           </pre>
                         </div>
@@ -322,7 +321,7 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
                 )}
 
                 {data.images && data.images.length > 0 && (
-                  <div className="w-full">
+                  <div className="w-full min-w-0">
                     <h3 className="text-lg font-semibold mb-4 text-slate-800">
                       🖼️ Image Objects Schema ({data.images.length} images)
                     </h3>
@@ -332,7 +331,7 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
                           <h4 className="text-sm font-medium mb-3 text-gray-700">
                             Image {i + 1}: {image.name || 'Unnamed'}
                           </h4>
-                          <pre className="bg-slate-50 p-4 rounded-lg overflow-auto text-xs border border-slate-200 w-full max-w-full">
+                          <pre className="bg-slate-50 p-4 rounded-lg overflow-x-auto overflow-y-auto text-xs border border-slate-200 w-full">
                             {JSON.stringify(image, null, 2)}
                           </pre>
                         </div>
@@ -346,11 +345,11 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
                   </div>
                 )}
 
-                <div className="w-full">
+                <div className="w-full min-w-0">
                   <h3 className="text-lg font-semibold mb-4 text-slate-800">
                     📊 Complete Dataset Schema
                   </h3>
-                  <pre className="bg-slate-50 p-4 rounded-lg overflow-auto text-xs border border-slate-200 max-h-96 w-full max-w-full">
+                  <pre className="bg-slate-50 p-4 rounded-lg overflow-x-auto overflow-y-auto text-xs border border-slate-200 max-h-96 w-full">
                     {JSON.stringify({
                       '@context': data['@context'],
                       '@type': data['@type'],
@@ -366,7 +365,6 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
                 </div>
               </div>
             </div>
-          </div>
         </div>
       )}
     </div>
