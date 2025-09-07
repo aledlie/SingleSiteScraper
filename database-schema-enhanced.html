@@ -231,18 +231,21 @@
 
         .field-tooltip {
             position: absolute;
-            background: #2c3e50;
-            color: white;
+            background: #1a1a1a;
+            color: #ffffff;
             padding: 12px;
             border-radius: 8px;
-            font-size: 12px;
+            font-size: 13px;
+            font-weight: 500;
             max-width: 300px;
             z-index: 1000;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+            border: 1px solid #333;
             opacity: 0;
             transform: translateY(10px);
             transition: all 0.3s ease;
             pointer-events: none;
+            line-height: 1.4;
         }
 
         .field-tooltip.show {
