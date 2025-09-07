@@ -85,69 +85,34 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
                 return (
                   <div 
                     key={i} 
-                    className="event-card"
-                    style={{
-                      background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '12px',
-                      padding: '20px',
-                      marginBottom: '16px',
-                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                      transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                      cursor: 'default'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'translateY(-2px)';
-                      e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.15)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
-                    }}
+                    className="bg-gradient-to-br from-white to-slate-50 border border-slate-200 rounded-xl p-5 mb-4 shadow-md transition-all duration-200 ease-in-out cursor-default hover:shadow-lg hover:-translate-y-0.5"
                   >
                     {/* Event Header */}
-                    <div className="event-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                      <h3 style={{ 
-                        margin: 0, 
-                        fontSize: '18px', 
-                        fontWeight: '600', 
-                        color: '#1e293b',
-                        lineHeight: '1.3'
-                      }}>
+                    <div className="flex justify-between items-start mb-3">
+                      <h3 className="m-0 text-lg font-semibold text-slate-800 leading-snug">
                         {event.name}
                       </h3>
                       <span 
-                        className="event-type-badge"
-                        style={{
-                          backgroundColor: getEventTypeColor(event.eventType || 'default'),
-                          color: 'white',
-                          padding: '4px 8px',
-                          borderRadius: '6px',
-                          fontSize: '12px',
-                          fontWeight: '500',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.5px',
-                          minWidth: 'fit-content',
-                          marginLeft: '12px'
-                        }}
+                        className="text-white px-2 py-1 rounded-md text-xs font-medium uppercase tracking-wide min-w-fit ml-3"
+                        style={{ backgroundColor: getEventTypeColor(event.eventType || 'default') }}
                       >
                         {event.eventType || 'Event'}
                       </span>
                     </div>
 
                     {/* Event Details */}
-                    <div className="event-details" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div className="flex flex-col gap-2">
                       {/* Date and Time */}
-                      <div className="event-datetime" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '16px' }}>📅</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">📅</span>
                         <div>
-                          <strong style={{ color: '#374151' }}>
+                          <strong className="text-gray-700">
                             {startDate}
                           </strong>
                           {isMultiDay && (
                             <>
-                              <span style={{ color: '#6b7280', margin: '0 4px' }}>→</span>
-                              <strong style={{ color: '#374151' }}>
+                              <span className="text-gray-500 mx-1">→</span>
+                              <strong className="text-gray-700">
                                 {endDate}
                               </strong>
                             </>
@@ -157,9 +122,9 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
 
                       {/* Location */}
                       {event.location && (
-                        <div className="event-location" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ fontSize: '16px' }}>📍</span>
-                          <span style={{ color: '#374151', fontWeight: '500' }}>
+                        <div className="flex items-center gap-2">
+                          <span className="text-base">📍</span>
+                          <span className="text-gray-700 font-medium">
                             {typeof event.location === 'string' ? event.location : event.location.name || 'Location'}
                           </span>
                         </div>
@@ -167,14 +132,9 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
 
                       {/* Description */}
                       {event.description && event.description !== 'Not specified' && (
-                        <div className="event-description" style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginTop: '8px' }}>
-                          <span style={{ fontSize: '16px', marginTop: '2px' }}>📝</span>
-                          <p style={{ 
-                            margin: 0, 
-                            color: '#4b5563', 
-                            lineHeight: '1.4',
-                            fontSize: '14px'
-                          }}>
+                        <div className="flex items-start gap-2 mt-2">
+                          <span className="text-base mt-0.5">📝</span>
+                          <p className="m-0 text-gray-600 leading-relaxed text-sm">
                             {event.description.length > 150 
                               ? `${event.description.substring(0, 150)}...` 
                               : event.description
@@ -238,16 +198,7 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
               <h3 className="text-lg font-semibold mb-3 text-slate-800">
                 📄 Web Page Schema
               </h3>
-              <pre style={{ 
-                backgroundColor: '#f8fafc', 
-                padding: '16px', 
-                borderRadius: '8px', 
-                overflow: 'auto',
-                fontSize: '14px',
-                border: '1px solid #e2e8f0',
-                width: '100%',
-                boxSizing: 'border-box'
-              }}>
+              <pre className="bg-slate-800 text-slate-200 p-5 rounded-lg overflow-auto text-sm font-mono border border-slate-600 w-full box-border leading-6 whitespace-pre" style={{ tabSize: 2 }}>
                 {JSON.stringify(data.webPage, null, 2)}
               </pre>
             </div>
@@ -256,16 +207,7 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
               <h3 className="text-lg font-semibold mb-3 text-slate-800">
                 🌐 Web Site Schema
               </h3>
-              <pre style={{ 
-                backgroundColor: '#f8fafc', 
-                padding: '16px', 
-                borderRadius: '8px', 
-                overflow: 'auto',
-                fontSize: '14px',
-                border: '1px solid #e2e8f0',
-                width: '100%',
-                boxSizing: 'border-box'
-              }}>
+              <pre className="bg-slate-800 text-slate-200 p-5 rounded-lg overflow-auto text-sm font-mono border border-slate-600 w-full box-border leading-6 whitespace-pre" style={{ tabSize: 2 }}>
                 {JSON.stringify(data.webSite, null, 2)}
               </pre>
             </div>
@@ -275,28 +217,19 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
                 <h3 className="text-lg font-semibold mb-3 text-slate-800">
                   📅 Events Schema ({data.events.length} events)
                 </h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%' }}>
+                <div className="flex flex-col gap-4 w-full">
                   {data.events.slice(0, 3).map((event, i) => (
                     <div key={i}>
-                      <h4 style={{ fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#374151' }}>
+                      <h4 className="text-sm font-medium mb-2 text-gray-700">
                         Event {i + 1}: {event.name}
                       </h4>
-                      <pre style={{ 
-                        backgroundColor: '#f8fafc', 
-                        padding: '16px', 
-                        borderRadius: '8px', 
-                        overflow: 'auto',
-                        fontSize: '12px',
-                        border: '1px solid #e2e8f0',
-                        width: '100%',
-                        boxSizing: 'border-box'
-                      }}>
+                      <pre className="bg-slate-50 p-4 rounded-lg overflow-auto text-xs border border-slate-200 w-full box-border">
                         {JSON.stringify(event, null, 2)}
                       </pre>
                     </div>
                   ))}
                   {data.events.length > 3 && (
-                    <p style={{ fontSize: '14px', color: '#6b7280', fontStyle: 'italic' }}>
+                    <p className="text-sm text-gray-500 italic">
                       ... and {data.events.length - 3} more events
                     </p>
                   )}
@@ -309,28 +242,19 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
                 <h3 className="text-lg font-semibold mb-3 text-slate-800">
                   🖼️ Image Objects Schema ({data.images.length} images)
                 </h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%' }}>
+                <div className="flex flex-col gap-4 w-full">
                   {data.images.slice(0, 2).map((image, i) => (
                     <div key={i}>
-                      <h4 style={{ fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#374151' }}>
+                      <h4 className="text-sm font-medium mb-2 text-gray-700">
                         Image {i + 1}: {image.name || 'Unnamed'}
                       </h4>
-                      <pre style={{ 
-                        backgroundColor: '#f8fafc', 
-                        padding: '16px', 
-                        borderRadius: '8px', 
-                        overflow: 'auto',
-                        fontSize: '12px',
-                        border: '1px solid #e2e8f0',
-                        width: '100%',
-                        boxSizing: 'border-box'
-                      }}>
+                      <pre className="bg-slate-50 p-4 rounded-lg overflow-auto text-xs border border-slate-200 w-full box-border">
                         {JSON.stringify(image, null, 2)}
                       </pre>
                     </div>
                   ))}
                   {data.images.length > 2 && (
-                    <p style={{ fontSize: '14px', color: '#6b7280', fontStyle: 'italic' }}>
+                    <p className="text-sm text-gray-500 italic">
                       ... and {data.images.length - 2} more images
                     </p>
                   )}
@@ -342,17 +266,7 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
               <h3 className="text-lg font-semibold mb-3 text-slate-800">
                 📊 Complete Dataset Schema
               </h3>
-              <pre style={{ 
-                backgroundColor: '#f8fafc', 
-                padding: '16px', 
-                borderRadius: '8px', 
-                overflow: 'auto',
-                fontSize: '12px',
-                border: '1px solid #e2e8f0',
-                maxHeight: '400px',
-                width: '100%',
-                boxSizing: 'border-box'
-              }}>
+              <pre className="bg-slate-50 p-4 rounded-lg overflow-auto text-xs border border-slate-200 max-h-96 w-full box-border">
                 {JSON.stringify({
                   '@context': data['@context'],
                   '@type': data['@type'],
