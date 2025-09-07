@@ -4,7 +4,7 @@
 @layer components {
 
   .border-card {
-    @apply backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-8 space-y-4 mb-8;
+    @apply backdrop-blur-sm rounded-2xl shadow-lg p-8 space-y-4 mb-8;
   }
 
   .card {
@@ -20,7 +20,7 @@
   }
 
   .checkbox {
-    @apply mr-2
+    @apply mr-2;
   }
 
   .section-title {
@@ -43,21 +43,6 @@
     @apply mt-4;
   }
 
-  .tab-header {
-    @apply flex space-x-4 border-b mb-4;
-  }
-
-  .tab-button {
-    @apply px-3 py-1 border-b-2 text-sm font-medium transition-colors;
-  }
-
-  .tab-button-active {
-    @apply border-blue-600 text-blue-600;
-  }
-
-  .tab-button-inactive {
-    @apply border-transparent text-gray-700 hover:text-gray-900;
-  }
 
   .media-thumb {
     @apply border rounded p-2 bg-gray-50 hover:bg-gray-100 transition;
@@ -98,7 +83,7 @@
   }
 
   .app-container {
-    @apply min-h-screen px-4 py-8;
+    @apply min-h-screen px-4 py-8 bg-gray-900;
   }
 
   .main-content {
@@ -118,11 +103,23 @@
   }
 
   .title {
-    @apply text-4xl font-bold mb-2;
+    @apply text-4xl font-bold mb-2 text-white;
   }
 
   .subtitle {
-    @apply text-gray-400;
+    @apply text-gray-300;
+  }
+
+  .mode-toggle {
+    @apply flex gap-4 mx-auto w-fit mt-8;
+  }
+
+  .mode-button {
+    @apply flex items-center gap-3 px-8 py-4 rounded-xl text-base font-medium transition-colors shadow-lg border bg-white text-gray-700 border-gray-200 hover:bg-gray-50;
+  }
+
+  .mode-button.active {
+    @apply bg-blue-500 text-white border-blue-500;
   }
 
   .error-alert {
@@ -183,10 +180,6 @@
 
   .results-container {
     @apply pt-6;
-  }
-
-  .export-button {
-    @apply mt-4 w-full bg-amber-600 hover:bg-amber-700 text-white py-2 rounded-md flex justify-center items-center gap-2;
   }
 
   .export-button-icon {

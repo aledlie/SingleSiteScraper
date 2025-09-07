@@ -1,12 +1,12 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { AnalyticsDashboard } from './AnalyticsDashboard';
-import { EnhancedScrapeResult, AnalyticsInsights } from '../analytics/enhancedScraper';
-import { PerformanceAlert } from '../analytics/performanceMonitor';
-import { HTMLGraph } from '../analytics/htmlObjectAnalyzer';
+import { AnalyticsDashboard } from '../../../src/../../src/components/AnalyticsDashboard';
+import { EnhancedScrapeResult, AnalyticsInsights } from '../../../src/../../src/analytics/enhancedScraper';
+import { PerformanceAlert } from '../../../src/../../src/analytics/performanceMonitor';
+import { HTMLGraph } from '../../../src/../../src/analytics/htmlObjectAnalyzer';
 
 // Mock the visualization components
-vi.mock('../visualizations/DatabaseSchemaViz', () => ({
+vi.mock('../../../src/../../src/visualizations/DatabaseSchemaViz', () => ({
   DatabaseSchemaViz: ({ tables, onExport }: any) => (
     <div data-testid="database-schema-viz">
       <div>Database Schema Visualization</div>
@@ -16,7 +16,7 @@ vi.mock('../visualizations/DatabaseSchemaViz', () => ({
   )
 }));
 
-vi.mock('../analytics/sqlMagicIntegration', () => ({
+vi.mock('../../../src/../../src/analytics/sqlMagicIntegration', () => ({
   SQLMagicIntegration: vi.fn().mockImplementation(() => ({
     getDatabaseSchema: () => [
       { name: 'html_graphs', schema: {}, indexes: [], constraints: [] },

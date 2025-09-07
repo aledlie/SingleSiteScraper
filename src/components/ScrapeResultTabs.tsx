@@ -22,13 +22,17 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
   const tabs = ['text', 'links', 'images', 'metadata', 'events', 'schema'] as const;
 
   return (
-    <div className="tab-panel">
-      <div className="tab-header">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+      <div className="flex bg-gray-50 rounded-t-lg border-b border-gray-200 p-1">
         {tabs.map((key) => (
           <button
             key={key}
             onClick={() => setTab(key)}
-            className={`tab-button ${tab === key ? 'tab-button-active' : 'tab-button-inactive'}`}
+            className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+              tab === key 
+                ? 'bg-white text-blue-600 shadow-sm' 
+                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+            }`}
           >
             {key.toUpperCase()}
           </button>
@@ -37,14 +41,14 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
 
       <Card>
         {tab === 'text' && filtered.text.map((t, i) => (
-          <p key={i} className="text-block">{t}</p>
+          <p key={i} className="mb-4 text-gray-700 leading-relaxed">{t}</p>
         ))}
 
         {tab === 'events' && (
-          <div className="events-container">
+          <div className="space-y-4">
             {filtered.events.length === 0 ? (
-              <div className="empty-state">
-                <p>No events found matching your filter.</p>
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <p className="text-gray-500">No events found matching your filter.</p>
               </div>
             ) : (
               filtered.events.map((event, i) => {
@@ -187,20 +191,20 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
         )}
 
         {tab === 'links' && filtered.links.map((l, i) => (
-          <div key={i} className="text-block">
-            <a href={l.url} target="_blank" rel="noopener noreferrer" className="link-primary">{l.text}</a>
-            <p className="link-subtext">{l.url}</p>
+          <div key={i} className="mb-4 p-3 border border-gray-200 rounded-lg">
+            <a href={l.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 font-medium">{l.text}</a>
+            <p className="text-sm text-gray-500 mt-1">{l.url}</p>
           </div>
         ))}
 
         {tab === 'images' && (
-          <div className="layout-grid">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.images.map((img, i) => (
-              <div key={i} className="media-thumb">
-                <img src={img.url} alt={img.alternateName || img.name || ''} className="responsive-img" />
-                <p className="caption">{img.name || img.alternateName || 'Image'}</p>
+              <div key={i} className="border border-gray-200 rounded-lg overflow-hidden">
+                <img src={img.url} alt={img.alternateName || img.name || ''} className="w-full h-48 object-cover" />
+                <p className="p-3 font-medium text-gray-900">{img.name || img.alternateName || 'Image'}</p>
                 {img.description && img.description !== img.alternateName && (
-                  <p className="description" style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+                  <p className="px-3 pb-3 text-xs text-gray-500">
                     {img.description}
                   </p>
                 )}
@@ -210,18 +214,18 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
         )}
 
         {tab === 'metadata' && (
-          <table className="meta-table">
-            <thead>
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
               <tr>
-                <th>Key</th>
-                <th>Value</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Key</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Value</th>
               </tr>
             </thead>
             <tbody>
               {filtered.metadata.map(([k, v]) => (
-                <tr key={k}>
-                  <td>{k}</td>
-                  <td>{v}</td>
+                <tr key={k} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{k}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500">{v}</td>
                 </tr>
               ))}
             </tbody>
@@ -229,9 +233,9 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
         )}
 
         {tab === 'schema' && (
-          <div className="schema-org-container" style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%' }}>
-            <div className="schema-section" style={{ width: '100%' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '12px', color: '#1e293b' }}>
+          <div className="flex flex-col gap-6 w-full">
+            <div className="w-full">
+              <h3 className="text-lg font-semibold mb-3 text-slate-800">
                 📄 Web Page Schema
               </h3>
               <pre style={{ 
@@ -248,8 +252,8 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
               </pre>
             </div>
 
-            <div className="schema-section" style={{ width: '100%' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '12px', color: '#1e293b' }}>
+            <div className="w-full">
+              <h3 className="text-lg font-semibold mb-3 text-slate-800">
                 🌐 Web Site Schema
               </h3>
               <pre style={{ 
@@ -267,8 +271,8 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
             </div>
 
             {data.events && data.events.length > 0 && (
-              <div className="schema-section" style={{ width: '100%' }}>
-                <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '12px', color: '#1e293b' }}>
+              <div className="w-full">
+                <h3 className="text-lg font-semibold mb-3 text-slate-800">
                   📅 Events Schema ({data.events.length} events)
                 </h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%' }}>
@@ -301,8 +305,8 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
             )}
 
             {data.images && data.images.length > 0 && (
-              <div className="schema-section" style={{ width: '100%' }}>
-                <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '12px', color: '#1e293b' }}>
+              <div className="w-full">
+                <h3 className="text-lg font-semibold mb-3 text-slate-800">
                   🖼️ Image Objects Schema ({data.images.length} images)
                 </h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%' }}>
@@ -334,8 +338,8 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
               </div>
             )}
 
-            <div className="schema-section" style={{ width: '100%' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '12px', color: '#1e293b' }}>
+            <div className="w-full">
+              <h3 className="text-lg font-semibold mb-3 text-slate-800">
                 📊 Complete Dataset Schema
               </h3>
               <pre style={{ 

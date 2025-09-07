@@ -83,7 +83,7 @@ interface ChartBarProps {
 }
 
 const ChartBar: React.FC<ChartBarProps> = ({ label, value, maxValue, color, percentage }) => (
-  <div className="chart-bar-item" style={{ marginBottom: '12px' }}>
+  <div className="mb-3">
     <div style={{
       display: 'flex',
       justifyContent: 'space-between',
@@ -122,7 +122,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
 
   if (!result || !insights) {
     return (
-      <div className="analytics-dashboard-empty">
+      <div className="flex flex-col items-center justify-center min-h-96 bg-white rounded-lg shadow-sm border border-gray-200 p-8">
         <Activity className="w-12 h-12 text-gray-400 mx-auto mb-4" />
         <p className="text-gray-500 text-center">No analytics data available</p>
         <p className="text-sm text-gray-400 text-center mt-2">
@@ -143,21 +143,21 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
   ];
 
   return (
-    <div className="analytics-dashboard">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200">
       {/* Alert Banner */}
       {alerts.length > 0 && (
-        <div className="alert-banner">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 flex items-start gap-3">
           <AlertTriangle className="w-5 h-5 text-yellow-600" />
-          <div className="alert-content">
+          <div className="flex-1">
             <p className="text-sm font-medium text-yellow-800">
               {alerts.length} alert{alerts.length > 1 ? 's' : ''} detected
             </p>
-            <div className="alerts-list">
+            <div className="space-y-2 mt-2">
               {alerts.slice(0, 3).map(alert => (
-                <div key={alert.id} className={`alert-item alert-${alert.type}`}>
-                  <span className="alert-category">{alert.category}</span>
-                  <span className="alert-message">{alert.message}</span>
-                  <span className="alert-value">{alert.value.toFixed(0)}</span>
+                <div key={alert.id} className={`flex items-center justify-between p-2 rounded ${alert.type === 'error' ? 'bg-red-50 text-red-800' : alert.type === 'warning' ? 'bg-yellow-50 text-yellow-800' : 'bg-blue-50 text-blue-800'}`}>
+                  <span className="font-medium text-sm">{alert.category}</span>
+                  <span className="text-sm">{alert.message}</span>
+                  <span className="font-bold text-sm">{alert.value.toFixed(0)}</span>
                 </div>
               ))}
               {alerts.length > 3 && (
@@ -169,14 +169,18 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
       )}
 
       {/* Tab Navigation */}
-      <div className="tab-navigation">
+      <div className="flex bg-gray-50 border-b border-gray-200 rounded-t-lg p-1">
         {tabs.map(tab => {
           const Icon = tab.icon;
           return (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`tab-button ${activeTab === tab.id ? 'active' : ''}`}
+              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                activeTab === tab.id 
+                  ? 'bg-white text-blue-600 shadow-sm' 
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+              }`}
             >
               <Icon className="w-4 h-4" />
               <span>{tab.label}</span>
@@ -186,49 +190,49 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
       </div>
 
       {/* Tab Content */}
-      <div className="tab-content">
+      <div className="p-6">
         {activeTab === 'overview' && (
           <div className="overview-tab">
             {/* Summary Cards */}
-            <div className="summary-grid">
-              <div className="summary-card">
-                <div className="summary-header">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-6">
+              <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                <div className="flex items-center gap-3 mb-4">
                   <Network className="w-6 h-6 text-blue-600" />
-                  <h3>Objects</h3>
+                  <h3 className="font-semibold text-gray-900">Objects</h3>
                 </div>
-                <div className="summary-value">{htmlGraph?.metadata.totalObjects || 0}</div>
-                <div className="summary-label">HTML Elements</div>
+                <div className="text-3xl font-bold text-gray-900">{htmlGraph?.metadata.totalObjects || 0}</div>
+                <div className="text-sm text-gray-500">HTML Elements</div>
               </div>
 
-              <div className="summary-card">
-                <div className="summary-header">
+              <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                <div className="flex items-center gap-3 mb-4">
                   <BarChart3 className="w-6 h-6 text-green-600" />
-                  <h3>Relationships</h3>
+                  <h3 className="font-semibold text-gray-900">Relationships</h3>
                 </div>
-                <div className="summary-value">{htmlGraph?.metadata.totalRelationships || 0}</div>
-                <div className="summary-label">Element Connections</div>
+                <div className="text-3xl font-bold text-gray-900">{htmlGraph?.metadata.totalRelationships || 0}</div>
+                <div className="text-sm text-gray-500">Element Connections</div>
               </div>
 
-              <div className="summary-card">
-                <div className="summary-header">
+              <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                <div className="flex items-center gap-3 mb-4">
                   <TrendingUp className="w-6 h-6 text-purple-600" />
-                  <h3>Complexity</h3>
+                  <h3 className="font-semibold text-gray-900">Complexity</h3>
                 </div>
-                <div className="summary-value">
+                <div className="text-3xl font-bold text-gray-900">
                   {insights.complexityAnalysis.totalComplexity.toFixed(1)}
                 </div>
-                <div className="summary-label">Complexity Score</div>
+                <div className="text-sm text-gray-500">Complexity Score</div>
               </div>
 
-              <div className="summary-card">
-                <div className="summary-header">
+              <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                <div className="flex items-center gap-3 mb-4">
                   <Activity className="w-6 h-6 text-red-600" />
-                  <h3>Performance</h3>
+                  <h3 className="font-semibold text-gray-900">Performance</h3>
                 </div>
-                <div className="summary-value">
+                <div className="text-3xl font-bold text-gray-900">
                   {(performanceMetrics?.scraping.totalTime || 0) / 1000}s
                 </div>
-                <div className="summary-label">Total Time</div>
+                <div className="text-sm text-gray-500">Total Time</div>
               </div>
             </div>
 
@@ -264,7 +268,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                   centerText={`${Object.keys(insights.objectTypeDistribution).length} Types`}
                 />
                 
-                <div className="chart-legend" style={{ flex: 1 }}>
+                <div className="flex-1">
                   {(() => {
                     const typeDistribution = insights.objectTypeDistribution;
                     const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#84cc16'];
@@ -414,28 +418,28 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                 gridTemplateColumns: '1fr 1fr',
                 gap: '16px'
               }}>
-                <div className="metric-item">
+                <div className="text-center">
                   <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#3b82f6' }}>
                     {((result.performanceMetrics?.content.htmlSize || 0) / 1024).toFixed(1)}KB
                   </div>
                   <div style={{ fontSize: '12px', color: '#6b7280' }}>HTML Size</div>
                 </div>
                 
-                <div className="metric-item">
+                <div className="text-center">
                   <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#10b981' }}>
                     {insights.complexityAnalysis.relationshipDensity.toFixed(2)}
                   </div>
                   <div style={{ fontSize: '12px', color: '#6b7280' }}>Relationship Density</div>
                 </div>
                 
-                <div className="metric-item">
+                <div className="text-center">
                   <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#f59e0b' }}>
                     {insights.complexityAnalysis.averageDepth.toFixed(1)}
                   </div>
                   <div style={{ fontSize: '12px', color: '#6b7280' }}>Average Depth</div>
                 </div>
                 
-                <div className="metric-item">
+                <div className="text-center">
                   <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#8b5cf6' }}>
                     {result.htmlGraph.metadata.totalRelationships}
                   </div>
@@ -445,15 +449,15 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
             </div>
 
             {/* Recommendations */}
-            <div className="recommendations-section">
-              <h3>Recommendations</h3>
-              <div className="recommendations-list">
+            <div className="bg-white p-6 rounded-lg border border-gray-200">
+              <h3 className="text-lg font-semibold mb-4 text-gray-900">Recommendations</h3>
+              <div className="space-y-3">
                 {insights.recommendations.map((rec, index) => (
-                  <div key={index} className="recommendation-item">
-                    <div className="recommendation-icon">
+                  <div key={index} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                    <div className="flex-shrink-0">
                       <TrendingUp className="w-4 h-4" />
                     </div>
-                    <p>{rec}</p>
+                    <p className="text-gray-700 text-sm leading-relaxed">{rec}</p>
                   </div>
                 ))}
               </div>
@@ -463,25 +467,25 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
 
         {activeTab === 'graph' && (
           <div className="graph-tab">
-            <div className="graph-stats">
-              <div className="graph-stat">
-                <span className="stat-label">Max Depth:</span>
-                <span className="stat-value">{insights.complexityAnalysis.maxDepth}</span>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <span className="text-sm text-gray-600 block">Max Depth:</span>
+                <span className="text-2xl font-bold text-gray-900">{insights.complexityAnalysis.maxDepth}</span>
               </div>
-              <div className="graph-stat">
-                <span className="stat-label">Avg Depth:</span>
-                <span className="stat-value">{insights.complexityAnalysis.averageDepth.toFixed(1)}</span>
+              <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <span className="text-sm text-gray-600 block">Avg Depth:</span>
+                <span className="text-2xl font-bold text-gray-900">{insights.complexityAnalysis.averageDepth.toFixed(1)}</span>
               </div>
-              <div className="graph-stat">
-                <span className="stat-label">Relationship Density:</span>
-                <span className="stat-value">{insights.complexityAnalysis.relationshipDensity.toFixed(2)}</span>
+              <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <span className="text-sm text-gray-600 block">Relationship Density:</span>
+                <span className="text-2xl font-bold text-gray-900">{insights.complexityAnalysis.relationshipDensity.toFixed(2)}</span>
               </div>
             </div>
 
             {/* Export Options */}
-            <div className="export-section">
-              <h3>Export Options</h3>
-              <div className="export-buttons">
+            <div className="bg-white p-6 rounded-lg border border-gray-200">
+              <h3 className="text-lg font-semibold mb-4 text-gray-900">Export Options</h3>
+              <div className="flex gap-3">
                 {result.graphML && (
                   <button
                     onClick={() => {
@@ -493,7 +497,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                       a.click();
                       URL.revokeObjectURL(url);
                     }}
-                    className="export-button"
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                   >
                     <Network className="w-4 h-4" />
                     Download GraphML
@@ -512,7 +516,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                     a.click();
                     URL.revokeObjectURL(url);
                   }}
-                  className="export-button"
+                  className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
                 >
                   <Database className="w-4 h-4" />
                   Export Insights
@@ -524,47 +528,47 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
 
         {activeTab === 'performance' && performanceMetrics && (
           <div className="performance-tab">
-            <div className="performance-grid">
-              <div className="performance-card">
-                <h4>Scraping Times</h4>
-                <div className="performance-metrics">
-                  <div className="metric-row">
-                    <span>Total Time:</span>
-                    <span>{performanceMetrics.scraping.totalTime}ms</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-white p-6 rounded-lg border border-gray-200">
+                <h4 className="text-lg font-semibold mb-4 text-gray-900">Scraping Times</h4>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
+                    <span className="text-gray-600">Total Time:</span>
+                    <span className="font-semibold text-gray-900">{performanceMetrics.scraping.totalTime}ms</span>
                   </div>
-                  <div className="metric-row">
-                    <span>Fetch Time:</span>
-                    <span>{performanceMetrics.scraping.fetchTime}ms</span>
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
+                    <span className="text-gray-600">Fetch Time:</span>
+                    <span className="font-semibold text-gray-900">{performanceMetrics.scraping.fetchTime}ms</span>
                   </div>
-                  <div className="metric-row">
-                    <span>Analysis Time:</span>
-                    <span>{performanceMetrics.scraping.analysisTime}ms</span>
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
+                    <span className="text-gray-600">Analysis Time:</span>
+                    <span className="font-semibold text-gray-900">{performanceMetrics.scraping.analysisTime}ms</span>
                   </div>
-                  <div className="metric-row">
-                    <span>Retry Attempts:</span>
-                    <span>{performanceMetrics.scraping.retryAttempts}</span>
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
+                    <span className="text-gray-600">Retry Attempts:</span>
+                    <span className="font-semibold text-gray-900">{performanceMetrics.scraping.retryAttempts}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="performance-card">
-                <h4>Content Metrics</h4>
-                <div className="performance-metrics">
-                  <div className="metric-row">
-                    <span>HTML Size:</span>
-                    <span>{(performanceMetrics.content.htmlSize / 1024).toFixed(1)}KB</span>
+              <div className="bg-white p-6 rounded-lg border border-gray-200">
+                <h4 className="text-lg font-semibold mb-4 text-gray-900">Content Metrics</h4>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
+                    <span className="text-gray-600">HTML Size:</span>
+                    <span className="font-semibold text-gray-900">{(performanceMetrics.content.htmlSize / 1024).toFixed(1)}KB</span>
                   </div>
-                  <div className="metric-row">
-                    <span>Objects:</span>
-                    <span>{performanceMetrics.content.objectCount}</span>
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
+                    <span className="text-gray-600">Objects:</span>
+                    <span className="font-semibold text-gray-900">{performanceMetrics.content.objectCount}</span>
                   </div>
-                  <div className="metric-row">
-                    <span>Relationships:</span>
-                    <span>{performanceMetrics.content.relationshipCount}</span>
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
+                    <span className="text-gray-600">Relationships:</span>
+                    <span className="font-semibold text-gray-900">{performanceMetrics.content.relationshipCount}</span>
                   </div>
-                  <div className="metric-row">
-                    <span>Max Depth:</span>
-                    <span>{performanceMetrics.content.maxDepth}</span>
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
+                    <span className="text-gray-600">Max Depth:</span>
+                    <span className="font-semibold text-gray-900">{performanceMetrics.content.maxDepth}</span>
                   </div>
                 </div>
               </div>
@@ -575,9 +579,9 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
         {activeTab === 'schema' && (
           <div className="schema-tab">
             {result.schemaOrgData ? (
-              <div className="schema-content">
-                <div className="schema-header">
-                  <h3>Schema.org Structured Data</h3>
+              <div className="bg-white rounded-lg border border-gray-200">
+                <div className="flex justify-between items-center p-4 border-b border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-900">Schema.org Structured Data</h3>
                   <button
                     onClick={() => {
                       const blob = new Blob(
@@ -591,17 +595,17 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                       a.click();
                       URL.revokeObjectURL(url);
                     }}
-                    className="export-button small"
+                    className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors text-sm"
                   >
                     Export Schema
                   </button>
                 </div>
-                <pre className="schema-code">
+                <pre className="p-4 bg-gray-50 text-sm overflow-auto max-h-96 font-mono">
                   {JSON.stringify(result.schemaOrgData, null, 2)}
                 </pre>
               </div>
             ) : (
-              <div className="schema-empty">
+              <div className="flex flex-col items-center justify-center py-12 text-center bg-white rounded-lg border border-gray-200">
                 <Database className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                 <p className="text-gray-500 text-center">No schema.org data available</p>
                 <p className="text-sm text-gray-400 text-center mt-2">

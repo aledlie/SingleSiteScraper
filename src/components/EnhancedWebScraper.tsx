@@ -152,20 +152,28 @@ const EnhancedWebScraper: React.FC = () => {
   };
 
   return (
-    <div className="enhanced-scraper-container">
+    <div className="border-card">
       {/* Header with View Toggle */}
-      <div className="header-section">
-        <div className="view-toggle">
+      <div className="mb-6">
+        <div className="flex bg-gray-50 rounded-lg p-1 w-fit border border-gray-200 mx-auto">
           <button
             onClick={() => setActiveView('scraper')}
-            className={`view-button ${activeView === 'scraper' ? 'active' : ''}`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              activeView === 'scraper' 
+                ? 'bg-blue-500 text-white shadow-sm' 
+                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+            }`}
           >
             <Globe className="w-4 h-4" />
             Scraper
           </button>
           <button
             onClick={() => setActiveView('analytics')}
-            className={`view-button ${activeView === 'analytics' ? 'active' : ''}`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              activeView === 'analytics' 
+                ? 'bg-blue-500 text-white shadow-sm' 
+                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+            } disabled:opacity-50 disabled:cursor-not-allowed`}
             disabled={!result || !insights}
           >
             <BarChart3 className="w-4 h-4" />
@@ -176,7 +184,7 @@ const EnhancedWebScraper: React.FC = () => {
 
       {activeView === 'scraper' && (
         <div className="scraper-view">
-          <div className="border-card">
+          <div className="border-card border border-white/20">
             <FormInput
               label="Website URL"
               placeholder="https://example.com"
@@ -187,36 +195,36 @@ const EnhancedWebScraper: React.FC = () => {
             />
 
             {/* Basic Options */}
-            <div className="options-section">
+            <div className="mb-4">
               <button
                 onClick={() => setShowAdvanced(!showAdvanced)}
-                className="show-advanced-button"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors"
               >
                 <Settings className="w-4 h-4" />
                 {showAdvanced ? 'Hide' : 'Show'} Advanced Settings
               </button>
               
               {showAdvanced && (
-                <div className="advanced-options">
+                <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
                   <ScrapeOptionsForm options={options} onChange={setOptions} />
                 </div>
               )}
             </div>
 
             {/* Analytics Configuration */}
-            <div className="analytics-section">
+            <div className="mb-6">
               <button
                 onClick={() => setShowAnalytics(!showAnalytics)}
-                className="show-advanced-button"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors"
               >
                 <BarChart3 className="w-4 h-4" />
                 {showAnalytics ? 'Hide' : 'Show'} Analytics Settings
               </button>
               
               {showAnalytics && (
-                <div className="analytics-config">
-                  <div className="config-grid">
-                    <label className="config-item">
+                <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <label className="flex items-center gap-2 text-sm text-gray-700">
                       <input
                         type="checkbox"
                         checked={options.enableAnalytics}
@@ -225,7 +233,7 @@ const EnhancedWebScraper: React.FC = () => {
                       <span>Enable HTML Analysis</span>
                     </label>
                     
-                    <label className="config-item">
+                    <label className="flex items-center gap-2 text-sm text-gray-700">
                       <input
                         type="checkbox"
                         checked={options.enablePerformanceMonitoring}
@@ -234,7 +242,7 @@ const EnhancedWebScraper: React.FC = () => {
                       <span>Performance Monitoring</span>
                     </label>
                     
-                    <label className="config-item">
+                    <label className="flex items-center gap-2 text-sm text-gray-700">
                       <input
                         type="checkbox"
                         checked={options.generateGraphML}
@@ -243,7 +251,7 @@ const EnhancedWebScraper: React.FC = () => {
                       <span>Generate GraphML</span>
                     </label>
                     
-                    <label className="config-item">
+                    <label className="flex items-center gap-2 text-sm text-gray-700">
                       <input
                         type="checkbox"
                         checked={options.generateSchemaOrg}
@@ -254,8 +262,8 @@ const EnhancedWebScraper: React.FC = () => {
                   </div>
 
                   {/* SQL Configuration */}
-                  <div className="sql-config">
-                    <label className="config-item">
+                  <div className="border-t border-gray-200 pt-4">
+                    <label className="flex items-center gap-2 text-sm text-gray-700">
                       <input
                         type="checkbox"
                         checked={options.enableSQLStorage}
@@ -266,7 +274,7 @@ const EnhancedWebScraper: React.FC = () => {
                     
                     {options.enableSQLStorage && (
                       <div className="sql-settings">
-                        <div className="sql-grid">
+                        <div className="grid grid-cols-3 gap-4">
                           <FormInput
                             label="Host"
                             value={analyticsConfig.sqlConfig?.host || ''}
@@ -303,12 +311,12 @@ const EnhancedWebScraper: React.FC = () => {
             <button
               onClick={handleScrape}
               disabled={isLoading || !url}
-              className="scrape-button enhanced"
+              className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium rounded-lg transition-colors disabled:cursor-not-allowed"
             >
               {isLoading ? (
-                <Loader2 className="scrape-button-icon-loading" />
+                <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
-                <Search className="scrape-button-icon" />
+                <Search className="w-4 h-4" />
               )}
               {isLoading ? 'Processing...' : 'Enhanced Scrape'}
             </button>
@@ -319,24 +327,24 @@ const EnhancedWebScraper: React.FC = () => {
 
             {/* Results Summary */}
             {result && (
-              <div className="results-summary">
-                <div className="summary-stats">
-                  <div className="stat-item">
+              <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                  <div className="text-center">
                     <span className="stat-label">Objects:</span>
                     <span className="stat-value">{result.htmlGraph?.metadata.totalObjects || 0}</span>
                   </div>
-                  <div className="stat-item">
+                  <div className="text-center">
                     <span className="stat-label">Relationships:</span>
                     <span className="stat-value">{result.htmlGraph?.metadata.totalRelationships || 0}</span>
                   </div>
-                  <div className="stat-item">
+                  <div className="text-center">
                     <span className="stat-label">Time:</span>
                     <span className="stat-value">
                       {((result.performanceMetrics?.scraping.totalTime || 0) / 1000).toFixed(1)}s
                     </span>
                   </div>
                   {result.performanceMetrics && (
-                    <div className="stat-item">
+                    <div className="text-center">
                       <span className="stat-label">Complexity:</span>
                       <span className="stat-value">
                         {result.performanceMetrics.content.complexity.toFixed(1)}
@@ -346,24 +354,24 @@ const EnhancedWebScraper: React.FC = () => {
                 </div>
 
                 {/* Export Options */}
-                <div className="export-options">
+                <div className="flex flex-wrap gap-2 mb-4">
                   <button
                     onClick={() => handleExportData('json')}
-                    className="export-button"
+                    className="flex items-center gap-2 px-3 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md transition-colors text-sm"
                   >
                     <Download className="w-4 h-4" />
                     Export JSON
                   </button>
                   <button
                     onClick={() => handleExportData('csv')}
-                    className="export-button"
+                    className="flex items-center gap-2 px-3 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md transition-colors text-sm"
                   >
                     <Database className="w-4 h-4" />
                     Export CSV
                   </button>
                   <button
                     onClick={() => handleExportData('all')}
-                    className="export-button primary"
+                    className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors text-sm"
                   >
                     <Download className="w-4 h-4" />
                     Export All
@@ -371,11 +379,11 @@ const EnhancedWebScraper: React.FC = () => {
                 </div>
 
                 {/* Quick Actions */}
-                <div className="quick-actions">
+                <div className="flex flex-wrap gap-2">
                   {insights && (
                     <button
                       onClick={() => setActiveView('analytics')}
-                      className="action-button"
+                      className="flex items-center gap-2 px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition-colors text-sm"
                     >
                       <BarChart3 className="w-4 h-4" />
                       View Analytics
@@ -396,7 +404,7 @@ const EnhancedWebScraper: React.FC = () => {
                         a.click();
                         URL.revokeObjectURL(url);
                       }}
-                      className="action-button"
+                      className="flex items-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors text-sm"
                     >
                       <Download className="w-4 h-4" />
                       Original Data

@@ -114,10 +114,10 @@ export const WordCloudViz: React.FC<WordCloudProps> = ({
   }, [words, width, height]);
 
   return (
-    <div className={`word-cloud-container ${className}`}>
+    <div className={`bg-white rounded-lg border border-gray-200 p-2 ${className}`}>
       <canvas
         ref={canvasRef}
-        className="word-cloud-canvas"
+        className="border border-gray-200 rounded-lg bg-white"
         style={{ 
           border: '1px solid #e5e7eb',
           borderRadius: '8px',

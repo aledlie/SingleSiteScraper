@@ -1,11 +1,11 @@
-import { scrapeWebsite } from '../scraper/scrapeWebsite.ts';
-import { ScrapeOptions } from '../types/index.ts';
+import { scrapeWebsite } from '../../../src/scraper/scrapeWebsite.ts';
+import { ScrapeOptions } from '../../../src/types/index.ts';
 import { afterEach, expect, describe, it, vi } from 'vitest';
-import * as network from '../utils/network.ts';
-import * as validators from '../utils/validators.ts';
+import * as network from '../../../src/utils/network.ts';
+import * as validators from '../../../src/utils/validators.ts';
 
-vi.mock('../utils/network.ts', async () => {
-  const actual = await vi.importActual('../utils/network.ts');
+vi.mock('../../../src/utils/network.ts', async () => {
+  const actual = await vi.importActual('../../../src/utils/network.ts');
   return {
     ...actual,
     fetchWithPuppeteer: vi.fn().mockResolvedValue({

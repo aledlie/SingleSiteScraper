@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { DatabaseSchemaViz, DatabaseTable } from './DatabaseSchemaViz';
+import { DatabaseSchemaViz, DatabaseTable } from '../../../src/DatabaseSchemaViz';
 
 // Mock canvas context
 const mockCanvasContext = {
@@ -189,6 +189,6 @@ describe('DatabaseSchemaViz', () => {
       <DatabaseSchemaViz tables={mockTables} className="custom-class" />
     );
     
-    expect(container.firstChild).toHaveClass('database-schema-viz', 'custom-class');
+    expect(container.firstChild).toHaveClass('relative', 'bg-white', 'rounded-lg', 'border', 'border-gray-200', 'custom-class');
   });
 });

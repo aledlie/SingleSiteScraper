@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { WordCloudViz } from './WordCloudViz';
+import { WordCloudViz } from '../../../src/WordCloudViz';
 
 // Mock canvas context
 const mockCanvasContext = {
@@ -42,7 +42,7 @@ describe('WordCloudViz', () => {
     const { container } = render(
       <WordCloudViz words={mockWords} className="custom-word-cloud" />
     );
-    expect(container.firstChild).toHaveClass('word-cloud-container', 'custom-word-cloud');
+    expect(container.firstChild).toHaveClass('bg-white', 'rounded-lg', 'border', 'border-gray-200', 'custom-word-cloud');
   });
 
   it('sets canvas dimensions correctly', () => {

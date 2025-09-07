@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { ScrapeResultTabs } from './ScrapeResultTabs';
-import type { ScrapedData, EventData, ImageObject, WebSite, WebPage } from '../types';
+import { ScrapeResultTabs } from '../../../src/ScrapeResultTabs';
+import type { ScrapedData, EventData, ImageObject, WebSite, WebPage } from '../../../src/types';
 
 describe('ScrapeResultTabs with Schema.org Data', () => {
   let mockData: ScrapedData;
@@ -315,15 +315,15 @@ describe('ScrapeResultTabs with Schema.org Data', () => {
       const textTab = screen.getByText('TEXT');
       const eventsTab = screen.getByText('EVENTS');
       
-      // Text tab should be active by default
-      expect(textTab).toHaveClass('tab-button-active');
-      expect(eventsTab).toHaveClass('tab-button-inactive');
+      // Text tab should be active by default (should have blue background and white text)
+      expect(textTab).toHaveClass('bg-white', 'text-blue-600');
+      expect(eventsTab).not.toHaveClass('bg-white', 'text-blue-600');
       
       // Switch to events
       fireEvent.click(eventsTab);
       
-      expect(textTab).toHaveClass('tab-button-inactive');
-      expect(eventsTab).toHaveClass('tab-button-active');
+      expect(textTab).not.toHaveClass('bg-white', 'text-blue-600');
+      expect(eventsTab).toHaveClass('bg-white', 'text-blue-600');
     });
   });
 

@@ -556,6 +556,9 @@ LIMIT ?`;
   async queryPerformanceTrends(hours: number = 24): Promise<any[]> {
     if (!this.connected) throw new Error('Not connected to SQLMagic server');
 
+    // Validate and sanitize input
+    const validatedHours = Math.max(1, Math.min(8760, Math.floor(Math.abs(hours)))); // Limit to 1-8760 hours (1 year)
+
     const sql = `
 SELECT 
   DATE_TRUNC('hour', timestamp) as hour,
@@ -564,16 +567,17 @@ SELECT
   AVG(success_rate) as avg_success_rate,
   COUNT(*) as scrape_count
 FROM performance_metrics 
-WHERE timestamp >= NOW() - INTERVAL '${hours} hours'
+WHERE timestamp >= NOW() - INTERVAL ? HOUR
 GROUP BY DATE_TRUNC('hour', timestamp)
 ORDER BY hour`;
 
-    const queryId = this.logQuery(sql);
+    const parameters = { hours: validatedHours };
+    const queryId = this.logQuery(sql, parameters);
     const startTime = Date.now();
     
     try {
       // Mock trend data
-      const mockTrends = Array.from({ length: Math.min(hours, 24) }, (_, i) => ({
+      const mockTrends = Array.from({ length: Math.min(validatedHours, 24) }, (_, i) => ({
         hour: new Date(Date.now() - (i * 60 * 60 * 1000)).toISOString(),
         avg_response_time: Math.random() * 3000 + 1000,
         avg_complexity: Math.random() * 100 + 20,

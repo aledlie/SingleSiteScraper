@@ -273,83 +273,34 @@ export const DatabaseSchemaViz: React.FC<DatabaseSchemaVizProps> = ({
   };
 
   return (
-    <div className={`database-schema-viz ${className}`} ref={containerRef}>
+    <div className={`relative bg-white rounded-lg border border-gray-200 ${className}`} ref={containerRef}>
       {/* Controls */}
-      <div className="schema-controls" style={{
-        position: 'absolute',
-        top: '10px',
-        right: '10px',
-        display: 'flex',
-        gap: '8px',
-        zIndex: 10
-      }}>
+      <div className="absolute top-2 right-2 flex gap-2 z-10">
         <button
           onClick={() => setZoom(Math.max(0.5, zoom - 0.1))}
-          className="control-button"
-          style={{
-            padding: '6px 12px',
-            background: 'white',
-            border: '1px solid #e5e7eb',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
+          className="px-3 py-1 bg-white border border-gray-200 rounded cursor-pointer hover:bg-gray-50 transition-colors"
         >
           Zoom Out
         </button>
-        <span style={{
-          padding: '6px 12px',
-          background: 'white',
-          border: '1px solid #e5e7eb',
-          borderRadius: '4px',
-          fontSize: '12px'
-        }}>
+        <span className="px-3 py-1 bg-white border border-gray-200 rounded text-xs">
           {Math.round(zoom * 100)}%
         </span>
         <button
           onClick={() => setZoom(Math.min(2, zoom + 0.1))}
-          className="control-button"
-          style={{
-            padding: '6px 12px',
-            background: 'white',
-            border: '1px solid #e5e7eb',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
+          className="px-3 py-1 bg-white border border-gray-200 rounded cursor-pointer hover:bg-gray-50 transition-colors"
         >
           Zoom In
         </button>
         <button
           onClick={handleExport}
-          className="export-button"
-          style={{
-            padding: '6px 12px',
-            background: '#3b82f6',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px'
-          }}
+          className="flex items-center gap-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded cursor-pointer transition-colors"
         >
           <Download className="w-4 h-4" />
           PNG
         </button>
         <button
           onClick={exportDDL}
-          className="export-button"
-          style={{
-            padding: '6px 12px',
-            background: '#10b981',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px'
-          }}
+          className="flex items-center gap-1 px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded cursor-pointer transition-colors"
         >
           <Database className="w-4 h-4" />
           SQL
@@ -369,17 +320,7 @@ export const DatabaseSchemaViz: React.FC<DatabaseSchemaVizProps> = ({
       />
 
       {/* Legend */}
-      <div className="schema-legend" style={{
-        position: 'absolute',
-        bottom: '10px',
-        left: '10px',
-        background: 'rgba(255, 255, 255, 0.95)',
-        padding: '12px',
-        borderRadius: '6px',
-        border: '1px solid #e5e7eb',
-        fontSize: '12px',
-        minWidth: '200px'
-      }}>
+      <div className="absolute bottom-2 left-2 bg-white bg-opacity-95 p-3 rounded-md border border-gray-200 text-xs min-w-48">
         <h4 style={{ margin: '0 0 8px 0', fontWeight: '600' }}>Legend</h4>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
           <div style={{ width: '12px', height: '12px', background: '#f59e0b', borderRadius: '2px' }}></div>
@@ -401,18 +342,7 @@ export const DatabaseSchemaViz: React.FC<DatabaseSchemaVizProps> = ({
 
       {/* Table Details Panel */}
       {selectedTable && (
-        <div className="table-details" style={{
-          position: 'absolute',
-          top: '60px',
-          right: '10px',
-          width: '300px',
-          background: 'white',
-          border: '1px solid #e5e7eb',
-          borderRadius: '8px',
-          padding: '16px',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-          zIndex: 10
-        }}>
+        <div className="absolute top-16 right-2 w-80 bg-white border border-gray-200 rounded-lg p-4 shadow-lg z-10">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
             <Table className="w-5 h-5 text-blue-600" />
             <h3 style={{ margin: 0, fontWeight: '600' }}>{selectedTable}</h3>
@@ -483,17 +413,7 @@ export const DatabaseSchemaViz: React.FC<DatabaseSchemaVizProps> = ({
       )}
 
       {/* Statistics */}
-      <div className="schema-stats" style={{
-        position: 'absolute',
-        bottom: '10px',
-        right: '10px',
-        background: 'rgba(255, 255, 255, 0.95)',
-        padding: '8px 12px',
-        borderRadius: '6px',
-        border: '1px solid #e5e7eb',
-        fontSize: '12px',
-        textAlign: 'right'
-      }}>
+      <div className="absolute bottom-2 right-2 bg-white bg-opacity-95 p-2 px-3 rounded-md border border-gray-200 text-xs text-right">
         <div>Tables: {tables.length}</div>
         <div>Relationships: {getRelationships().length}</div>
         <div>Total Columns: {tables.reduce((sum, t) => sum + Object.keys(t.schema).length, 0)}</div>

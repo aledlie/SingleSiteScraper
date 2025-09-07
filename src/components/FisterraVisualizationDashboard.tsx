@@ -238,16 +238,7 @@ export const FisterraVisualizationDashboard: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="loading-container" style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '400px',
-        background: 'white',
-        borderRadius: '8px',
-        border: '1px solid #e5e7eb'
-      }}>
+      <div className="flex flex-col items-center justify-center min-h-96 bg-white rounded-lg shadow-sm border border-gray-200">
         <Activity className="w-12 h-12 text-blue-500 animate-spin mb-4" />
         <h2 style={{ fontSize: '24px', fontWeight: '600', marginBottom: '8px' }}>
           Analyzing Fisterra.org
@@ -275,9 +266,9 @@ export const FisterraVisualizationDashboard: React.FC = () => {
   ];
 
   return (
-    <div className="fisterra-dashboard" style={{ maxWidth: '1400px', margin: '0 auto', padding: '20px' }}>
+    <div className="max-w-7xl mx-auto p-5 bg-white rounded-lg shadow-sm border border-gray-200">
       {/* Header */}
-      <div className="dashboard-header" style={{ marginBottom: '30px' }}>
+      <div className="mb-8">
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
           <Globe className="w-8 h-8 text-blue-600" />
           <div>
@@ -352,15 +343,7 @@ export const FisterraVisualizationDashboard: React.FC = () => {
       </div>
 
       {/* Tab Navigation */}
-      <div className="tab-navigation" style={{
-        display: 'flex',
-        background: 'white',
-        borderRadius: '12px',
-        padding: '8px',
-        marginBottom: '24px',
-        border: '1px solid #e5e7eb',
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-      }}>
+      <div className="flex bg-white rounded-xl p-2 mb-6 border border-gray-200 shadow-sm">
         {tabs.map(tab => {
           const Icon = tab.icon;
           return (
@@ -397,9 +380,9 @@ export const FisterraVisualizationDashboard: React.FC = () => {
       </div>
 
       {/* Tab Content */}
-      <div className="tab-content">
+      <div className="">
         {activeTab === 'overview' && (
-          <div className="overview-content">
+          <div className="">
             <div style={{
               display: 'grid',
               gridTemplateColumns: '1fr 1fr',

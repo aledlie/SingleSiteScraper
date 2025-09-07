@@ -27,21 +27,27 @@ const App: React.FC = () => {
           <div className="mode-toggle">
             <button
               onClick={() => setMode('basic')}
-              className={`mode-button ${mode === 'basic' ? 'active' : ''}`}
+              className={`mode-button ${
+                mode === 'basic' ? 'active' : ''
+              }`}
             >
               <Globe className="w-4 h-4" />
               Basic Scraper
             </button>
             <button
               onClick={() => setMode('enhanced')}
-              className={`mode-button ${mode === 'enhanced' ? 'active' : ''}`}
+              className={`mode-button ${
+                mode === 'enhanced' ? 'active' : ''
+              }`}
             >
               <Zap className="w-4 h-4" />
               Enhanced Analytics
             </button>
             <button
               onClick={() => setMode('visualization')}
-              className={`mode-button ${mode === 'visualization' ? 'active' : ''}`}
+              className={`mode-button ${
+                mode === 'visualization' ? 'active' : ''
+              }`}
             >
               <BarChart3 className="w-4 h-4" />
               Example Analytics Page
@@ -68,21 +74,21 @@ const App: React.FC = () => {
           {mode === 'visualization' && <FisterraVisualizationDashboard />}
         </Suspense>
         
-        <footer className="app-footer">
-          <div className="footer-content">
-            <p>&copy; 2024 Web Scraper Pro. Powered by RepoViz MCP Integration.</p>
-            <div className="footer-features">
-              <div className="feature-item">
+        <footer className="mt-12 bg-gray-50 border-t border-gray-200 py-8">
+          <div className="max-w-4xl mx-auto px-6">
+            <p className="text-center text-gray-600 mb-6">&copy; 2024 Web Scraper Pro. Powered by RepoViz MCP Integration.</p>
+            <div className="flex justify-center gap-8">
+              <div className="flex items-center gap-2 text-gray-600">
                 <BarChart3 className="w-4 h-4" />
-                <span>HTML Analysis</span>
+                <span className="text-sm">HTML Analysis</span>
               </div>
-              <div className="feature-item">
+              <div className="flex items-center gap-2 text-gray-600">
                 <Globe className="w-4 h-4" />
-                <span>Graph Modeling</span>
+                <span className="text-sm">Graph Modeling</span>
               </div>
-              <div className="feature-item">
+              <div className="flex items-center gap-2 text-gray-600">
                 <Zap className="w-4 h-4" />
-                <span>SQLMagic Storage</span>
+                <span className="text-sm">SQLMagic Storage</span>
               </div>
             </div>
           </div>

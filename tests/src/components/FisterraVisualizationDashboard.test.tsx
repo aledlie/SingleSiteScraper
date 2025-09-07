@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { FisterraVisualizationDashboard } from './FisterraVisualizationDashboard';
+import { FisterraVisualizationDashboard } from '../../../src/FisterraVisualizationDashboard';
 
 // Mock the visualization components
-vi.mock('../visualizations/WordCloudViz', () => ({
+vi.mock('../../../src/visualizations/WordCloudViz', () => ({
   WordCloudViz: ({ words, width, height }: any) => (
     <div data-testid="word-cloud-viz">
       WordCloud: {words.length} words, {width}x{height}
@@ -11,7 +11,7 @@ vi.mock('../visualizations/WordCloudViz', () => ({
   )
 }));
 
-vi.mock('../visualizations/NetworkGraphViz', () => ({
+vi.mock('../../../src/visualizations/NetworkGraphViz', () => ({
   NetworkGraphViz: ({ graph, width, height }: any) => (
     <div data-testid="network-graph-viz">
       NetworkGraph: {graph.metadata.totalObjects} objects, {width}x{height}
@@ -19,7 +19,7 @@ vi.mock('../visualizations/NetworkGraphViz', () => ({
   )
 }));
 
-vi.mock('../visualizations/MetricsCharts', () => ({
+vi.mock('../../../src/visualizations/MetricsCharts', () => ({
   MetricsCharts: ({ insights, performanceMetrics }: any) => (
     <div data-testid="metrics-charts">
       MetricsCharts: {insights.recommendations.length} recommendations
@@ -28,7 +28,7 @@ vi.mock('../visualizations/MetricsCharts', () => ({
 }));
 
 // Mock the analytics components
-vi.mock('../analytics/enhancedScraper', () => ({
+vi.mock('../../../src/analytics/enhancedScraper', () => ({
   EnhancedScraper: vi.fn().mockImplementation(() => ({
     generateInsights: vi.fn().mockReturnValue({
       objectTypeDistribution: { 'content': 10, 'structural': 5 },
@@ -59,7 +59,7 @@ vi.mock('../analytics/enhancedScraper', () => ({
   }))
 }));
 
-vi.mock('../analytics/htmlObjectAnalyzer', () => ({
+vi.mock('../../../src/analytics/htmlObjectAnalyzer', () => ({
   HTMLObjectAnalyzer: vi.fn().mockImplementation(() => ({
     analyzeHTML: vi.fn().mockReturnValue({
       objects: new Map(),

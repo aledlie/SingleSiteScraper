@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/react';
-import { NetworkGraphViz } from './NetworkGraphViz';
-import { HTMLGraph, HTMLObject, HTMLRelationship } from '../analytics/htmlObjectAnalyzer';
+import { NetworkGraphViz } from '../../../src/NetworkGraphViz';
+import { HTMLGraph, HTMLObject, HTMLRelationship } from '../../../src/analytics/htmlObjectAnalyzer';
 
 // Mock canvas context and requestAnimationFrame
 const mockCanvasContext = {
@@ -109,7 +109,7 @@ describe('NetworkGraphViz', () => {
       <NetworkGraphViz graph={mockGraph} className="custom-network" />
     );
     
-    expect(container.firstChild).toHaveClass('network-graph-container', 'custom-network');
+    expect(container.firstChild).toHaveClass('relative', 'bg-white', 'rounded-lg', 'border', 'border-gray-200', 'custom-network');
   });
 
   it('sets canvas dimensions correctly', () => {

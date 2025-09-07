@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { MetricsCharts } from './MetricsCharts';
-import { AnalyticsInsights } from '../analytics/enhancedScraper';
-import { PerformanceMetrics } from '../analytics/performanceMonitor';
+import { MetricsCharts } from '../../../src/MetricsCharts';
+import { AnalyticsInsights } from '../../../src/analytics/enhancedScraper';
+import { PerformanceMetrics } from '../../../src/analytics/performanceMonitor';
 
 const mockInsights: AnalyticsInsights = {
   objectTypeDistribution: {

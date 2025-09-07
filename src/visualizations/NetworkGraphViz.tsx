@@ -235,10 +235,10 @@ export const NetworkGraphViz: React.FC<NetworkGraphProps> = ({
   }, [graph, width, height]);
 
   return (
-    <div className={`network-graph-container ${className}`}>
+    <div className={`relative bg-white rounded-lg border border-gray-200 p-2 ${className}`}>
       <canvas
         ref={canvasRef}
-        className="network-graph-canvas"
+        className="border border-gray-200 rounded-lg bg-white"
         style={{ 
           border: '1px solid #e5e7eb',
           borderRadius: '8px',
@@ -247,16 +247,7 @@ export const NetworkGraphViz: React.FC<NetworkGraphProps> = ({
       />
       
       {/* Legend */}
-      <div className="graph-legend" style={{
-        position: 'absolute',
-        top: '10px',
-        right: '10px',
-        background: 'rgba(255, 255, 255, 0.9)',
-        padding: '10px',
-        borderRadius: '6px',
-        fontSize: '12px',
-        border: '1px solid #e5e7eb'
-      }}>
+      <div className="absolute top-2 right-2 bg-white bg-opacity-90 p-3 rounded-md text-xs border border-gray-200 shadow-sm">
         <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>Node Types:</div>
         {Object.entries({
           interactive: '#ff6b6b',
