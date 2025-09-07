@@ -42,29 +42,32 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
       {tab !== 'schema' && tab !== 'images' && tab !== 'metadata' && (
         <Card>
           {tab === 'text' && (
-          <div className="space-y-4">
+          <div>
             {filtered.text.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <p className="text-gray-500">No text content found matching your filter.</p>
               </div>
             ) : (
-              filtered.text.map((t, i) => (
-                <div key={i} className="bg-gradient-to-r from-white to-blue-50 border border-blue-100 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
-                  <p className="text-gray-700 leading-relaxed text-base break-words">{t}</p>
-                </div>
-              ))
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-min">
+                {filtered.text.map((t, i) => (
+                  <div key={i} className="bg-gradient-to-r from-white to-blue-50 border border-blue-100 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
+                    <p className="text-gray-700 leading-relaxed text-sm break-words">{t}</p>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         )}
 
         {tab === 'events' && (
-          <div className="space-y-4">
+          <div>
             {filtered.events.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <p className="text-gray-500">No events found matching your filter.</p>
               </div>
             ) : (
-              filtered.events.map((event, i) => {
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-min">
+                {filtered.events.map((event, i) => {
                 // Format dates to be human-readable
                 const formatEventDate = (dateString: string) => {
                   try {
@@ -98,7 +101,7 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
                 return (
                   <div 
                     key={i} 
-                    className="bg-gradient-to-br from-white to-slate-50 border border-slate-200 rounded-xl p-5 mb-4 shadow-md transition-all duration-200 ease-in-out cursor-default hover:shadow-lg hover:-translate-y-0.5"
+                    className="bg-gradient-to-br from-white to-slate-50 border border-slate-200 rounded-xl p-4 shadow-md transition-all duration-200 ease-in-out cursor-default hover:shadow-lg hover:-translate-y-0.5"
                   >
                     {/* Event Header */}
                     <div className="flex justify-between items-start mb-3">
@@ -158,45 +161,48 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
                     </div>
                   </div>
                 );
-              })
+              })}
+              </div>
             )}
           </div>
         )}
 
         {tab === 'links' && (
-          <div className="space-y-4">
+          <div>
             {filtered.links.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <p className="text-gray-500">No links found matching your filter.</p>
               </div>
             ) : (
-              filtered.links.map((l, i) => (
-                <div key={i} className="bg-gradient-to-r from-white to-blue-50 border border-blue-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-all duration-200 hover:border-blue-300">
-                  <div className="flex flex-col gap-3">
-                    <div className="flex items-start gap-3">
-                      <div className="flex-shrink-0 w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-0.5">
-                        <span className="text-blue-600 text-sm">🔗</span>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-min">
+                {filtered.links.map((l, i) => (
+                  <div key={i} className="bg-gradient-to-r from-white to-blue-50 border border-blue-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-200 hover:border-blue-300">
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-0.5">
+                          <span className="text-blue-600 text-sm">🔗</span>
+                        </div>
+                        <div className="flex-grow min-w-0">
+                          <a 
+                            href={l.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="text-blue-700 hover:text-blue-900 font-semibold text-base leading-snug break-words transition-colors duration-150"
+                            title={l.text}
+                          >
+                            {l.text}
+                          </a>
+                        </div>
                       </div>
-                      <div className="flex-grow min-w-0">
-                        <a 
-                          href={l.url} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          className="text-blue-700 hover:text-blue-900 font-semibold text-lg leading-snug break-words transition-colors duration-150"
-                          title={l.text}
-                        >
-                          {l.text}
-                        </a>
+                      <div className="ml-9 pl-2 border-l-2 border-gray-100">
+                        <p className="text-xs text-gray-600 break-all font-mono bg-gray-50 px-2 py-1 rounded border border-gray-200">
+                          {l.url}
+                        </p>
                       </div>
-                    </div>
-                    <div className="ml-9 pl-2 border-l-2 border-gray-100">
-                      <p className="text-sm text-gray-600 break-all font-mono bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
-                        {l.url}
-                      </p>
                     </div>
                   </div>
-                </div>
-              ))
+                ))}
+              </div>
             )}
           </div>
         )}
@@ -238,7 +244,7 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
                           <h4 className="text-sm font-medium mb-3 text-gray-700">
                             Event {i + 1}: {event.name}
                           </h4>
-                          <pre className="bg-slate-50 p-4 rounded-lg overflow-x-auto overflow-y-auto text-xs border border-slate-200 w-full">
+                          <pre className="bg-slate-800 text-slate-200 p-6 rounded-lg overflow-x-auto overflow-y-auto text-sm font-mono border border-slate-600 w-full leading-6 whitespace-pre" style={{ tabSize: 2 }}>
                             {JSON.stringify(event, null, 2)}
                           </pre>
                         </div>
@@ -263,7 +269,7 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
                           <h4 className="text-sm font-medium mb-3 text-gray-700">
                             Image {i + 1}: {image.name || 'Unnamed'}
                           </h4>
-                          <pre className="bg-slate-50 p-4 rounded-lg overflow-x-auto overflow-y-auto text-xs border border-slate-200 w-full">
+                          <pre className="bg-slate-800 text-slate-200 p-6 rounded-lg overflow-x-auto overflow-y-auto text-sm font-mono border border-slate-600 w-full leading-6 whitespace-pre" style={{ tabSize: 2 }}>
                             {JSON.stringify(image, null, 2)}
                           </pre>
                         </div>
@@ -281,7 +287,7 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
                   <h3 className="text-lg font-semibold mb-4 text-slate-800">
                     📊 Complete Dataset Schema
                   </h3>
-                  <pre className="bg-slate-50 p-4 rounded-lg overflow-x-auto overflow-y-auto text-xs border border-slate-200 max-h-96 w-full">
+                  <pre className="bg-slate-800 text-slate-200 p-6 rounded-lg overflow-x-auto overflow-y-auto text-sm font-mono border border-slate-600 max-h-96 w-full leading-6 whitespace-pre" style={{ tabSize: 2 }}>
                     {JSON.stringify({
                       '@context': data['@context'],
                       '@type': data['@type'],
