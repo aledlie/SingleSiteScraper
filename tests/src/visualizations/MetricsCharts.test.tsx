@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { MetricsCharts } from '../../../src/MetricsCharts';
+import { MetricsCharts } from '../../../src/visualizations/MetricsCharts';
 import { AnalyticsInsights } from '../../../src/analytics/enhancedScraper';
 import { PerformanceMetrics } from '../../../src/analytics/performanceMonitor';
 

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { EnhancedScraper } from './enhancedScraper';
-import { HTMLObjectAnalyzer } from './htmlObjectAnalyzer';
-import { PerformanceMonitor } from './performanceMonitor';
+import { EnhancedScraper } from '../../../src/analytics/enhancedScraper';
+import { HTMLObjectAnalyzer } from '../../../src/analytics/htmlObjectAnalyzer';
+import { PerformanceMonitor } from '../../../src/analytics/performanceMonitor';
 
 // Mock the original scraper
 vi.mock('../scraper/scrapeWebsite', () => ({

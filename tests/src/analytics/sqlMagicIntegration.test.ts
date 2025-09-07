@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { SQLMagicIntegration, SQLMagicConfig } from './sqlMagicIntegration';
-import { HTMLGraph, HTMLObject } from './htmlObjectAnalyzer';
-import { PerformanceMetrics } from './performanceMonitor';
+import { SQLMagicIntegration, SQLMagicConfig } from '../../../src/analytics/sqlMagicIntegration';
+import { HTMLGraph, HTMLObject } from '../../../src/analytics/htmlObjectAnalyzer';
+import { PerformanceMetrics } from '../../../src/analytics/performanceMonitor';
 
 describe('SQLMagicIntegration', () => {
   let sqlIntegration: SQLMagicIntegration;

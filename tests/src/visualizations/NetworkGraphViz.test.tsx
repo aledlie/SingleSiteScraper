@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/react';
-import { NetworkGraphViz } from '../../../src/NetworkGraphViz';
+import { NetworkGraphViz } from '../../../src/visualizations/NetworkGraphViz';
 import { HTMLGraph, HTMLObject, HTMLRelationship } from '../../../src/analytics/htmlObjectAnalyzer';
 
 // Mock canvas context and requestAnimationFrame

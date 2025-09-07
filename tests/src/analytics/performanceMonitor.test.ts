@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { PerformanceMonitor, PerformanceAlert, PerformanceThresholds } from './performanceMonitor';
+import { PerformanceMonitor, PerformanceAlert, PerformanceThresholds } from '../../../src/analytics/performanceMonitor';
 
 describe('PerformanceMonitor', () => {
   let monitor: PerformanceMonitor;

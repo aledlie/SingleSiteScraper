@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { WordCloudViz } from '../../../src/WordCloudViz';
+import { WordCloudViz } from '../../../src/visualizations/WordCloudViz';
 
 // Mock canvas context
 const mockCanvasContext = {
