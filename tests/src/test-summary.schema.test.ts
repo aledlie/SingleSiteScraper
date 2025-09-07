@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { scrapeWebsite } from './scraper/scrapeWebsite';
-import { extractEvents } from './utils/parseEvents';
-import { getImages, getWebSite, getWebPage } from './utils/parse';
+import { scrapeWebsite } from '../../../src/scraper/scrapeWebsite';
+import { extractEvents } from '../../../src/utils/parseEvents';
+import { getImages, getWebSite, getWebPage } from '../../../src/utils/parse';
 import { parse } from 'node-html-parser';
-import type { ScrapeOptions } from './types';
+import type { ScrapeOptions } from '../../../src/types';
 
 describe('Schema.org Implementation Summary Tests', () => {
   describe('Core Schema.org Functionality', () => {
