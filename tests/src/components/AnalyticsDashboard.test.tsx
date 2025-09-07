@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { AnalyticsDashboard } from '../../../src/../../src/components/AnalyticsDashboard';
-import { EnhancedScrapeResult, AnalyticsInsights } from '../../../src/../../src/analytics/enhancedScraper';
-import { PerformanceAlert } from '../../../src/../../src/analytics/performanceMonitor';
-import { HTMLGraph } from '../../../src/../../src/analytics/htmlObjectAnalyzer';
+import { AnalyticsDashboard } from '../../../src/components/AnalyticsDashboard';
+import { EnhancedScrapeResult, AnalyticsInsights } from '../../../src/analytics/enhancedScraper';
+import { PerformanceAlert } from '../../../src/analytics/performanceMonitor';
+import { HTMLGraph } from '../../../src/analytics/htmlObjectAnalyzer';
 
 // Mock the visualization components
 vi.mock('../../../src/visualizations/DatabaseSchemaViz', () => ({

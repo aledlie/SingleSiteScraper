@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { DatabaseSchemaViz, DatabaseTable } from '../../../src/DatabaseSchemaViz';
+import { DatabaseSchemaViz, DatabaseTable } from '../../../src/visualizations/DatabaseSchemaViz';
 
 // Mock canvas context
 const mockCanvasContext = {

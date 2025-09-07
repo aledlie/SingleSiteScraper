@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { ScrapeResultTabs } from '../../../src/ScrapeResultTabs';
+import { ScrapeResultTabs } from '../../../src/components/ScrapeResultTabs';
 import type { ScrapedData, EventData, ImageObject, WebSite, WebPage } from '../../../src/types';
 
 describe('ScrapeResultTabs with Schema.org Data', () => {
