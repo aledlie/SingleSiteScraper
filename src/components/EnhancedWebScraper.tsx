@@ -195,23 +195,21 @@ const EnhancedWebScraper: React.FC = () => {
             />
 
             {/* Basic Options */}
-            {activeView === 'scraper' && (
-              <div className="mb-4">
-                <button
-                  onClick={() => setShowAdvanced(!showAdvanced)}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors"
-                >
-                  <Settings className="w-4 h-4" />
-                  {showAdvanced ? 'Hide' : 'Show'} Advanced Settings
-                </button>
-              
-                {showAdvanced && (
-                  <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                    <ScrapeOptionsForm options={options} onChange={setOptions} />
-                  </div>
-                )}
-              </div>
-            )}
+            <div className="mb-4">
+              <button
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors"
+              >
+                <Settings className="w-4 h-4" />
+                {showAdvanced ? 'Hide' : 'Show'} Advanced Settings
+              </button>
+            
+              {showAdvanced && (
+                <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <ScrapeOptionsForm options={options} onChange={setOptions} />
+                </div>
+              )}
+            </div>
 
             {/* Analytics Configuration */}
             <div className="mb-6">
