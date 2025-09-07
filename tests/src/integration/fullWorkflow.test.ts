@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { EnhancedScraper } from '../analytics/enhancedScraper';
-import { HTMLObjectAnalyzer } from '../analytics/htmlObjectAnalyzer';
-import { PerformanceMonitor } from '../analytics/performanceMonitor';
-import { SQLMagicIntegration } from '../analytics/sqlMagicIntegration';
+import { EnhancedScraper } from '../../../src/analytics/enhancedScraper';
+import { HTMLObjectAnalyzer } from '../../../src/analytics/htmlObjectAnalyzer';
+import { PerformanceMonitor } from '../../../src/analytics/performanceMonitor';
+import { SQLMagicIntegration } from '../../../src/analytics/sqlMagicIntegration';
 
 // Mock the original scraper
 vi.mock('../scraper/scrapeWebsite', () => ({

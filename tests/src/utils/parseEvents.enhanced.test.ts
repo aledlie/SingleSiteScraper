@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { extractEvents } from './parseEvents';
+import { extractEvents } from '../../../src/utils/parseEvents';
 
 describe('Enhanced Event Parsing with Schema.org', () => {
   describe('JSON-LD Event Parsing', () => {

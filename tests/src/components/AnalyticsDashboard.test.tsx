@@ -6,7 +6,7 @@ import { PerformanceAlert } from '../../../src/../../src/analytics/performanceMo
 import { HTMLGraph } from '../../../src/../../src/analytics/htmlObjectAnalyzer';
 
 // Mock the visualization components
-vi.mock('../../../src/../../src/visualizations/DatabaseSchemaViz', () => ({
+vi.mock('../../../src/visualizations/DatabaseSchemaViz', () => ({
   DatabaseSchemaViz: ({ tables, onExport }: any) => (
     <div data-testid="database-schema-viz">
       <div>Database Schema Visualization</div>
@@ -16,7 +16,7 @@ vi.mock('../../../src/../../src/visualizations/DatabaseSchemaViz', () => ({
   )
 }));
 
-vi.mock('../../../src/../../src/analytics/sqlMagicIntegration', () => ({
+vi.mock('../../../src/analytics/sqlMagicIntegration', () => ({
   SQLMagicIntegration: vi.fn().mockImplementation(() => ({
     getDatabaseSchema: () => [
       { name: 'html_graphs', schema: {}, indexes: [], constraints: [] },

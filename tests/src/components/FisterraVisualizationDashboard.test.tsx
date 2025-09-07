@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { FisterraVisualizationDashboard } from '../../../src/FisterraVisualizationDashboard';
+import { FisterraVisualizationDashboard } from '../../../src/components/FisterraVisualizationDashboard';
 
 // Mock the visualization components
 vi.mock('../../../src/visualizations/WordCloudViz', () => ({

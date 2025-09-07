@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { scrapeWebsite } from '../scraper/scrapeWebsite';
-import { ScrapeOptions } from '../types';
+import { scrapeWebsite } from '../../../src/scraper/scrapeWebsite';
+import { ScrapeOptions } from '../../../src/types';
 
 describe('Schema.org Integration Tests', () => {
   let mockFetch: any;

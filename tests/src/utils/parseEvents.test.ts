@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { scrapeWebsite } from '../scraper/scrapeWebsite';
-import { ScrapeOptions } from '../types/index';
+import { scrapeWebsite } from '../../../src/scraper/scrapeWebsite';
+import { ScrapeOptions } from '../../../src/types/index';
 
 describe('scrapeWebsite', () => {
   it('scrapes website data and events successfully', async () => {

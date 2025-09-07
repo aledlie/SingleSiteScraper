@@ -10,7 +10,7 @@ import {
   getMetadata,
   getLinks,
   getText
-} from './parse';
+} from '../../../src/utils/parse';
 
 describe('Schema.org Parse Functions', () => {
   const mockHtml = `
