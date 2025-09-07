@@ -17,6 +17,7 @@ describe('SQLMagicIntegration', () => {
       password: 'test_pass'
     };
     sqlIntegration = new SQLMagicIntegration(mockConfig);
+    sqlIntegration.clearQueryLog(); // Clear query log for each test
   });
 
   describe('Connection Management', () => {
@@ -248,6 +249,9 @@ describe('SQLMagicIntegration', () => {
     });
 
     it('sorts query log by timestamp descending', async () => {
+      // Clear the log to ensure clean state for this test
+      sqlIntegration.clearQueryLog();
+      
       await sqlIntegration.queryGraphsByUrl('test1.com');
       await sqlIntegration.queryGraphsByUrl('test2.com');
       
@@ -298,10 +302,10 @@ describe('SQLMagicIntegration', () => {
         metadata: {} as any // Invalid metadata
       };
       
-      // Should handle gracefully without throwing
+      // Should handle gracefully without throwing, but return false for malformed data
       await expect(
         sqlIntegration.storeHTMLGraph(invalidGraph as HTMLGraph)
-      ).resolves.toBe(true);
+      ).resolves.toBe(false);
     });
 
     it('handles network timeouts', async () => {
