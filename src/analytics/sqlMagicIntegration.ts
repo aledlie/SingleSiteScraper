@@ -549,9 +549,14 @@ LIMIT ?`;
   async queryPerformanceTrends(hours: number = 24): Promise<any[]> {
     if (!this.connected) throw new Error('Not connected to SQLMagic server');
 
-    // Validate and sanitize input
+    // Enhanced input validation and sanitization
+    if (typeof hours !== 'number' || isNaN(hours)) {
+      throw new Error('Invalid input: hours must be a number');
+    }
+    
     const validatedHours = Math.max(1, Math.min(8760, Math.floor(Math.abs(hours)))); // Limit to 1-8760 hours (1 year)
 
+    // Use parameterized queries to prevent SQL injection
     const sql = `
 SELECT 
   DATE_TRUNC('hour', timestamp) as hour,
@@ -561,6 +566,7 @@ SELECT
   COUNT(*) as scrape_count
 FROM performance_metrics 
 WHERE timestamp >= NOW() - INTERVAL ? HOUR
+AND response_time > 0 AND response_time < 300000
 GROUP BY DATE_TRUNC('hour', timestamp)
 ORDER BY hour`;
 
@@ -569,13 +575,13 @@ ORDER BY hour`;
     const startTime = Date.now();
     
     try {
-      // Mock trend data
+      // Mock trend data with bounds checking
       const mockTrends = Array.from({ length: Math.min(validatedHours, 24) }, (_, i) => ({
         hour: new Date(Date.now() - (i * 60 * 60 * 1000)).toISOString(),
-        avg_response_time: Math.random() * 3000 + 1000,
-        avg_complexity: Math.random() * 100 + 20,
-        avg_success_rate: Math.random() * 0.2 + 0.8,
-        scrape_count: Math.floor(Math.random() * 10) + 1
+        avg_response_time: Math.max(100, Math.min(30000, Math.random() * 3000 + 1000)),
+        avg_complexity: Math.max(0, Math.min(100, Math.random() * 100 + 20)),
+        avg_success_rate: Math.max(0, Math.min(1, Math.random() * 0.2 + 0.8)),
+        scrape_count: Math.max(0, Math.min(1000, Math.floor(Math.random() * 10) + 1))
       }));
       
       await this.delay(150);
@@ -585,8 +591,10 @@ ORDER BY hour`;
       
       return mockTrends.reverse();
     } catch (error) {
-      console.error('Failed to query performance trends:', error);
-      throw error;
+      // Sanitize error message to prevent information disclosure
+      const sanitizedError = this.sanitizeErrorMessage(error);
+      console.error('Failed to query performance trends:', sanitizedError);
+      throw new Error('Database query failed');
     }
   }
 
@@ -614,12 +622,26 @@ ORDER BY hour`;
   async executeCustomQuery(sql: string, parameters?: Record<string, any>): Promise<any[]> {
     if (!this.connected) throw new Error('Not connected to SQLMagic server');
 
-    const queryId = this.logQuery(sql, parameters);
+    // Enhanced SQL injection prevention
+    if (!sql || typeof sql !== 'string') {
+      throw new Error('Invalid query: SQL must be a non-empty string');
+    }
+    
+    // Validate SQL query to prevent dangerous operations
+    const sanitizedSql = this.validateAndSanitizeSQL(sql);
+    if (!sanitizedSql) {
+      throw new Error('Query rejected: potentially dangerous SQL detected');
+    }
+    
+    // Sanitize parameters
+    const sanitizedParameters = parameters ? this.sanitizeQueryParameters(parameters) : undefined;
+
+    const queryId = this.logQuery(sanitizedSql, sanitizedParameters);
     const startTime = Date.now();
     
     try {
-      // Mock execution
-      console.log(`Executing custom query: ${sql.substring(0, 100)}...`);
+      // Mock execution with sanitized query
+      console.log(`Executing custom query: ${sanitizedSql.substring(0, 50)}... [QUERY_TRUNCATED]`);
       await new Promise(resolve => setTimeout(resolve, 200));
       
       const mockResult = [{ message: 'Custom query executed successfully' }];
@@ -629,8 +651,9 @@ ORDER BY hour`;
       
       return mockResult;
     } catch (error) {
-      console.error('Failed to execute custom query:', error);
-      throw error;
+      const sanitizedError = this.sanitizeErrorMessage(error);
+      console.error('Failed to execute custom query:', sanitizedError);
+      throw new Error('Database query execution failed');
     }
   }
 
@@ -737,6 +760,80 @@ ORDER BY hour`;
   }
 
   /**
+   * Validate and sanitize SQL queries to prevent injection attacks
+   */
+  private validateAndSanitizeSQL(sql: string): string | null {
+    // Block dangerous SQL commands and patterns
+    const dangerousPatterns = [
+      /\b(DROP|DELETE|INSERT|UPDATE|CREATE|ALTER|EXEC|EXECUTE|TRUNCATE|REPLACE)\b/gi,
+      /\b(UNION|UNION\s+ALL)\b/gi,
+      /(;|--|\/\*|\*\/|xp_|sp_)/gi,
+      /\b(SCRIPT|JAVASCRIPT|VBSCRIPT)\b/gi,
+      /(eval|exec|execute|system|cmd|shell)/gi
+    ];
+    
+    for (const pattern of dangerousPatterns) {
+      if (pattern.test(sql)) {
+        return null;
+      }
+    }
+    
+    // Only allow SELECT statements for custom queries
+    if (!sql.trim().toLowerCase().startsWith('select')) {
+      return null;
+    }
+    
+    // Limit query length to prevent DoS
+    if (sql.length > 10000) {
+      return null;
+    }
+    
+    return sql.trim();
+  }
+  
+  /**
+   * Sanitize query parameters to prevent injection through parameters
+   */
+  private sanitizeQueryParameters(parameters: Record<string, any>): Record<string, any> {
+    const sanitized: Record<string, any> = {};
+    
+    for (const [key, value] of Object.entries(parameters)) {
+      // Sanitize parameter names
+      const sanitizedKey = key.replace(/[^a-zA-Z0-9_]/g, '').substring(0, 100);
+      if (!sanitizedKey) continue;
+      
+      // Sanitize parameter values
+      if (typeof value === 'string') {
+        sanitized[sanitizedKey] = value.replace(/[;\x00\n\r\\"'\x1a]/g, '').substring(0, 1000);
+      } else if (typeof value === 'number' && isFinite(value)) {
+        sanitized[sanitizedKey] = Math.max(-1000000, Math.min(1000000, value));
+      } else if (typeof value === 'boolean') {
+        sanitized[sanitizedKey] = value;
+      }
+      // Skip other types for security
+    }
+    
+    return sanitized;
+  }
+  
+  /**
+   * Sanitize error messages to prevent information disclosure
+   */
+  private sanitizeErrorMessage(error: unknown): string {
+    if (!error) return 'Unknown error';
+    
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    
+    // Remove sensitive information from error messages
+    return errorMsg
+      .replace(/https?:\/\/[^\s]+/gi, '[URL_REDACTED]')
+      .replace(/\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b/g, '[IP_REDACTED]')
+      .replace(/password|token|key|secret|auth/gi, '[CREDENTIAL_REDACTED]')
+      .replace(/\b\w+@\w+\.\w+/g, '[EMAIL_REDACTED]')
+      .substring(0, 200); // Limit error message length
+  }
+  
+  /**
    * Cleanup method to properly dispose of resources and prevent memory leaks
    */
   cleanup(): void {
@@ -751,10 +848,14 @@ ORDER BY hour`;
       if (this.abortController && !this.abortController.signal.aborted) {
         this.abortController.abort();
       }
+      
+      // Clear sensitive data
+      this.clearQueryLog();
 
       console.log('SQLMagicIntegration cleanup completed');
     } catch (error) {
-      console.warn('Error during SQLMagicIntegration cleanup:', error);
+      const sanitizedError = this.sanitizeErrorMessage(error);
+      console.warn('Error during SQLMagicIntegration cleanup:', sanitizedError);
     }
   }
 }

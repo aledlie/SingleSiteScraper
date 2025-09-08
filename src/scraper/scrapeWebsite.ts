@@ -1,11 +1,12 @@
 import { fetchWithTimeout, proxyServices } from '../utils/network.ts';
-import { normalizeUrl, sleep, validateUrl } from '../utils/validators.ts';
+import { normalizeUrl, sleep, validateUrl, sanitizeErrorMessage } from '../utils/validators.ts';
 import { ScrapedData, ScrapeOptions } from '../types/index.ts';
 import {getText, getMetadata, getLinks, getTitle, getImages, getDescription, getWebSite, getWebPage} from '../utils/parse.ts';
 import {parse} from 'node-html-parser';
 import { extractEvents } from '../utils/parseEvents.ts';
 import { EnhancedScraper, EnhancedScrapingOptions } from './enhancedScraper';
 
+// Legacy scraping function - maintained for backwards compatibility
 // Legacy scraping function - maintained for backwards compatibility
 export const scrapeWebsiteLegacy = async (
   rawUrl: string,
@@ -56,8 +57,9 @@ export const scrapeWebsiteLegacy = async (
         }
 
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        setProgress(`Attempt ${attempt} with ${proxy.name} failed: ${errorMessage}`);
+        // Sanitize error message to prevent information disclosure
+        const sanitizedError = sanitizeErrorMessage(error);
+        setProgress(`Attempt ${attempt} with ${proxy.name} failed: ${sanitizedError}`);
         if (attempt < retries) {
           await sleep(1000);
         }
@@ -183,7 +185,8 @@ export const scrapeWebsite = async (
 
   } catch (error) {
     // Fallback to legacy scraper if enhanced scraper fails
-    console.warn('Enhanced scraper failed, falling back to legacy:', error);
+    const sanitizedError = sanitizeErrorMessage(error);
+    console.warn('Enhanced scraper failed, falling back to legacy:', sanitizedError);
     setProgress('Enhanced scraper failed, using legacy fallback...');
     return scrapeWebsiteLegacy(rawUrl, options, setProgress);
   }
