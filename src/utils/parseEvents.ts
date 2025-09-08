@@ -37,6 +37,23 @@ function classifyEventType(title: string): string {
 
 // Helper to parse dates into ISO 8601 format
 function parseEventDate(dateStr: string, timeZone: string = 'America/Chicago'): string | null {
+  if (!dateStr || typeof dateStr !== 'string') {
+    return null;
+  }
+
+  // Handle already ISO formatted dates first (most common case for JSON-LD)
+  const isoMatch = dateStr.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
+  if (isoMatch) {
+    try {
+      const date = new Date(dateStr);
+      if (!isNaN(date.getTime())) {
+        return date.toISOString();
+      }
+    } catch {
+      // Continue to other parsing methods
+    }
+  }
+
   // Handle Capital Factory format like "Sep. 4 / 5:00 PM - 12:00 AM"
   let cleanDateStr = dateStr;
   
@@ -62,25 +79,31 @@ function parseEventDate(dateStr: string, timeZone: string = 'America/Chicago'): 
     'dd/MM/yyyy',
     'ddMMyyyy',
     'MMMM d, yyyy h:mm a',
+    'MMM d, yyyy \'at\' h:mm a',
+    'MMMM d, yyyy \'at\' h:mm a',
     'MMM d yyyy'
   ];
 
   try {
-    let date = new Date(Date.parse(cleanDateStr));
-    if (!isValid(date)) {
-      for (const format of possibleFormats) {
-        date = parseDate(cleanDateStr, format, new Date());
-        if (isValid(date)) {
-          break;
-        }
-      }
-    }
-    if (!isValid(date)) {
-      return null;
+    // Try direct Date construction first
+    let date = new Date(cleanDateStr);
+    if (isValid(date)) {
+      return date.toISOString();
     }
 
-    // Return ISO string instead of object
-    return date.toISOString();
+    // Try date-fns parsing with different formats
+    for (const format of possibleFormats) {
+      try {
+        date = parseDate(cleanDateStr, format, new Date());
+        if (isValid(date)) {
+          return date.toISOString();
+        }
+      } catch {
+        // Continue to next format
+      }
+    }
+
+    return null;
   } catch {
     return null;
   }
@@ -200,13 +223,24 @@ export function extractEvents(html: string): EventData[] {
     }
   }
 
-  // 2. Try HTML elements (heuristic)
-  const eventElements = root.querySelectorAll('.event, .event-item, article, section');
+  // 2. Try HTML elements (heuristic) - but be more conservative if proper schemas exist
+  // First, check if there are proper non-event schemas (Blog, Article, Person, etc.)
+  // If so, be more conservative about extracting events from HTML heuristics
+  const hasProperSchemas = checkForNonEventSchemas(root);
+  
+  const eventElements = hasProperSchemas 
+    ? root.querySelectorAll('.event, .event-item, [itemtype*="Event"]')
+    : root.querySelectorAll('.event, .event-item, article, section');
   for (const el of eventElements) {
     const title = el.querySelector('h1, h2, h3, .event-title, .title, a, .display-lg')?.textContent?.trim() || '';
     const dateTime = el.querySelector('time, .event-date, .event-item-date, .date')?.textContent?.trim() || '';
     const locationText = el.querySelector('.event-location, .location, address')?.textContent?.trim() || '';
     const description = el.querySelector('.event-description, .description, p')?.textContent?.trim() || '';
+
+    // For sites with proper schemas, be more strict about event detection
+    if (hasProperSchemas && (!isLikelyEvent(el, title, dateTime, locationText) || !hasEventKeywords(title))) {
+      continue;
+    }
 
     const startDate = parseEventDate(dateTime);
     if (startDate && title) {
@@ -262,4 +296,53 @@ export function extractEvents(html: string): EventData[] {
   }
 
   return events;
+}
+
+// Helper function to check for non-event schemas that indicate this is a proper site
+function checkForNonEventSchemas(root: any): boolean {
+  const jsonLdScripts = root.querySelectorAll('script[type="application/ld+json"]');
+  for (const script of jsonLdScripts) {
+    try {
+      const json = JSON.parse(script.textContent);
+      const schemaType = json['@type'];
+      if (['WebSite', 'Blog', 'Person', 'Article', 'NewsArticle', 'BlogPosting', 'Organization'].includes(schemaType)) {
+        return true;
+      }
+    } catch {
+      // Skip invalid JSON
+    }
+  }
+  return false;
+}
+
+// Helper function to determine if content is likely an event
+function isLikelyEvent(element: any, title: string, dateTime: string, location: string): boolean {
+  // Must have a meaningful date (not just a publish date)
+  if (!dateTime) return false;
+  
+  // Check for event-specific class names or attributes
+  const classList = element.getAttribute('class') || '';
+  const hasEventClasses = classList.includes('event') || classList.includes('calendar') || element.getAttribute('itemtype')?.includes('Event');
+  
+  // Check for event-specific keywords in title
+  const hasEventTerms = hasEventKeywords(title);
+  
+  // Check for location information (events typically have locations)
+  const hasLocation = location && location.trim().length > 0;
+  
+  // Must have at least event classes OR (event keywords AND location)
+  return hasEventClasses || (hasEventTerms && hasLocation);
+}
+
+// Helper function to check for event-specific keywords
+function hasEventKeywords(title: string): boolean {
+  const titleLower = title.toLowerCase();
+  const eventKeywords = [
+    'event', 'meeting', 'conference', 'workshop', 'seminar', 'webinar',
+    'hackathon', 'meetup', 'networking', 'presentation', 'talk', 'demo',
+    'pitch', 'competition', 'contest', 'training', 'class', 'course',
+    'summit', 'symposium', 'mixer', 'gathering'
+  ];
+  
+  return eventKeywords.some(keyword => titleLower.includes(keyword));
 }

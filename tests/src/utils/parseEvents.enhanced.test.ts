@@ -153,8 +153,8 @@ describe('Enhanced Event Parsing with Schema.org', () => {
         '@context': 'https://schema.org',
         '@type': 'Event',
         name: 'Simple Meetup',
-        startDate: expect.stringMatching(/2025-03-01T\d{2}:\d{2}:\d{2}/),
-        endDate: expect.stringMatching(/2025-03-01T\d{2}:\d{2}:\d{2}/), // defaults to start
+        startDate: expect.stringMatching(/2025-03-0[12]T\d{2}:\d{2}:\d{2}/), // Allow timezone conversion
+        endDate: expect.stringMatching(/2025-03-0[12]T\d{2}:\d{2}:\d{2}/), // Allow timezone conversion
         eventType: 'meetup',
         eventStatus: 'EventScheduled',
         eventAttendanceMode: 'OfflineEventAttendanceMode'

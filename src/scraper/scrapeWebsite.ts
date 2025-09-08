@@ -161,7 +161,7 @@ export const scrapeWebsite = async (
       links: getLinks(root, result.url),
       images: getImages(root, result.url),
       metadata: getMetadata(root),
-      events: extractEvents(root),
+      events: extractEvents(result.html),
       webSite: getWebSite(root, result.url),
       webPage: getWebPage(root, result.url),
       '@context': 'https://schema.org',
