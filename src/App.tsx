@@ -69,7 +69,7 @@ const App: React.FC = () => {
             </div>
           </div>
         }>
-          {mode === 'basic' && <WebScraper />}
+          {mode === 'basic' && <WebScraper mode={mode} />}
           {mode === 'enhanced' && <EnhancedWebScraper />}
           {mode === 'visualization' && <FisterraVisualizationDashboard />}
         </Suspense>

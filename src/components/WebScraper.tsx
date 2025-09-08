@@ -8,7 +8,11 @@ import { ScrapeResultTabs } from './ScrapeResultTabs';
 import { ErrorAlert } from './ErrorAlert';
 import { ProgressIndicator } from './ProgressBar';
 
-const WebScraper: React.FC = () => {
+interface WebScraperProps {
+  mode?: 'basic' | 'enhanced' | 'visualization';
+}
+
+const WebScraper: React.FC<WebScraperProps> = ({ mode = 'basic' }) => {
   const [url, setUrl] = useState('');
   const [options, setOptions] = useState<ScrapeOptions>({
     includeText: true,
@@ -60,15 +64,17 @@ const WebScraper: React.FC = () => {
         onEnter={handleScrape}
       />
 
-      <div className="my-4">
-        <button
-          onClick={() => setShowAdvanced(!showAdvanced)}
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors"
-        >
-          {showAdvanced ? 'Hide' : 'Show'} Advanced Settings
-        </button>
-        {showAdvanced && <ScrapeOptionsForm options={options} onChange={setOptions} />}
-      </div>
+      {mode === 'basic' && (
+        <div className="my-4">
+          <button
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors"
+          >
+            {showAdvanced ? 'Hide' : 'Show'} Advanced Settings
+          </button>
+          {showAdvanced && <ScrapeOptionsForm options={options} onChange={setOptions} />}
+        </div>
+      )}
 
       <button
         onClick={handleScrape}
