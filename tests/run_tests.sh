@@ -20,10 +20,12 @@ elif [ "$INTEGRATION_ONLY" = true ]; then
   echo "Mode: Integration tests only"
 elif [ "$PROVIDER_ONLY" = true ]; then
   echo "Mode: Provider system tests only"
+elif [ "$SECURITY_ONLY" = true ]; then
+  echo "Mode: Security tests only"
 elif [ "$QUICK_MODE" = true ]; then
   echo "Mode: Quick run (unit + core integration tests)"
 else
-  echo "Mode: Full test suite (unit + provider system + legacy integration)"
+  echo "Mode: Full test suite (unit + provider system + security + legacy integration)"
 fi
 
 echo ""
@@ -33,6 +35,7 @@ QUICK_MODE=false
 UNIT_ONLY=false
 INTEGRATION_ONLY=false
 PROVIDER_ONLY=false
+SECURITY_ONLY=false
 
 for arg in "$@"; do
   case $arg in
@@ -52,6 +55,10 @@ for arg in "$@"; do
       PROVIDER_ONLY=true
       shift
       ;;
+    --security-only)
+      SECURITY_ONLY=true
+      shift
+      ;;
     --help|-h)
       echo "Usage: $0 [options]"
       echo "Options:"
@@ -59,6 +66,7 @@ for arg in "$@"; do
       echo "  --unit-only       Run only unit tests (vitest)"
       echo "  --integration-only Run only integration tests"
       echo "  --provider-only   Run only provider system tests"
+      echo "  --security-only   Run only security tests"
       echo "  --help           Show this help message"
       exit 0
       ;;
@@ -86,7 +94,7 @@ PASSED_TESTS=0
 FAILED_TESTS=0
 
 # Run unit tests (vitest) including provider tests
-if [ "$INTEGRATION_ONLY" = false ] && [ "$PROVIDER_ONLY" = false ]; then
+if [ "$INTEGRATION_ONLY" = false ] && [ "$PROVIDER_ONLY" = false ] && [ "$SECURITY_ONLY" = false ]; then
   echo "📚 Unit Tests (vitest)"
   echo "---------------------"
   TOTAL_TESTS=$((TOTAL_TESTS + 1))
@@ -99,7 +107,7 @@ if [ "$INTEGRATION_ONLY" = false ] && [ "$PROVIDER_ONLY" = false ]; then
 fi
 
 # Run provider system tests separately (for focused testing)
-if [ "$PROVIDER_ONLY" = true ] || ([ "$INTEGRATION_ONLY" = false ] && [ "$UNIT_ONLY" = false ]); then
+if [ "$PROVIDER_ONLY" = true ] || ([ "$INTEGRATION_ONLY" = false ] && [ "$UNIT_ONLY" = false ] && [ "$SECURITY_ONLY" = false ]); then
   echo "🔧 Provider System Tests"
   echo "------------------------"
   
@@ -151,8 +159,59 @@ if [ "$PROVIDER_ONLY" = true ] || ([ "$INTEGRATION_ONLY" = false ] && [ "$UNIT_O
   fi
 fi
 
+# Run security tests separately (for focused testing)
+if [ "$SECURITY_ONLY" = true ] || ([ "$INTEGRATION_ONLY" = false ] && [ "$UNIT_ONLY" = false ] && [ "$PROVIDER_ONLY" = false ]); then
+  echo "🔒 Security & Validation Tests"
+  echo "------------------------------"
+  
+  # Input Validation Tests
+  TOTAL_TESTS=$((TOTAL_TESTS + 1))
+  if run_test "Input Validation Security Tests" "npm run test -- tests/src/security/input-validation.test.ts --run --reporter=verbose"; then
+    PASSED_TESTS=$((PASSED_TESTS + 1))
+  else
+    FAILED_TESTS=$((FAILED_TESTS + 1))
+  fi
+  echo ""
+  
+  # XSS Prevention Tests
+  TOTAL_TESTS=$((TOTAL_TESTS + 1))
+  if run_test "XSS Prevention & Sanitization Tests" "npm run test -- tests/src/security/xss-prevention.test.ts --run --reporter=verbose"; then
+    PASSED_TESTS=$((PASSED_TESTS + 1))
+  else
+    FAILED_TESTS=$((FAILED_TESTS + 1))
+  fi
+  echo ""
+  
+  # SQL Injection Prevention Tests
+  TOTAL_TESTS=$((TOTAL_TESTS + 1))
+  if run_test "SQL Injection Prevention Tests" "npm run test -- tests/src/security/sql-injection.test.ts --run --reporter=verbose"; then
+    PASSED_TESTS=$((PASSED_TESTS + 1))
+  else
+    FAILED_TESTS=$((FAILED_TESTS + 1))
+  fi
+  echo ""
+  
+  # Data Integrity & Content Security Tests
+  TOTAL_TESTS=$((TOTAL_TESTS + 1))
+  if run_test "Data Integrity & Content Security Tests" "npm run test -- tests/src/security/data-integrity.test.ts --run --reporter=verbose"; then
+    PASSED_TESTS=$((PASSED_TESTS + 1))
+  else
+    FAILED_TESTS=$((FAILED_TESTS + 1))
+  fi
+  echo ""
+  
+  # Rate Limiting & Resource Protection Tests
+  TOTAL_TESTS=$((TOTAL_TESTS + 1))
+  if run_test "Rate Limiting & Resource Protection Tests" "npm run test -- tests/src/security/rate-limiting.test.ts --run --reporter=verbose --testTimeout=30000"; then
+    PASSED_TESTS=$((PASSED_TESTS + 1))
+  else
+    FAILED_TESTS=$((FAILED_TESTS + 1))
+  fi
+  echo ""
+fi
+
 # Run integration tests (legacy)
-if [ "$UNIT_ONLY" = false ] && [ "$PROVIDER_ONLY" = false ]; then
+if [ "$UNIT_ONLY" = false ] && [ "$PROVIDER_ONLY" = false ] && [ "$SECURITY_ONLY" = false ]; then
   echo "🔗 Legacy Integration Tests"
   echo "----------------------------"
   
@@ -211,6 +270,7 @@ if [ $FAILED_TESTS -eq 0 ]; then
   echo "📋 Test Coverage Includes:"
   echo "   • Unit tests (vitest) - Core functionality"
   echo "   • Provider System Tests - Scraping providers & fallbacks"
+  echo "   • Security & Validation Tests - Production-ready security"
   echo "   • Legacy Integration Tests - End-to-end scenarios"
   echo ""
   echo "🔧 Provider System Tests validate:"
@@ -219,6 +279,13 @@ if [ $FAILED_TESTS -eq 0 ]; then
   echo "   • Legacy CORS proxy implementation"
   echo "   • Playwright browser automation"
   echo "   • Integration & fallback scenarios"
+  echo ""
+  echo "🔒 Security & Validation Tests validate:"
+  echo "   • Input validation & URL sanitization"
+  echo "   • XSS prevention & HTML sanitization"
+  echo "   • SQL injection prevention & parameterized queries"
+  echo "   • Data integrity & content security"
+  echo "   • Rate limiting & resource protection"
   exit 0
 else
   echo ""
@@ -227,6 +294,7 @@ else
   echo "💡 To run specific test categories:"
   echo "   $0 --unit-only          # Run only vitest unit tests"
   echo "   $0 --provider-only      # Run only provider system tests"
+  echo "   $0 --security-only      # Run only security tests"
   echo "   $0 --integration-only   # Run only integration tests"
   echo "   $0 --quick              # Skip slow integration tests"
   exit 1
