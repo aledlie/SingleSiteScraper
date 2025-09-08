@@ -602,7 +602,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                     Export Schema
                   </button>
                 </div>
-                <pre className="p-4 bg-gray-50 text-sm overflow-auto max-h-96 font-mono">
+                <pre className="p-6 bg-gray-900 text-green-400 text-base overflow-auto max-h-96 font-mono leading-relaxed border-2 border-gray-700 rounded-lg shadow-inner">
                   {JSON.stringify(result.schemaOrgData, null, 2)}
                 </pre>
               </div>
