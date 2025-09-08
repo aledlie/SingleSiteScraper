@@ -52,7 +52,6 @@ const EnhancedWebScraper: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [progress, setProgress] = useState('');
-  const [showAdvanced, setShowAdvanced] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [activeView, setActiveView] = useState<'scraper' | 'analytics'>('scraper');
 
@@ -67,9 +66,6 @@ const EnhancedWebScraper: React.FC = () => {
     setUrl(val);
   }, []);
 
-  const handleShowAdvancedToggle = useCallback(() => {
-    setShowAdvanced(prev => !prev);
-  }, []);
 
   const handleShowAnalyticsToggle = useCallback(() => {
     setShowAnalytics(prev => !prev);
@@ -242,22 +238,6 @@ const EnhancedWebScraper: React.FC = () => {
               onEnter={handleScrape}
             />
 
-            {/* Basic Options */}
-            <div className="mb-4">
-              <button
-                onClick={handleShowAdvancedToggle}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors"
-              >
-                <Settings className="w-4 h-4" />
-                {showAdvanced ? 'Hide' : 'Show'} Advanced Settings
-              </button>
-            
-              {showAdvanced && (
-                <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <ScrapeOptionsForm options={options} onChange={handleOptionsChange} />
-                </div>
-              )}
-            </div>
 
             {/* Analytics Configuration */}
             <div className="mb-6">
