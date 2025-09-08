@@ -248,7 +248,7 @@ export const MetricsCharts: React.FC<MetricsChartsProps> = ({
                       marginRight: '12px',
                       borderRadius: '2px'
                     }}></div>
-                    <span style={{ textTransform: 'capitalize', fontSize: '14px' }}>
+                    <span style={{ textTransform: 'capitalize', fontSize: '14px', color: '#1f2937' }}>
                       {item.label}
                     </span>
                   </div>

@@ -77,22 +77,21 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
       {tab === 'text' && (
         <div className="bg-gray-50 rounded-b-lg p-6 -mt-1 min-w-0">
           <div className="space-y-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-slate-800">📝 Text Content ({filtered.text.length})</h3>
-              <span className="text-sm text-gray-500">Click to expand</span>
-            </div>
+            <h3 className="text-lg font-semibold text-slate-800">📝 Text Content ({filtered.text.length})</h3>
             
             {filtered.text.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <p className="text-gray-500">No text content found matching your filter.</p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-min">
                 {filtered.text.map((text, i) => (
-                  <div key={i} className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-sm transition-shadow">
-                    <p className="text-gray-700 leading-relaxed">{text}</p>
-                    <div className="mt-2 pt-2 border-t border-gray-100 text-xs text-gray-400">
-                      {text.length} characters • Text block {i + 1}
+                  <div key={i} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm transition-all duration-200 ease-in-out cursor-default hover:shadow-md hover:-translate-y-0.5">
+                    <p className="text-gray-700 leading-relaxed text-sm">{text}</p>
+                    <div className="mt-3 pt-2 border-t border-gray-100">
+                      <span className="text-xs text-gray-400">
+                        {text.length} characters
+                      </span>
                     </div>
                   </div>
                 ))}
@@ -199,27 +198,22 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
                 <p className="text-gray-500">No links found matching your filter.</p>
               </div>
             ) : (
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                <div className="divide-y divide-gray-100">
-                  {filtered.links.map((link, i) => (
-                    <div key={i} className="p-4 hover:bg-blue-50 transition-colors">
-                      <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0 mt-1">
-                          <span className="text-blue-600 text-sm">🔗</span>
-                        </div>
-                        <div className="flex-grow min-w-0">
-                          <a href={link.url} target="_blank" rel="noopener noreferrer" 
-                             className="text-blue-700 hover:text-blue-900 font-medium leading-snug break-words">
-                            {link.text}
-                          </a>
-                          <p className="text-xs text-gray-500 mt-1 font-mono break-all">
-                            {link.url}
-                          </p>
-                        </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-min">
+                {filtered.links.map((link, i) => (
+                  <div key={i} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm transition-all duration-200 ease-in-out cursor-default hover:shadow-md hover:-translate-y-0.5">
+                    <div className="space-y-2">
+                      <a href={link.url} target="_blank" rel="noopener noreferrer" 
+                         className="text-blue-700 hover:text-blue-900 font-medium leading-snug break-words block transition-colors duration-150">
+                        {link.text}
+                      </a>
+                      <div className="pt-2 border-t border-gray-100">
+                        <p className="text-xs text-gray-500 font-mono break-all">
+                          {link.url}
+                        </p>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>

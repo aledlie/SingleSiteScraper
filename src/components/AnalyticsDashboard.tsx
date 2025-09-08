@@ -292,7 +292,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                             marginRight: '12px',
                             borderRadius: '2px'
                           }}></div>
-                          <span style={{ textTransform: 'capitalize', fontSize: '14px' }}>
+                          <span style={{ textTransform: 'capitalize', fontSize: '14px', color: '#1f2937' }}>
                             {type}
                           </span>
                         </div>
