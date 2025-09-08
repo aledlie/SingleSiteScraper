@@ -82,19 +82,22 @@ export class PlaywrightProvider extends BaseScrapeProvider {
       
       throw new Error('Playwright temporarily disabled due to bundling issues');
       
-      // if (!this.browser) {
-      //   this.browser = await chromium.launch({
-      //     headless: true,
-      //     args: [
-      //       '--no-sandbox',
-      //       '--disable-setuid-sandbox',
-      //       '--disable-dev-shm-usage',
-      //       '--disable-accelerated-2d-canvas',
-      //       '--disable-gpu',
-      //       '--window-size=1920,1080'
-      //     ]
-      //   });
-      // }
+      /* TODO: Re-enable when bundling issues are resolved
+      const { chromium } = await import('playwright');
+      
+      if (!this.browser) {
+        this.browser = await chromium.launch({
+          headless: true,
+          args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--disable-gpu',
+            '--window-size=1920,1080'
+          ]
+        });
+      }
 
       // Create new context with stealth options
       context = await this.browser.newContext({
@@ -133,12 +136,15 @@ export class PlaywrightProvider extends BaseScrapeProvider {
           );
         });
       }
+      */
 
+      // TODO: All unreachable code below is commented out due to early throw
+      /* 
       page = await context.newPage();
 
       // Block resources to improve performance
       if (options?.blockResources) {
-        await page.route('**/*', (route) => {
+        // await page.route('*', (route) => {
           const resourceType = route.request().resourceType();
           if (['image', 'stylesheet', 'font', 'media'].includes(resourceType)) {
             route.abort();
@@ -188,6 +194,7 @@ export class PlaywrightProvider extends BaseScrapeProvider {
           redirects: 0, // Playwright handles redirects internally
         },
       };
+      */
 
     } catch (error) {
       const responseTime = Date.now() - startTime;

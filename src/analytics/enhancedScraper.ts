@@ -268,7 +268,7 @@ ${JSON.stringify({
   "@context": "https://schema.org",
   "@type": "Event",
   "name": event.summary,
-  "startDate": event.start.date,
+  "startDate": event.start?.date,
   "endDate": event.end?.date,
   "location": event.location,
   "description": event.description
