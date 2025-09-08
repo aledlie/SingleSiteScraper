@@ -219,9 +219,10 @@ const EnhancedWebScraper: React.FC = () => {
                 : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
             } disabled:opacity-50 disabled:cursor-not-allowed`}
             disabled={!result || !insights}
+            title="Coming Soon! Probably!"
           >
             <BarChart3 className="w-4 h-4" />
-            Analytics
+            ROI Analysis
           </button>
         </div>
       </div>
