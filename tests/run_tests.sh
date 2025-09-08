@@ -254,6 +254,24 @@ if [ "$UNIT_ONLY" = false ] && [ "$PROVIDER_ONLY" = false ] && [ "$SECURITY_ONLY
     fi
     echo ""
   fi
+  
+  # Aledlie.com Test
+  TOTAL_TESTS=$((TOTAL_TESTS + 1))
+  if run_test "Aledlie.com Schema Analysis" "node tests/test_aledlie.mjs"; then
+    PASSED_TESTS=$((PASSED_TESTS + 1))
+  else
+    FAILED_TESTS=$((FAILED_TESTS + 1))
+  fi
+  echo ""
+  
+  # Capital Factory Events Test
+  TOTAL_TESTS=$((TOTAL_TESTS + 1))
+  if run_test "Capital Factory Events Detection" "node tests/test_capital_factory_events.js"; then
+    PASSED_TESTS=$((PASSED_TESTS + 1))
+  else
+    FAILED_TESTS=$((FAILED_TESTS + 1))
+  fi
+  echo ""
 fi
 
 # Test Summary

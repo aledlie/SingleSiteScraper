@@ -24,3 +24,5 @@ dist-ssr
 *.sw?
 .env
 .claude
+aledlie-schema-audit-report.md
+results

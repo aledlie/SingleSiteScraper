@@ -74,28 +74,39 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
         ))}
       </div>
 
-      {tab !== 'schema' && tab !== 'images' && tab !== 'metadata' && (
-        <Card>
-          {tab === 'text' && (
-          <div>
+      {tab === 'text' && (
+        <div className="bg-gray-50 rounded-b-lg p-6 -mt-1 min-w-0">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-slate-800">📝 Text Content ({filtered.text.length})</h3>
+              <span className="text-sm text-gray-500">Click to expand</span>
+            </div>
+            
             {filtered.text.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <p className="text-gray-500">No text content found matching your filter.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-min">
-                {filtered.text.map((t, i) => (
-                  <div key={i} className="bg-gradient-to-r from-white to-blue-50 border border-blue-100 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
-                    <p className="text-gray-700 leading-relaxed text-sm break-words">{t}</p>
+              <div className="space-y-3">
+                {filtered.text.map((text, i) => (
+                  <div key={i} className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-sm transition-shadow">
+                    <p className="text-gray-700 leading-relaxed">{text}</p>
+                    <div className="mt-2 pt-2 border-t border-gray-100 text-xs text-gray-400">
+                      {text.length} characters • Text block {i + 1}
+                    </div>
                   </div>
                 ))}
               </div>
             )}
           </div>
-        )}
+        </div>
+      )}
 
-        {tab === 'events' && (
-          <div>
+      {tab === 'events' && (
+        <div className="bg-gray-50 rounded-b-lg p-6 -mt-1 min-w-0">
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-slate-800">📅 Events ({filtered.events.length})</h3>
+            
             {filtered.events.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <p className="text-gray-500">No events found matching your filter.</p>
@@ -111,7 +122,7 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
                 return (
                   <div 
                     key={i} 
-                    className="bg-gradient-to-br from-white to-slate-50 border border-slate-200 rounded-xl p-4 shadow-md transition-all duration-200 ease-in-out cursor-default hover:shadow-lg hover:-translate-y-0.5"
+                    className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm transition-all duration-200 ease-in-out cursor-default hover:shadow-md hover:-translate-y-0.5"
                   >
                     {/* Event Header */}
                     <div className="flex justify-between items-start mb-3">
@@ -175,50 +186,44 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
               </div>
             )}
           </div>
-        )}
+        </div>
+      )}
 
-        {tab === 'links' && (
-          <div>
+      {tab === 'links' && (
+        <div className="bg-gray-50 rounded-b-lg p-6 -mt-1 min-w-0">
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-slate-800">🔗 Links ({filtered.links.length})</h3>
+            
             {filtered.links.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <p className="text-gray-500">No links found matching your filter.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-min">
-                {filtered.links.map((l, i) => (
-                  <div key={i} className="bg-gradient-to-r from-white to-blue-50 border border-blue-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-200 hover:border-blue-300">
-                    <div className="flex flex-col gap-3">
+              <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                <div className="divide-y divide-gray-100">
+                  {filtered.links.map((link, i) => (
+                    <div key={i} className="p-4 hover:bg-blue-50 transition-colors">
                       <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0 w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-0.5">
+                        <div className="flex-shrink-0 mt-1">
                           <span className="text-blue-600 text-sm">🔗</span>
                         </div>
                         <div className="flex-grow min-w-0">
-                          <a 
-                            href={l.url} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className="text-blue-700 hover:text-blue-900 font-semibold text-base leading-snug break-words transition-colors duration-150"
-                            title={l.text}
-                          >
-                            {l.text}
+                          <a href={link.url} target="_blank" rel="noopener noreferrer" 
+                             className="text-blue-700 hover:text-blue-900 font-medium leading-snug break-words">
+                            {link.text}
                           </a>
+                          <p className="text-xs text-gray-500 mt-1 font-mono break-all">
+                            {link.url}
+                          </p>
                         </div>
                       </div>
-                      <div className="ml-9 pl-2 border-l-2 border-gray-100">
-                        <p className="text-xs text-gray-600 break-all font-mono bg-gray-50 px-2 py-1 rounded border border-gray-200">
-                          {l.url}
-                        </p>
-                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             )}
           </div>
-        )}
-
-
-        </Card>
+        </div>
       )}
 
       {tab === 'schema' && (
