@@ -4,14 +4,17 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "doppler run --project integrity-studio --config dev -- vite",
     "build": "vite build",
+    "build:with-sentry": "doppler run --project integrity-studio --config prd -- vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@sentry/react": "^10.31.0",
+    "@sentry/vite-plugin": "^4.6.1",
     "date-fns": "^3.6.0",
     "lucide-react": "^0.344.0",
     "node-html-parser": "^6.1.13",
