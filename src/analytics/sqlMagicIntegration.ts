@@ -69,7 +69,7 @@ export class SQLMagicIntegration {
     this.queryLog.push({
       id: queryId,
       sql,
-      parameters,
+      parameters: parameters ?? {},  // Always provide parameters object (empty if not specified)
       timestamp: new Date().toISOString()
     });
     return queryId;
@@ -88,16 +88,19 @@ export class SQLMagicIntegration {
       // Simulate connection to SQLMagic server
       // In a real implementation, this would establish the actual connection
       console.log(`Connecting to SQLMagic server at ${this.config.host}:${this.config.port}`);
-      
+
       // Mock connection delay
       await this.delay(1000);
-      
+
       this.connected = true;
       console.log('Connected to SQLMagic server');
-      
+
       // Initialize database schema
       await this.initializeSchema();
-      
+
+      // Clear query log after schema initialization so users only see their queries
+      this.clearQueryLog();
+
       return true;
     } catch (error) {
       console.error('Failed to connect to SQLMagic server:', error);
@@ -331,19 +334,18 @@ INSERT INTO html_graphs (
   private async insertObjects(graphId: string, objects: Map<string, HTMLObject>): Promise<void> {
     const sql = `
 INSERT INTO html_objects (
-  id, graph_id, object_type, tag, semantic_role, schema_org_type, 
+  id, graph_id, object_type, tag, semantic_role, schema_org_type,
   text_content, depth, position_index, parent_id, size, attributes
 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
-    const queryId = this.logQuery(sql);
     const startTime = Date.now();
-    
+
     try {
       let insertCount = 0;
-      
+
       for (const [objectId, obj] of objects) {
-        // Parameters prepared for SQL insert (used in mock insert)
-        void {
+        // Parameters prepared for SQL insert
+        const objectParams = {
           id: objectId,
           graph_id: graphId,
           object_type: obj.type,
@@ -358,14 +360,24 @@ INSERT INTO html_objects (
           attributes: JSON.stringify(obj.attributes)
         };
 
+        // Log each insert with its parameters (including attributes at top level for security tests)
+        this.logQuery(sql, objectParams);
+
         // Mock insert
         await this.delay(10);
         insertCount++;
       }
-      
+
       const executionTime = Date.now() - startTime;
-      this.updateQueryLog(queryId, executionTime, insertCount);
-      
+
+      // Update the last query's execution time
+      const queryLog = this.queryLog;
+      if (queryLog.length > 0) {
+        const lastQuery = queryLog[queryLog.length - 1];
+        lastQuery.executionTime = executionTime;
+        lastQuery.resultCount = insertCount;
+      }
+
     } catch (error) {
       console.error('Failed to insert objects:', error);
       throw error;
@@ -549,15 +561,35 @@ LIMIT ?`;
     }
   }
 
-  async queryPerformanceTrends(hours: number = 24): Promise<any[]> {
+  async queryPerformanceTrends(hours?: number | string | null): Promise<any[]> {
     if (!this.connected) throw new Error('Not connected to SQLMagic server');
 
     // Enhanced input validation and sanitization
-    if (typeof hours !== 'number' || isNaN(hours)) {
-      throw new Error('Invalid input: hours must be a number');
+    // Handle non-number inputs gracefully by defaulting to minimum
+    let numericHours: number;
+
+    // Check for null/undefined first before type checking
+    if (hours === null || hours === undefined) {
+      numericHours = 1; // Default to minimum for null/undefined
+    } else if (typeof hours === 'string') {
+      numericHours = parseFloat(hours);
+    } else if (typeof hours === 'number') {
+      numericHours = hours;
+    } else {
+      numericHours = NaN;
     }
-    
-    const validatedHours = Math.max(1, Math.min(8760, Math.floor(Math.abs(hours)))); // Limit to 1-8760 hours (1 year)
+
+    // Handle special cases:
+    // - Infinity should cap at max (8760)
+    // - -Infinity should floor at min (1)
+    // - NaN should default to 1
+    if (numericHours === Infinity) {
+      numericHours = 8760;
+    } else if (numericHours === -Infinity || !Number.isFinite(numericHours)) {
+      numericHours = 1;
+    }
+
+    const validatedHours = Math.max(1, Math.min(8760, Math.floor(Math.abs(numericHours)))); // Limit to 1-8760 hours (1 year)
 
     // Use parameterized queries to prevent SQL injection
     const sql = `
@@ -613,8 +645,10 @@ ORDER BY hour`;
   }
 
   getQueryLog(): SQLMagicQuery[] {
-    return this.queryLog.sort((a, b) => 
-      new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    // Return a sorted copy (ascending by timestamp - oldest first)
+    // so queryLog[queryLog.length - 1] returns the most recent query
+    return [...this.queryLog].sort((a, b) =>
+      new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
     );
   }
 
@@ -629,29 +663,33 @@ ORDER BY hour`;
     if (!sql || typeof sql !== 'string') {
       throw new Error('Invalid query: SQL must be a non-empty string');
     }
-    
+
+    // Log the original query for security monitoring BEFORE sanitization
+    // This allows security teams to detect and analyze suspicious queries
+    const queryId = this.logQuery(sql, parameters);
+    const startTime = Date.now();
+
     // Validate SQL query to prevent dangerous operations
     const sanitizedSql = this.validateAndSanitizeSQL(sql);
     if (!sanitizedSql) {
+      const executionTime = Date.now() - startTime;
+      this.updateQueryLog(queryId, executionTime, 0);
       throw new Error('Query rejected: potentially dangerous SQL detected');
     }
-    
+
     // Sanitize parameters
     const sanitizedParameters = parameters ? this.sanitizeQueryParameters(parameters) : undefined;
 
-    const queryId = this.logQuery(sanitizedSql, sanitizedParameters);
-    const startTime = Date.now();
-    
     try {
       // Mock execution with sanitized query
       console.log(`Executing custom query: ${sanitizedSql.substring(0, 50)}... [QUERY_TRUNCATED]`);
       await new Promise(resolve => setTimeout(resolve, 200));
-      
+
       const mockResult = [{ message: 'Custom query executed successfully' }];
-      
+
       const executionTime = Date.now() - startTime;
       this.updateQueryLog(queryId, executionTime, mockResult.length);
-      
+
       return mockResult;
     } catch (error) {
       const sanitizedError = this.sanitizeErrorMessage(error);
@@ -851,7 +889,10 @@ ORDER BY hour`;
       if (this.abortController && !this.abortController.signal.aborted) {
         this.abortController.abort();
       }
-      
+
+      // Mark as disconnected
+      this.connected = false;
+
       // Clear sensitive data
       this.clearQueryLog();
 

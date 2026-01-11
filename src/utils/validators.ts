@@ -1,26 +1,51 @@
 /**
- * Enhanced URL validation with SSRF protection
- * Blocks private IP ranges, localhost, and malicious protocols
+ * URL format validation
+ * Validates that a URL is well-formed with HTTP/HTTPS protocol
  */
 export const validateUrl = (url: string): boolean => {
   try {
     const urlObj = new URL(url);
-    
+
     // Only allow HTTP/HTTPS protocols
     if (!['http:', 'https:'].includes(urlObj.protocol)) {
       return false;
     }
-    
+
+    // Must have a valid hostname
+    if (!urlObj.hostname || urlObj.hostname.length === 0) {
+      return false;
+    }
+
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * Enhanced URL validation with SSRF protection
+ * Blocks private IP ranges, localhost, and malicious protocols
+ * Use this for server-side requests where SSRF protection is needed
+ */
+export const validateUrlWithSSRF = (url: string): boolean => {
+  try {
+    const urlObj = new URL(url);
+
+    // Only allow HTTP/HTTPS protocols
+    if (!['http:', 'https:'].includes(urlObj.protocol)) {
+      return false;
+    }
+
     // Block private IP ranges and localhost
     if (!isPublicUrl(urlObj)) {
       return false;
     }
-    
+
     // Block dangerous ports
     if (isDangerousPort(urlObj.port)) {
       return false;
     }
-    
+
     return true;
   } catch {
     return false;

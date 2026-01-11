@@ -252,7 +252,7 @@ describe('Security - Input Validation', () => {
       
       // These URLs are technically valid according to URL constructor
       const technicallyValidUrls = [
-        'https://example.com:99999', // High port numbers are valid
+        'https://example.com:65535', // Maximum valid port number
         'https://:password@example.com', // Valid URL format
         'https://user:@example.com' // Valid URL format
       ];

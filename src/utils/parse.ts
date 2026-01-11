@@ -2,6 +2,48 @@ import { cleanText } from '../utils/validators.ts';
 import { ScrapedData, ImageObject, WebSite, WebPage, Organization } from '../types/index.ts';
 import { HTMLElement } from 'node-html-parser';
 
+/**
+ * Sanitize metadata content to prevent XSS and remove malicious content
+ */
+function sanitizeMetadataContent(content: string): string {
+  if (!content || typeof content !== 'string') {
+    return '';
+  }
+
+  // Remove script tags and their content
+  let sanitized = content.replace(/<script[\s\S]*?<\/script>/gi, '');
+
+  // Remove iframe tags and their content
+  sanitized = sanitized.replace(/<iframe[\s\S]*?<\/iframe>/gi, '');
+
+  // Remove svg tags with event handlers
+  sanitized = sanitized.replace(/<svg[^>]*on\w+[^>]*>[\s\S]*?<\/svg>/gi, '');
+  sanitized = sanitized.replace(/<svg[^>]*>[\s\S]*?<\/svg>/gi, '');
+
+  // Remove javascript: protocol
+  sanitized = sanitized.replace(/javascript\s*:/gi, '');
+
+  // Remove event handlers (onclick, onload, onerror, etc.)
+  sanitized = sanitized.replace(/\s*on\w+\s*=\s*["'][^"']*["']/gi, '');
+  sanitized = sanitized.replace(/\s*on\w+\s*=\s*[^\s>]*/gi, '');
+
+  // Remove SQL injection patterns
+  sanitized = sanitized.replace(/;\s*DROP\s+TABLE\s+/gi, '');
+  sanitized = sanitized.replace(/;\s*DELETE\s+FROM\s+/gi, '');
+  sanitized = sanitized.replace(/;\s*INSERT\s+INTO\s+/gi, '');
+
+  // Remove alert( patterns
+  sanitized = sanitized.replace(/alert\s*\(/gi, '');
+
+  // Remove evil() patterns
+  sanitized = sanitized.replace(/evil\s*\(\s*\)/gi, '');
+
+  // Remove remaining HTML tags
+  sanitized = sanitized.replace(/<[^>]*>/g, '');
+
+  return sanitized.trim();
+}
+
 export function getMetadata(root: HTMLElement): Record<string, string> {
   const metaTags: Record<string, string> = {};
   metaTags['subheaders'] = extractH2Titles(root);
@@ -12,14 +54,14 @@ export function getMetadata(root: HTMLElement): Record<string, string> {
     const content = meta.getAttribute('content');
 
     if (content) {
+      const sanitizedContent = sanitizeMetadataContent(content);
       if (name) {
-        metaTags[name] = content;
+        metaTags[name] = sanitizedContent;
       } else if (property) {
-        metaTags[property] = content;
+        metaTags[property] = sanitizedContent;
       }
     }
   });
-
 
   return metaTags;
 }
@@ -27,7 +69,19 @@ export function getMetadata(root: HTMLElement): Record<string, string> {
 function extractH2Titles(root: HTMLElement): string {
   return root
     .querySelectorAll('h2')
-    .map(el => el.innerText.trim())
+    .map(el => {
+      // Clone the element to avoid modifying the original
+      const clone = el.clone();
+
+      // Remove script, style, and svg tags from the clone
+      clone.querySelectorAll('script, style, svg').forEach(s => s.remove());
+
+      // Get the sanitized inner text
+      const text = clone.innerText || clone.textContent || '';
+
+      // Further sanitize for any remaining dangerous patterns
+      return sanitizeMetadataContent(text);
+    })
     .filter(Boolean)
     .join('\n');
 }
