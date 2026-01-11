@@ -529,7 +529,7 @@ export const FisterraVisualizationDashboard: React.FC = () => {
                 gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
                 gap: '12px'
               }}>
-                {data.wordData.slice(0, 20).map((word: any, index: number) => (
+                {data.wordData.slice(0, 20).map((word: any) => (
                   <div key={word.text} style={{
                     display: 'flex',
                     justifyContent: 'space-between',

@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { ScrapedData } from '../types/index.ts';
-import { Card } from './ui/Card.tsx';
 import { format } from 'date-fns';
 
 interface Props {
@@ -33,7 +32,7 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
     try {
       const date = new Date(dateString);
       return format(date, 'MMMM d, yyyy \'at\' h:mm a');
-    } catch (error) {
+    } catch {
       return dateString; // Fallback to original string
     }
   }, []);

@@ -172,7 +172,7 @@ export class EnhancedScraper {
         // Store in SQL database if enabled
         if (options.enableSQLStorage && this.sqlIntegration?.isConnected()) {
           setProgress('Storing data in SQLMagic server...');
-          const storageStart = Date.now();
+          const _storageStart = Date.now();
           
           await this.sqlIntegration.storeHTMLGraph(result.htmlGraph);
           

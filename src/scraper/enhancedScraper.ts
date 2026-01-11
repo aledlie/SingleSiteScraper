@@ -194,7 +194,7 @@ export class EnhancedScraper {
     }
 
     // Calculate averages
-    for (const [providerName, data] of Object.entries(results.providers) as any) {
+    for (const [_providerName, data] of Object.entries(results.providers) as any) {
       const successfulTests = data.tests.filter((t: any) => t.status === 'success');
       if (successfulTests.length > 0) {
         data.avgResponseTime = successfulTests.reduce((sum: number, t: any) => sum + t.responseTime, 0) / successfulTests.length;

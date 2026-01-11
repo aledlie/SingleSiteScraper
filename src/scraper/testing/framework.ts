@@ -3,8 +3,8 @@
  * Measures success rates, performance, reliability, and cost-effectiveness
  */
 
-import { ScrapingProvider, ScrapingResult } from '../providers/base.js';
-import { ProviderManager, ProviderManagerConfig } from '../providers/manager.js';
+import { ScrapingResult } from '../providers/base.js';
+import { ProviderManager } from '../providers/manager.js';
 
 export interface TestSite {
   name: string;
@@ -412,7 +412,7 @@ export class ScrapingTestFramework {
   /**
    * Calculate test cost based on provider pricing
    */
-  private calculateTestCost(providerName: string, result: ScrapingResult): number {
+  private calculateTestCost(providerName: string, _result: ScrapingResult): number {
     const costMap: Record<string, number> = {
       'BrightData': 0.003,
       'Playwright': 0.001, // Infrastructure cost

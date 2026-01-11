@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Download, Database, Key, Link2, Table } from 'lucide-react';
+import { Download, Database, Link2, Table } from 'lucide-react';
 
 export interface DatabaseTable {
   name: string;
@@ -56,7 +56,7 @@ export const DatabaseSchemaViz: React.FC<DatabaseSchemaVizProps> = ({
     const centerY = height / 2;
     const tableWidth = 280;
     const tableHeight = 200;
-    const padding = 50;
+    const _padding = 50;
 
     // Position tables in a circular layout
     const radius = Math.min(width, height) / 3;

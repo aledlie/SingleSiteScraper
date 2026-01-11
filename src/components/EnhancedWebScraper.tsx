@@ -1,9 +1,8 @@
-import React, { useState, useCallback, useMemo, Suspense, lazy } from 'react';
-import { Loader2, Search, Download, Globe, BarChart3, Settings, Database } from 'lucide-react';
+import React, { useState, useCallback, Suspense, lazy } from 'react';
+import { Loader2, Search, Download, Globe, BarChart3, Database } from 'lucide-react';
 import { EnhancedScraper, EnhancedScrapeOptions, EnhancedScrapeResult, AnalyticsInsights } from '../analytics/enhancedScraper';
 import { SQLMagicConfig } from '../analytics/sqlMagicIntegration';
 import { PerformanceAlert } from '../analytics/performanceMonitor';
-import { ScrapeOptionsForm } from './ScrapeOptionsForm';
 import type { AnalyticsConfig } from '../types';
 import FormInput from './ui/FormInput';
 import { ErrorAlert } from './ErrorAlert';
@@ -71,11 +70,11 @@ const EnhancedWebScraper: React.FC = () => {
     setShowAnalytics(prev => !prev);
   }, []);
 
-  const handleOptionsChange = useCallback((newOptions: EnhancedScrapeOptions) => {
+  const _handleOptionsChange = useCallback((newOptions: EnhancedScrapeOptions) => {
     setOptions(newOptions);
   }, []);
 
-  const handleAnalyticsConfigChange = useCallback((newConfig: AnalyticsConfig) => {
+  const _handleAnalyticsConfigChange = useCallback((newConfig: AnalyticsConfig) => {
     setAnalyticsConfig(newConfig);
   }, []);
 

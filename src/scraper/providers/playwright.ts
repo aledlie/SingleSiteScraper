@@ -70,10 +70,10 @@ export class PlaywrightProvider extends BaseScrapeProvider {
       throw new Error('Playwright is not available. Install with: npm install playwright && npx playwright install');
     }
 
-    const startTime = Date.now();
-    const timeout = options?.timeout || 30000;
-    let context = null;
-    let page = null;
+    const _startTime = Date.now();
+    const _timeout = options?.timeout || 30000;
+    const _context = null;
+    const _page = null;
 
     try {
       // Dynamic import

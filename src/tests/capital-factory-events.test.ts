@@ -1,5 +1,4 @@
 import { describe, it, expect } from 'vitest';
-import { extractEvents } from '../utils/parseEvents';
 import { scrapeWebsite } from '../scraper/scrapeWebsite';
 
 function analyzeResults(events: any[], html: string) {
@@ -23,7 +22,7 @@ function analyzeResults(events: any[], html: string) {
           const content = match.replace(/<script[^>]*>/i, '').replace(/<\/script>/i, '').trim();
           const json = JSON.parse(content);
           console.log(`  Script ${index + 1}: @type = ${json['@type'] || 'unknown'}`);
-        } catch (e) {
+        } catch {
           console.log(`  Script ${index + 1}: Parse error`);
         }
       });

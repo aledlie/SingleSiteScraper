@@ -153,7 +153,7 @@ export class ScrapingBenchmark {
   /**
    * Benchmark a single site across all available providers
    */
-  private async benchmarkSite(site: BenchmarkSite, scraper: EnhancedScraper, strategy: FallbackStrategy): Promise<BenchmarkResult[]> {
+  private async benchmarkSite(site: BenchmarkSite, scraper: EnhancedScraper, _strategy: FallbackStrategy): Promise<BenchmarkResult[]> {
     const results: BenchmarkResult[] = [];
     const providers = scraper.getProviders();
 

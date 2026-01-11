@@ -108,7 +108,7 @@ export const NetworkGraphViz: React.FC<NetworkGraphProps> = ({
     });
 
     // Physics simulation parameters
-    const forceStrength = 0.02;
+    const _forceStrength = 0.02;
     const damping = 0.99;
     const repulsionStrength = 1000;
     const linkStrength = 0.1;

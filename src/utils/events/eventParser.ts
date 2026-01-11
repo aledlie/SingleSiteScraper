@@ -121,7 +121,7 @@ function extractFromJsonLd(html: string): EventData[] {
           if (event) events.push(event);
         }
       }
-    } catch (e) {
+    } catch {
       // JSON parsing failed, continue to next script tag
       continue;
     }
@@ -183,7 +183,7 @@ function extractFromMicrodata(html: string): EventData[] {
       const event = parseEventElement(el);
       if (event) events.push(event);
     }
-  } catch (e) {
+  } catch {
     // Parsing failed, return empty
   }
 
@@ -259,7 +259,7 @@ function extractFromHtmlPatterns(html: string): EventData[] {
         if (event) events.push(event);
       }
     }
-  } catch (e) {
+  } catch {
     // Parsing failed
   }
 
@@ -298,7 +298,7 @@ function extractEventFromGenericElement(el: HTMLElement): EventData | null {
 
   // Try to find date information from multiple sources
   let startDate = '';
-  let endDate = '';
+  const _endDate = '';
 
   // 1. Check for time elements with datetime attribute
   const timeEl = el.querySelector('time[datetime]');

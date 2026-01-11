@@ -9,7 +9,6 @@ import {
   sanitizeSQLInput,
   generateCSPHeader
 } from '../utils/validators.ts';
-import { fetchWithTimeout } from '../utils/network.ts';
 import { SQLMagicIntegration } from '../analytics/sqlMagicIntegration.ts';
 
 describe('Security Tests', () => {

@@ -321,7 +321,7 @@ export function createSanitizationMiddleware() {
       }
     },
 
-    detectInjectionAttempt: (input: string): boolean {
+    detectInjectionAttempt: (input: string): boolean => {
       const injectionPatterns = [
         // SQL injection patterns
         /('|(\\x27)|(\\x2D\\x2D)|(%27)|(%2D%2D))/i,

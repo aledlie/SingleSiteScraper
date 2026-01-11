@@ -116,7 +116,7 @@ export const MetricsCharts: React.FC<MetricsChartsProps> = ({
   className = ""
 }) => {
   const typeDistribution = insights.objectTypeDistribution;
-  const maxTypeCount = Math.max(...Object.values(typeDistribution));
+  const _maxTypeCount = Math.max(...Object.values(typeDistribution));
 
   const qualityMetrics = insights.qualityMetrics;
   const performanceSummary = insights.performanceSummary;

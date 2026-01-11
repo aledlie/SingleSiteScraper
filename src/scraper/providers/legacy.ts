@@ -100,7 +100,7 @@ export class LegacyProxyProvider extends BaseScrapeProvider {
 
       let html: string;
       let finalUrl = url;
-      let redirects = 0;
+      const redirects = 0;
 
       if (proxy.includes('allorigins.win')) {
         const jsonResponse = await response.json();

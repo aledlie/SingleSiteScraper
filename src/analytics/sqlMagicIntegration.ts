@@ -55,7 +55,7 @@ export class SQLMagicIntegration {
       });
       
       // Clean up timeout when promise resolves
-      timeout.unref && timeout.unref();
+      if (timeout.unref) timeout.unref();
     });
   }
 
@@ -342,7 +342,8 @@ INSERT INTO html_objects (
       let insertCount = 0;
       
       for (const [objectId, obj] of objects) {
-        const parameters = {
+        // Parameters prepared for SQL insert (used in mock insert)
+        void {
           id: objectId,
           graph_id: graphId,
           object_type: obj.type,
@@ -356,7 +357,7 @@ INSERT INTO html_objects (
           size: obj.performance.size,
           attributes: JSON.stringify(obj.attributes)
         };
-        
+
         // Mock insert
         await this.delay(10);
         insertCount++;
@@ -384,7 +385,8 @@ INSERT INTO html_relationships (
       let insertCount = 0;
       
       for (const rel of relationships) {
-        const parameters = {
+        // Parameters prepared for SQL insert (used in mock insert)
+        void {
           id: rel.id,
           graph_id: graphId,
           source_id: rel.source,
@@ -393,7 +395,7 @@ INSERT INTO html_relationships (
           strength: rel.strength,
           metadata: JSON.stringify(rel.metadata)
         };
-        
+
         // Mock insert
         await this.delay(5);
         insertCount++;
@@ -426,7 +428,8 @@ INSERT INTO schema_org_data (id, graph_id, schema_type, data) VALUES (?, ?, ?, ?
       
       for (const obj of schemaObjects) {
         const schemaId = `schema_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        const parameters = {
+        // Parameters prepared for SQL insert (used in mock insert)
+        void {
           id: schemaId,
           graph_id: graphId,
           schema_type: obj.schemaOrgType,
@@ -438,7 +441,7 @@ INSERT INTO schema_org_data (id, graph_id, schema_type, data) VALUES (?, ?, ?, ?
             semanticRole: obj.semanticRole
           })
         };
-        
+
         // Mock insert
         await this.delay(10);
         insertCount++;

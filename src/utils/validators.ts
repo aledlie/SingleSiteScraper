@@ -51,7 +51,7 @@ function isPublicUrl(urlObj: URL): boolean {
   const ipv4Match = hostname.match(ipv4Regex);
   
   if (ipv4Match) {
-    const [, a, b, c, d] = ipv4Match.map(Number);
+    const [, a, b] = ipv4Match.map(Number);
     
     // Private IPv4 ranges:
     // 10.0.0.0/8 (10.0.0.0 - 10.255.255.255)
