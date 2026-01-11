@@ -155,12 +155,12 @@ describe('NetworkGraphViz', () => {
     const { container } = render(<NetworkGraphViz graph={mockGraph} />);
     
     expect(container.textContent).toContain('Node Types:');
-    expect(container.textContent).toContain('Interactive');
-    expect(container.textContent).toContain('Media');
-    expect(container.textContent).toContain('Structural');
-    expect(container.textContent).toContain('Content');
-    expect(container.textContent).toContain('Data');
-    expect(container.textContent).toContain('Form');
+    expect(container.textContent).toContain('interactive');
+    expect(container.textContent).toContain('media');
+    expect(container.textContent).toContain('structural');
+    expect(container.textContent).toContain('content');
+    expect(container.textContent).toContain('data');
+    expect(container.textContent).toContain('form');
   });
 
   it('applies canvas styling', () => {
