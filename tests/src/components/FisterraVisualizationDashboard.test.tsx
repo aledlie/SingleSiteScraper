@@ -20,7 +20,7 @@ vi.mock('../../../src/visualizations/NetworkGraphViz', () => ({
 }));
 
 vi.mock('../../../src/visualizations/MetricsCharts', () => ({
-  MetricsCharts: ({ insights, performanceMetrics }: any) => (
+  MetricsCharts: ({ insights, performanceMetrics: _performanceMetrics }: any) => (
     <div data-testid="metrics-charts">
       MetricsCharts: {insights.recommendations.length} recommendations
     </div>

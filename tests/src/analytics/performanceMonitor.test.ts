@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { PerformanceMonitor, PerformanceAlert, PerformanceThresholds } from '../../../src/analytics/performanceMonitor';
+import { PerformanceMonitor, PerformanceThresholds } from '../../../src/analytics/performanceMonitor';
 
 describe('PerformanceMonitor', () => {
   let monitor: PerformanceMonitor;
@@ -61,8 +61,8 @@ describe('PerformanceMonitor', () => {
     });
 
     it('returns metrics sorted by timestamp descending', () => {
-      const id1 = monitor.startScrapeMonitoring('https://test1.com');
-      const id2 = monitor.startScrapeMonitoring('https://test2.com');
+      const _id1 = monitor.startScrapeMonitoring('https://test1.com');
+      const _id2 = monitor.startScrapeMonitoring('https://test2.com');
       
       const metrics = monitor.getMetrics();
       const timestamps = metrics.map(m => new Date(m.timestamp).getTime());

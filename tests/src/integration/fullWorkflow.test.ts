@@ -51,12 +51,12 @@ vi.mock('../scraper/scrapeWebsite', () => ({
 
 describe('Full Enhanced Scraping Workflow Integration Tests', () => {
   let enhancedScraper: EnhancedScraper;
-  let sqlIntegration: SQLMagicIntegration;
+  let _sqlIntegration: SQLMagicIntegration;
 
   beforeEach(() => {
     vi.clearAllMocks();
     enhancedScraper = new EnhancedScraper();
-    sqlIntegration = new SQLMagicIntegration({
+    _sqlIntegration = new SQLMagicIntegration({
       host: 'localhost',
       port: 5432,
       database: 'test_analytics'
