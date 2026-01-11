@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { AnalyticsDashboard } from '../../../src/components/AnalyticsDashboard';
 import { EnhancedScrapeResult, AnalyticsInsights } from '../../../src/analytics/enhancedScraper';
@@ -25,19 +25,18 @@ vi.mock('../../../src/analytics/sqlMagicIntegration', () => ({
   }))
 }));
 
+// Store original createElement for cleanup
+const originalCreateElement = document.createElement.bind(document);
+
 // Mock URL methods for export functionality
 beforeEach(() => {
   vi.clearAllMocks();
   global.URL.createObjectURL = vi.fn().mockReturnValue('blob:test');
   global.URL.revokeObjectURL = vi.fn();
-  
-  // Mock document.createElement for download links
-  const mockElement = {
-    click: vi.fn(),
-    href: '',
-    download: ''
-  };
-  vi.spyOn(document, 'createElement').mockReturnValue(mockElement as any);
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
 });
 
 const mockHtmlGraph: HTMLGraph = {
