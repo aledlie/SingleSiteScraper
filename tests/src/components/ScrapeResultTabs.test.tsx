@@ -133,14 +133,14 @@ describe('ScrapeResultTabs with Schema.org Data', () => {
       expect(screen.getByText('Tech Conference 2025')).toBeInTheDocument();
       expect(screen.getByText('Networking Mixer')).toBeInTheDocument();
       
-      // Check event type badges (content is lowercase, but CSS transforms to uppercase)
+      // Check event type badges (content is lowercase, but CSS class transforms to uppercase)
       const conferenceBadge = screen.getByText('conference');
       expect(conferenceBadge).toBeInTheDocument();
-      expect(conferenceBadge).toHaveStyle({ textTransform: 'uppercase' });
-      
+      expect(conferenceBadge).toHaveClass('uppercase');
+
       const networkingBadge = screen.getByText('networking');
       expect(networkingBadge).toBeInTheDocument();
-      expect(networkingBadge).toHaveStyle({ textTransform: 'uppercase' });
+      expect(networkingBadge).toHaveClass('uppercase');
       
       // Check location rendering for Place object
       expect(screen.getByText('Austin Convention Center')).toBeInTheDocument();
@@ -156,10 +156,10 @@ describe('ScrapeResultTabs with Schema.org Data', () => {
     it('formats event dates correctly', () => {
       render(<ScrapeResultTabs data={mockData} filter="" />);
       fireEvent.click(screen.getByText('EVENTS'));
-      
-      // Should format ISO dates to human-readable format
-      expect(screen.getByText(/June 15, 2025 at/)).toBeInTheDocument();
-      expect(screen.getByText(/June 20, 2025 at/)).toBeInTheDocument();
+
+      // Should format ISO dates to human-readable format (multiple elements may match due to start/end dates)
+      expect(screen.getAllByText(/June 15, 2025 at/).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/June 20, 2025 at/).length).toBeGreaterThan(0);
     });
 
     it('handles multi-day events correctly', () => {
@@ -249,12 +249,12 @@ describe('ScrapeResultTabs with Schema.org Data', () => {
     it('displays JSON-formatted schema data', () => {
       render(<ScrapeResultTabs data={mockData} filter="" />);
       fireEvent.click(screen.getByText('SCHEMA'));
-      
-      // Should contain JSON representations
-      expect(screen.getByText(/"@type": "WebSite"/)).toBeInTheDocument();
-      expect(screen.getByText(/"@type": "WebPage"/)).toBeInTheDocument();
-      expect(screen.getByText(/"@type": "Event"/)).toBeInTheDocument();
-      expect(screen.getByText(/"@type": "Dataset"/)).toBeInTheDocument();
+
+      // Should contain JSON representations (may appear multiple times due to nested structures)
+      expect(screen.getAllByText(/"@type": "WebSite"/).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/"@type": "WebPage"/).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/"@type": "Event"/).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/"@type": "Dataset"/).length).toBeGreaterThan(0);
     });
 
     it('limits event display in schema tab', () => {

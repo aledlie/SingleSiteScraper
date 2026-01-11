@@ -2,6 +2,7 @@
  * Event Parser Unit Tests
  */
 
+import { describe, it, expect } from 'vitest';
 import { extractEventsLegacy } from './eventParser';
 
 // Test HTML with JSON-LD event
@@ -94,112 +95,73 @@ const graphHtml = `
 </html>
 `;
 
-function runTests() {
-  console.log('🧪 Event Parser Unit Tests\n');
-  console.log('=' .repeat(50));
-
-  let passed = 0;
-  let failed = 0;
-
-  // Test 1: JSON-LD extraction
-  console.log('\n📋 Test 1: JSON-LD Event Extraction');
-  const jsonLdEvents = extractEventsLegacy(jsonLdHtml);
-  if (jsonLdEvents.length === 1 && jsonLdEvents[0].summary === 'Tech Conference 2026') {
-    console.log('  ✅ PASS - Found event from JSON-LD');
-    console.log(`     Summary: ${jsonLdEvents[0].summary}`);
-    console.log(`     Start: ${jsonLdEvents[0].start}`);
-    console.log(`     Location: ${jsonLdEvents[0].location}`);
-    console.log(`     Type: ${jsonLdEvents[0].eventType}`);
-    passed++;
-  } else {
-    console.log('  ❌ FAIL - Expected 1 event from JSON-LD');
-    console.log(`     Got: ${jsonLdEvents.length} events`);
-    failed++;
-  }
-
-  // Test 2: Microdata extraction
-  console.log('\n📋 Test 2: Microdata Event Extraction');
-  const microdataEvents = extractEventsLegacy(microdataHtml);
-  if (microdataEvents.length === 1 && microdataEvents[0].summary === 'Startup Pitch Night') {
-    console.log('  ✅ PASS - Found event from microdata');
-    console.log(`     Summary: ${microdataEvents[0].summary}`);
-    console.log(`     Start: ${microdataEvents[0].start}`);
-    console.log(`     Location: ${microdataEvents[0].location}`);
-    passed++;
-  } else {
-    console.log('  ❌ FAIL - Expected 1 event from microdata');
-    console.log(`     Got: ${microdataEvents.length} events`);
-    failed++;
-  }
-
-  // Test 3: HTML pattern extraction
-  console.log('\n📋 Test 3: HTML Pattern Event Extraction');
-  const patternEvents = extractEventsLegacy(patternHtml);
-  if (patternEvents.length === 1 && patternEvents[0].summary === 'Weekly Networking Meetup') {
-    console.log('  ✅ PASS - Found event from HTML patterns');
-    console.log(`     Summary: ${patternEvents[0].summary}`);
-    console.log(`     Start: ${patternEvents[0].start}`);
-    console.log(`     Type: ${patternEvents[0].eventType}`);
-    passed++;
-  } else {
-    console.log('  ❌ FAIL - Expected 1 event from HTML patterns');
-    console.log(`     Got: ${patternEvents.length} events`);
-    failed++;
-  }
-
-  // Test 4: @graph structure
-  console.log('\n📋 Test 4: JSON-LD @graph Structure');
-  const graphEvents = extractEventsLegacy(graphHtml);
-  if (graphEvents.length === 2) {
-    console.log('  ✅ PASS - Found 2 events from @graph');
-    graphEvents.forEach((e, i) => {
-      console.log(`     Event ${i + 1}: ${e.summary} (${e.eventType})`);
+describe('Event Parser', () => {
+  describe('JSON-LD Event Extraction', () => {
+    it('extracts events from JSON-LD script tags', () => {
+      const events = extractEventsLegacy(jsonLdHtml);
+      expect(events).toHaveLength(1);
+      expect(events[0].summary).toBe('Tech Conference 2026');
+      expect(events[0].start).toMatch(/2026-03-15/);
+      expect(events[0].location).toContain('Austin Convention Center');
     });
-    passed++;
-  } else {
-    console.log('  ❌ FAIL - Expected 2 events from @graph');
-    console.log(`     Got: ${graphEvents.length} events`);
-    failed++;
-  }
+  });
 
-  // Test 5: Event type detection
-  console.log('\n📋 Test 5: Event Type Detection');
-  const hackathonEvent = graphEvents.find(e => e.summary === 'Hackathon Weekend');
-  const conferenceEvent = jsonLdEvents[0];
-  const meetupEvent = patternEvents[0];
+  describe('Microdata Event Extraction', () => {
+    it('extracts events from microdata elements', () => {
+      const events = extractEventsLegacy(microdataHtml);
+      expect(events).toHaveLength(1);
+      expect(events[0].summary).toBe('Startup Pitch Night');
+      expect(events[0].start).toMatch(/2026-04-20/);
+      expect(events[0].location).toContain('Capital Factory');
+    });
+  });
 
-  if (hackathonEvent?.eventType === 'Hackathon' &&
-      conferenceEvent?.eventType === 'Conference' &&
-      meetupEvent?.eventType === 'Meetup') {
-    console.log('  ✅ PASS - Event types correctly detected');
-    console.log(`     Hackathon Weekend -> ${hackathonEvent.eventType}`);
-    console.log(`     Tech Conference 2026 -> ${conferenceEvent.eventType}`);
-    console.log(`     Weekly Networking Meetup -> ${meetupEvent.eventType}`);
-    passed++;
-  } else {
-    console.log('  ❌ FAIL - Event types not correctly detected');
-    failed++;
-  }
+  describe('HTML Pattern Event Extraction', () => {
+    it('extracts events from common HTML patterns', () => {
+      const events = extractEventsLegacy(patternHtml);
+      expect(events).toHaveLength(1);
+      expect(events[0].summary).toBe('Weekly Networking Meetup');
+      expect(events[0].start).toMatch(/2026-05-10/);
+      expect(events[0].eventType).toBe('Meetup');
+    });
+  });
 
-  // Test 6: Empty/invalid HTML
-  console.log('\n📋 Test 6: Empty HTML Handling');
-  const emptyEvents = extractEventsLegacy('');
-  const invalidEvents = extractEventsLegacy('<html><body>No events here</body></html>');
-  if (emptyEvents.length === 0 && invalidEvents.length === 0) {
-    console.log('  ✅ PASS - Correctly returns empty array for no events');
-    passed++;
-  } else {
-    console.log('  ❌ FAIL - Should return empty array');
-    failed++;
-  }
+  describe('JSON-LD @graph Structure', () => {
+    it('extracts multiple events from @graph', () => {
+      const events = extractEventsLegacy(graphHtml);
+      expect(events).toHaveLength(2);
+      expect(events.some(e => e.summary === 'Hackathon Weekend')).toBe(true);
+      expect(events.some(e => e.summary === 'Demo Day')).toBe(true);
+    });
+  });
 
-  // Summary
-  console.log('\n' + '=' .repeat(50));
-  console.log(`📊 Results: ${passed} passed, ${failed} failed`);
-  console.log('=' .repeat(50));
+  describe('Event Type Detection', () => {
+    it('detects hackathon event type', () => {
+      const events = extractEventsLegacy(graphHtml);
+      const hackathon = events.find(e => e.summary === 'Hackathon Weekend');
+      expect(hackathon?.eventType).toBe('Hackathon');
+    });
 
-  return { passed, failed };
-}
+    it('detects conference event type', () => {
+      const events = extractEventsLegacy(jsonLdHtml);
+      expect(events[0].eventType).toBe('Conference');
+    });
 
-// Run tests
-runTests();
+    it('detects meetup event type', () => {
+      const events = extractEventsLegacy(patternHtml);
+      expect(events[0].eventType).toBe('Meetup');
+    });
+  });
+
+  describe('Empty/Invalid HTML Handling', () => {
+    it('returns empty array for empty HTML', () => {
+      const events = extractEventsLegacy('');
+      expect(events).toEqual([]);
+    });
+
+    it('returns empty array for HTML without events', () => {
+      const events = extractEventsLegacy('<html><body>No events here</body></html>');
+      expect(events).toEqual([]);
+    });
+  });
+});

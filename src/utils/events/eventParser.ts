@@ -9,16 +9,13 @@
  */
 
 import { parse, HTMLElement } from 'node-html-parser';
+import { EventData } from '../../types/index';
 
-// Simple EventData interface (matches types/index.ts line 215-222)
-interface EventData {
-  summary: string;
-  start: string;
-  end: string;
-  location?: string;
-  description?: string;
-  eventType?: string;
-}
+// Create a partial EventData that meets the minimal requirements for extraction
+type ExtractedEvent = Pick<EventData, 'name' | 'startDate' | 'endDate' | 'location' | 'description' | 'eventType'> & {
+  '@context': 'https://schema.org';
+  '@type': 'Event';
+};
 
 // Schema.org Event structure for JSON-LD parsing
 interface SchemaOrgEvent {
@@ -54,13 +51,13 @@ interface SchemaOrgEvent {
  * @returns Array of extracted events
  */
 export function extractEventsLegacy(html: string): EventData[] {
-  const events: EventData[] = [];
-  const seenEvents = new Set<string>(); // Deduplicate by summary+start
+  const events: ExtractedEvent[] = [];
+  const seenEvents = new Set<string>(); // Deduplicate by name+startDate
 
   // Strategy 1: Extract from JSON-LD structured data (most reliable)
   const jsonLdEvents = extractFromJsonLd(html);
   jsonLdEvents.forEach(event => {
-    const key = `${event.summary}|${event.start}`;
+    const key = `${event.name}|${event.startDate}`;
     if (!seenEvents.has(key)) {
       seenEvents.add(key);
       events.push(event);
@@ -70,7 +67,7 @@ export function extractEventsLegacy(html: string): EventData[] {
   // Strategy 2: Extract from HTML microdata (itemtype="Event")
   const microdataEvents = extractFromMicrodata(html);
   microdataEvents.forEach(event => {
-    const key = `${event.summary}|${event.start}`;
+    const key = `${event.name}|${event.startDate}`;
     if (!seenEvents.has(key)) {
       seenEvents.add(key);
       events.push(event);
@@ -80,21 +77,21 @@ export function extractEventsLegacy(html: string): EventData[] {
   // Strategy 3: Extract from common HTML patterns
   const htmlPatternEvents = extractFromHtmlPatterns(html);
   htmlPatternEvents.forEach(event => {
-    const key = `${event.summary}|${event.start}`;
+    const key = `${event.name}|${event.startDate}`;
     if (!seenEvents.has(key)) {
       seenEvents.add(key);
       events.push(event);
     }
   });
 
-  return events;
+  return events as EventData[];
 }
 
 /**
  * Extract events from JSON-LD structured data
  */
-function extractFromJsonLd(html: string): EventData[] {
-  const events: EventData[] = [];
+function extractFromJsonLd(html: string): ExtractedEvent[] {
+  const events: ExtractedEvent[] = [];
 
   // Match all JSON-LD script tags
   const jsonLdRegex = /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
@@ -131,9 +128,9 @@ function extractFromJsonLd(html: string): EventData[] {
 }
 
 /**
- * Parse a Schema.org Event object into EventData
+ * Parse a Schema.org Event object into ExtractedEvent
  */
-function parseSchemaOrgEvent(data: SchemaOrgEvent): EventData | null {
+function parseSchemaOrgEvent(data: SchemaOrgEvent): ExtractedEvent | null {
   // Check if this is an Event type (including subtypes)
   const eventTypes = ['Event', 'BusinessEvent', 'ChildrensEvent', 'ComedyEvent',
     'CourseInstance', 'DanceEvent', 'DeliveryEvent', 'EducationEvent',
@@ -155,13 +152,15 @@ function parseSchemaOrgEvent(data: SchemaOrgEvent): EventData | null {
     return null;
   }
 
-  const event: EventData = {
-    summary: data.name,
-    start: normalizeDate(data.startDate),
-    end: normalizeDate(data.endDate || data.startDate),
+  const event: ExtractedEvent = {
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    name: data.name,
+    startDate: normalizeDate(data.startDate),
+    endDate: normalizeDate(data.endDate || data.startDate),
     location: parseLocation(data.location),
     description: data.description ? cleanText(data.description) : undefined,
-    eventType: classifyEventType(data),
+    eventType: classifyEventType(data).toLowerCase(),
   };
 
   return event;
@@ -170,8 +169,8 @@ function parseSchemaOrgEvent(data: SchemaOrgEvent): EventData | null {
 /**
  * Extract events from HTML microdata (itemtype)
  */
-function extractFromMicrodata(html: string): EventData[] {
-  const events: EventData[] = [];
+function extractFromMicrodata(html: string): ExtractedEvent[] {
+  const events: ExtractedEvent[] = [];
 
   try {
     const root = parse(html);
@@ -193,7 +192,7 @@ function extractFromMicrodata(html: string): EventData[] {
 /**
  * Parse an event from a microdata element
  */
-function parseEventElement(el: HTMLElement): EventData | null {
+function parseEventElement(el: HTMLElement): ExtractedEvent | null {
   const name = el.querySelector('[itemprop="name"]')?.textContent?.trim() ||
                el.querySelector('.event-title, .event-name, h2, h3')?.textContent?.trim();
 
@@ -215,20 +214,22 @@ function parseEventElement(el: HTMLElement): EventData | null {
   }
 
   return {
-    summary: name,
-    start: normalizeDate(startDate),
-    end: normalizeDate(endDate || startDate),
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    name: name,
+    startDate: normalizeDate(startDate),
+    endDate: normalizeDate(endDate || startDate),
     location: location || undefined,
     description: description ? cleanText(description) : undefined,
-    eventType: detectEventTypeFromText(name + ' ' + (description || '')),
+    eventType: detectEventTypeFromText(name + ' ' + (description || '')).toLowerCase(),
   };
 }
 
 /**
  * Extract events from common HTML patterns
  */
-function extractFromHtmlPatterns(html: string): EventData[] {
-  const events: EventData[] = [];
+function extractFromHtmlPatterns(html: string): ExtractedEvent[] {
+  const events: ExtractedEvent[] = [];
 
   try {
     const root = parse(html);
@@ -259,6 +260,19 @@ function extractFromHtmlPatterns(html: string): EventData[] {
         if (event) events.push(event);
       }
     }
+
+    // Also check articles and sections for event keywords when no explicit event markers
+    if (events.length === 0) {
+      const genericContainers = root.querySelectorAll('article, section');
+      for (const el of genericContainers) {
+        const heading = el.querySelector('h1, h2, h3, h4, h5')?.textContent?.toLowerCase() || '';
+        // Only process if heading contains event-related keywords
+        if (/\b(meetup|meeting|workshop|conference|seminar|webinar|event|summit)\b/i.test(heading)) {
+          const event = extractEventFromGenericElement(el);
+          if (event) events.push(event);
+        }
+      }
+    }
   } catch {
     // Parsing failed
   }
@@ -269,7 +283,7 @@ function extractFromHtmlPatterns(html: string): EventData[] {
 /**
  * Extract event data from a generic HTML element
  */
-function extractEventFromGenericElement(el: HTMLElement): EventData | null {
+function extractEventFromGenericElement(el: HTMLElement): ExtractedEvent | null {
   // Try to find event name from various selectors
   const nameSelectors = [
     'h1', 'h2', 'h3', 'h4', 'h5',
@@ -298,7 +312,7 @@ function extractEventFromGenericElement(el: HTMLElement): EventData | null {
 
   // Try to find date information from multiple sources
   let startDate = '';
-  const _endDate = '';
+  let endDate = '';
 
   // 1. Check for time elements with datetime attribute
   const timeEl = el.querySelector('time[datetime]');
@@ -314,10 +328,17 @@ function extractEventFromGenericElement(el: HTMLElement): EventData | null {
     }
   }
 
-  // 3. Check for data-* attributes containing dates
+  // 3. Check for data-* attributes containing dates (on element itself first, then children)
   if (!startDate) {
     const dataAttrs = ['data-date', 'data-start', 'data-event-date', 'data-datetime'];
     for (const attr of dataAttrs) {
+      // Check on the element itself first
+      const selfAttr = el.getAttribute(attr);
+      if (selfAttr) {
+        startDate = selfAttr;
+        break;
+      }
+      // Then check child elements
       const attrEl = el.querySelector('[' + attr + ']');
       if (attrEl) {
         startDate = attrEl.getAttribute(attr) || '';
@@ -388,12 +409,14 @@ function extractEventFromGenericElement(el: HTMLElement): EventData | null {
   }
 
   return {
-    summary: name,
-    start: normalizeDate(startDate),
-    end: normalizeDate(endDate || startDate),
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    name: name,
+    startDate: normalizeDate(startDate),
+    endDate: normalizeDate(endDate || startDate),
     location: location || undefined,
     description: description ? cleanText(description) : undefined,
-    eventType: detectEventTypeFromText(name + ' ' + (description || '')),
+    eventType: detectEventTypeFromText(name + ' ' + (description || '')).toLowerCase(),
   };
 }
 

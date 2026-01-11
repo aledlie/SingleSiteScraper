@@ -17,8 +17,8 @@ export const ScrapeResultTabs: React.FC<Props> = ({ data, filter }) => {
       text: data.text.filter((t) => t.toLowerCase().includes(lowerFilter)),
       links: data.links.filter((l) => l.text.toLowerCase().includes(lowerFilter) || l.url.toLowerCase().includes(lowerFilter)),
       images: data.images.filter((i) => (i.alternateName || '').toLowerCase().includes(lowerFilter) || i.url.toLowerCase().includes(lowerFilter)),
-      metadata: Object.entries(data.metadata).filter(([k, v]) => k.includes(filter) || v.includes(filter)),
-      events: data.events.filter((e) => e.name.includes(filter))
+      metadata: Object.entries(data.metadata).filter(([k, v]) => k.toLowerCase().includes(lowerFilter) || v.toLowerCase().includes(lowerFilter)),
+      events: data.events.filter((e) => e.name.toLowerCase().includes(lowerFilter))
     };
   }, [data.text, data.links, data.images, data.metadata, data.events, filter]);
 

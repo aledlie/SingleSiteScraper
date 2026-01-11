@@ -77,22 +77,39 @@ vi.mock('../../../src/analytics/htmlObjectAnalyzer', () => ({
   }))
 }));
 
+// Store original createElement to call for non-anchor elements
+const originalCreateElement = document.createElement.bind(document);
+
+// Shared mock anchor for export tests
+let mockAnchor: { click: ReturnType<typeof vi.fn>; href: string; download: string; style: Record<string, string>; setAttribute: ReturnType<typeof vi.fn>; appendChild: ReturnType<typeof vi.fn>; removeChild: ReturnType<typeof vi.fn> };
+
 // Mock canvas for word cloud
 beforeEach(() => {
   vi.clearAllMocks();
-  
+
   // Mock URL and Blob for exports
   global.URL.createObjectURL = vi.fn().mockReturnValue('blob:test');
   global.URL.revokeObjectURL = vi.fn();
   global.Blob = vi.fn().mockImplementation(() => ({})) as any;
-  
-  const mockElement = {
+
+  mockAnchor = {
     click: vi.fn(),
     href: '',
-    download: ''
+    download: '',
+    style: {},
+    setAttribute: vi.fn(),
+    appendChild: vi.fn(),
+    removeChild: vi.fn()
   };
-  vi.spyOn(document, 'createElement').mockReturnValue(mockElement as any);
-  
+
+  // Only mock anchor elements, let other elements pass through
+  vi.spyOn(document, 'createElement').mockImplementation((tagName: string) => {
+    if (tagName.toLowerCase() === 'a') {
+      return mockAnchor as any;
+    }
+    return originalCreateElement(tagName);
+  });
+
   // Mock canvas querySelector for exports
   const mockCanvas = {
     toDataURL: vi.fn().mockReturnValue('data:image/png;base64,mock')
@@ -203,21 +220,17 @@ describe('FisterraVisualizationDashboard', () => {
   });
 
   it('exports word cloud image when export button clicked', async () => {
-    const mockClick = vi.fn();
-    const mockElement = { click: mockClick, href: '', download: '' };
-    vi.spyOn(document, 'createElement').mockReturnValue(mockElement as any);
-    
     render(<FisterraVisualizationDashboard />);
-    
+
     await waitFor(() => {
       fireEvent.click(screen.getByText('Word Analysis'));
     }, { timeout: 2000 });
-    
+
     await waitFor(() => {
       const exportButton = screen.getByText('Export Image');
       fireEvent.click(exportButton);
-      
-      expect(mockClick).toHaveBeenCalled();
+
+      expect(mockAnchor.click).toHaveBeenCalled();
     });
   });
 
@@ -235,22 +248,18 @@ describe('FisterraVisualizationDashboard', () => {
   });
 
   it('exports GraphML when export button clicked', async () => {
-    const mockClick = vi.fn();
-    const mockElement = { click: mockClick, href: '', download: 'test.graphml' };
-    vi.spyOn(document, 'createElement').mockReturnValue(mockElement as any);
-    
     render(<FisterraVisualizationDashboard />);
-    
+
     await waitFor(() => {
       fireEvent.click(screen.getByText('Network Graph'));
     }, { timeout: 2000 });
-    
+
     await waitFor(() => {
       const exportButton = screen.getByText('Export GraphML');
       fireEvent.click(exportButton);
-      
-      expect(mockClick).toHaveBeenCalled();
-      expect(mockElement.download).toContain('fisterra-graph.graphml');
+
+      expect(mockAnchor.click).toHaveBeenCalled();
+      expect(mockAnchor.download).toContain('fisterra-graph.graphml');
     });
   });
 
@@ -268,21 +277,17 @@ describe('FisterraVisualizationDashboard', () => {
   });
 
   it('exports metrics data when export button clicked', async () => {
-    const mockClick = vi.fn();
-    const mockElement = { click: mockClick, href: '', download: '' };
-    vi.spyOn(document, 'createElement').mockReturnValue(mockElement as any);
-    
     render(<FisterraVisualizationDashboard />);
-    
+
     await waitFor(() => {
       fireEvent.click(screen.getByText('Detailed Metrics'));
     }, { timeout: 2000 });
-    
+
     await waitFor(() => {
       const exportButton = screen.getByText('Export Data');
       fireEvent.click(exportButton);
-      
-      expect(mockClick).toHaveBeenCalled();
+
+      expect(mockAnchor.click).toHaveBeenCalled();
     });
   });
 
@@ -322,10 +327,14 @@ describe('FisterraVisualizationDashboard', () => {
 
   it('uses proper gradient styling for stats cards', async () => {
     render(<FisterraVisualizationDashboard />);
-    
+
     await waitFor(() => {
-      const dashboard = screen.getByText('Fisterra.org Analysis').closest('.fisterra-dashboard');
-      expect(dashboard).toBeInTheDocument();
+      // Verify gradient styling is present in the stats cards (inline styles)
+      const htmlElementsCard = screen.getByText('HTML Elements').parentElement;
+      expect(htmlElementsCard).toBeInTheDocument();
+      // Check that the parent card has gradient styling
+      const style = htmlElementsCard?.getAttribute('style') || '';
+      expect(style).toContain('linear-gradient');
     }, { timeout: 2000 });
   });
 

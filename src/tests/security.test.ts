@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import {
   validateUrl,
+  validateUrlWithSSRF,
   sanitizeUrl,
   cleanText,
   htmlEntityEncode,
@@ -14,34 +15,34 @@ import { SQLMagicIntegration } from '../analytics/sqlMagicIntegration.ts';
 describe('Security Tests', () => {
   describe('SSRF Protection', () => {
     it('should block localhost URLs', () => {
-      expect(validateUrl('http://localhost:8080')).toBe(false);
-      expect(validateUrl('https://127.0.0.1')).toBe(false);
-      expect(validateUrl('http://[::1]:3000')).toBe(false);
-      expect(validateUrl('https://0.0.0.0')).toBe(false);
+      expect(validateUrlWithSSRF('http://localhost:8080')).toBe(false);
+      expect(validateUrlWithSSRF('https://127.0.0.1')).toBe(false);
+      expect(validateUrlWithSSRF('http://[::1]:3000')).toBe(false);
+      expect(validateUrlWithSSRF('https://0.0.0.0')).toBe(false);
     });
 
     it('should block private IP ranges', () => {
-      expect(validateUrl('http://10.0.0.1')).toBe(false);
-      expect(validateUrl('https://192.168.1.1')).toBe(false);
-      expect(validateUrl('http://172.16.0.1')).toBe(false);
-      expect(validateUrl('https://169.254.1.1')).toBe(false);
+      expect(validateUrlWithSSRF('http://10.0.0.1')).toBe(false);
+      expect(validateUrlWithSSRF('https://192.168.1.1')).toBe(false);
+      expect(validateUrlWithSSRF('http://172.16.0.1')).toBe(false);
+      expect(validateUrlWithSSRF('https://169.254.1.1')).toBe(false);
     });
 
     it('should block cloud metadata endpoints', () => {
-      expect(validateUrl('http://169.254.169.254')).toBe(false);
-      expect(validateUrl('https://metadata.google.internal')).toBe(false);
+      expect(validateUrlWithSSRF('http://169.254.169.254')).toBe(false);
+      expect(validateUrlWithSSRF('https://metadata.google.internal')).toBe(false);
     });
 
     it('should block dangerous ports', () => {
-      expect(validateUrl('http://example.com:22')).toBe(false);
-      expect(validateUrl('https://example.com:3306')).toBe(false);
-      expect(validateUrl('http://example.com:6379')).toBe(false);
+      expect(validateUrlWithSSRF('http://example.com:22')).toBe(false);
+      expect(validateUrlWithSSRF('https://example.com:3306')).toBe(false);
+      expect(validateUrlWithSSRF('http://example.com:6379')).toBe(false);
     });
 
     it('should allow valid public URLs', () => {
-      expect(validateUrl('https://example.com')).toBe(true);
-      expect(validateUrl('http://8.8.8.8')).toBe(true);
-      expect(validateUrl('https://1.1.1.1:443')).toBe(true);
+      expect(validateUrlWithSSRF('https://example.com')).toBe(true);
+      expect(validateUrlWithSSRF('http://8.8.8.8')).toBe(true);
+      expect(validateUrlWithSSRF('https://1.1.1.1:443')).toBe(true);
     });
   });
 

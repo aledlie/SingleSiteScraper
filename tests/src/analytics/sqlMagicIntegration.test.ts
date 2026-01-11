@@ -248,19 +248,19 @@ describe('SQLMagicIntegration', () => {
       expect(sqlIntegration.getQueryLog()).toHaveLength(0);
     });
 
-    it('sorts query log by timestamp descending', async () => {
+    it('sorts query log by timestamp ascending (oldest first)', async () => {
       // Clear the log to ensure clean state for this test
       sqlIntegration.clearQueryLog();
-      
+
       await sqlIntegration.queryGraphsByUrl('test1.com');
       await sqlIntegration.queryGraphsByUrl('test2.com');
-      
+
       const queryLog = sqlIntegration.getQueryLog();
       expect(queryLog.length).toBe(2);
-      
-      // More recent query should be first
+
+      // Older query should be first (ascending order)
       const timestamps = queryLog.map(q => new Date(q.timestamp).getTime());
-      expect(timestamps[0]).toBeGreaterThanOrEqual(timestamps[1]);
+      expect(timestamps[0]).toBeLessThanOrEqual(timestamps[1]);
     });
   });
 

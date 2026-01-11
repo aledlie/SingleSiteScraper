@@ -5,6 +5,18 @@ import { sentryVitePlugin } from '@sentry/vite-plugin';
 // https://vitejs.dev/config/
 export default defineConfig({
   base: '/SingleSiteScraper/',
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./vitest.setup.ts'],
+    globals: true,
+    include: ['tests/**/*.{test,spec}.{ts,tsx}', 'src/**/*.{test,spec}.{ts,tsx}'],
+    exclude: ['**/node_modules/**', '**/dist/**'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      exclude: ['node_modules/', 'tests/', '**/*.d.ts', '**/*.config.*']
+    }
+  },
   plugins: [
     react(),
     // Sentry source map upload (only in production builds with auth token)
