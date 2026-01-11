@@ -35,7 +35,7 @@ jobs:
 
       - name: Build with Sentry source maps
         run: |
-          doppler run --project integrity-studio --config prd -- npm run build
+          doppler run --project integrity-studio --config dev -- npm run build
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
 
