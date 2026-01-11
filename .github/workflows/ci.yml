@@ -43,16 +43,11 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Install Doppler CLI
-        uses: dopplerhq/cli-action@v3
-
       - name: Install dependencies
         run: npm ci
 
       - name: Build
-        run: doppler run --project integrity-studio --config prd -- npm run build
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+        run: npm run build
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
