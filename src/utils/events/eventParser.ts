@@ -270,30 +270,82 @@ function extractFromHtmlPatterns(html: string): EventData[] {
  * Extract event data from a generic HTML element
  */
 function extractEventFromGenericElement(el: HTMLElement): EventData | null {
-  // Try to find event name
-  const name = el.querySelector('h1, h2, h3, h4, .title, .event-title, .event-name, a')?.textContent?.trim();
+  // Try to find event name from various selectors
+  const nameSelectors = [
+    'h1', 'h2', 'h3', 'h4', 'h5',
+    '.title', '.event-title', '.event-name', '.event-heading',
+    '[class*="title"]', '[class*="name"]',
+    'span.display-lg', // Capital Factory style
+    '.display-lg', // Similar display heading classes
+    '[class*="display"]',
+    'a[href]',
+  ];
+
+  let name = '';
+  for (const selector of nameSelectors) {
+    const el2 = el.querySelector(selector);
+    if (el2) {
+      name = el2.textContent?.trim() || '';
+      if (name && name.length >= 3 && name.length < 200) {
+        break;
+      }
+    }
+  }
 
   if (!name || name.length < 3) {
     return null;
   }
 
-  // Try to find date information
+  // Try to find date information from multiple sources
   let startDate = '';
   let endDate = '';
 
-  // Check for time elements
-  const timeEl = el.querySelector('time');
+  // 1. Check for time elements with datetime attribute
+  const timeEl = el.querySelector('time[datetime]');
   if (timeEl) {
-    startDate = timeEl.getAttribute('datetime') || timeEl.textContent?.trim() || '';
+    startDate = timeEl.getAttribute('datetime') || '';
   }
 
-  // Check for date-related classes/attributes
-  const dateEl = el.querySelector('.date, .event-date, .datetime, [data-date]');
-  if (dateEl && !startDate) {
-    startDate = dateEl.getAttribute('data-date') || dateEl.textContent?.trim() || '';
+  // 2. Check for time elements with text content
+  if (!startDate) {
+    const timeTextEl = el.querySelector('time');
+    if (timeTextEl) {
+      startDate = timeTextEl.textContent?.trim() || '';
+    }
   }
 
-  // Try to parse date from text content
+  // 3. Check for data-* attributes containing dates
+  if (!startDate) {
+    const dataAttrs = ['data-date', 'data-start', 'data-event-date', 'data-datetime'];
+    for (const attr of dataAttrs) {
+      const attrEl = el.querySelector('[' + attr + ']');
+      if (attrEl) {
+        startDate = attrEl.getAttribute(attr) || '';
+        if (startDate) break;
+      }
+    }
+  }
+
+  // 4. Check for date-related class elements
+  if (!startDate) {
+    const dateSelectors = [
+      '.date', '.event-date', '.datetime', '.start-date',
+      '.event-time', '.event-datetime', '.when',
+      '[class*="date"]', '[class*="time"]',
+    ];
+    for (const selector of dateSelectors) {
+      const dateEl = el.querySelector(selector);
+      if (dateEl) {
+        startDate = dateEl.textContent?.trim() || '';
+        if (startDate && extractDateFromText(startDate)) {
+          startDate = extractDateFromText(startDate) || startDate;
+          break;
+        }
+      }
+    }
+  }
+
+  // 5. Try to parse date from entire element text content
   if (!startDate) {
     const text = el.textContent || '';
     const dateMatch = extractDateFromText(text);
@@ -308,10 +360,32 @@ function extractEventFromGenericElement(el: HTMLElement): EventData | null {
   }
 
   // Try to find location
-  const location = el.querySelector('.location, .event-location, .venue, .address')?.textContent?.trim();
+  const locationSelectors = [
+    '.location', '.event-location', '.venue', '.address',
+    '.place', '.event-venue', '[class*="location"]', '[class*="venue"]',
+  ];
+  let location = '';
+  for (const selector of locationSelectors) {
+    const locEl = el.querySelector(selector);
+    if (locEl) {
+      location = locEl.textContent?.trim() || '';
+      if (location) break;
+    }
+  }
 
   // Try to find description
-  const description = el.querySelector('.description, .event-description, .excerpt, p')?.textContent?.trim();
+  const descSelectors = [
+    '.description', '.event-description', '.excerpt', '.summary',
+    '.event-excerpt', '.event-summary', 'p',
+  ];
+  let description = '';
+  for (const selector of descSelectors) {
+    const descEl = el.querySelector(selector);
+    if (descEl) {
+      description = descEl.textContent?.trim() || '';
+      if (description && description.length > 10) break;
+    }
+  }
 
   return {
     summary: name,
@@ -327,24 +401,38 @@ function extractEventFromGenericElement(el: HTMLElement): EventData | null {
  * Extract date from text using common patterns
  */
 function extractDateFromText(text: string): string | null {
-  // Common date patterns
-  const patterns = [
-    // ISO format: 2024-01-15
-    /(\d{4}-\d{2}-\d{2})/,
+  const currentYear = new Date().getFullYear();
+
+  // Common date patterns - ordered by specificity
+  const patterns: Array<{ regex: RegExp; addYear?: boolean }> = [
+    // ISO format: 2024-01-15 or 2024-01-15T10:00
+    { regex: /(\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}(?::\d{2})?)?)/ },
     // US format: 01/15/2024 or 1/15/2024
-    /(\d{1,2}\/\d{1,2}\/\d{4})/,
+    { regex: /(\d{1,2}\/\d{1,2}\/\d{4})/ },
     // Month Day, Year: January 15, 2024
-    /((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},?\s+\d{4})/i,
-    // Short month: Jan 15, 2024
-    /((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\.?\s+\d{1,2},?\s+\d{4})/i,
+    { regex: /((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},?\s+\d{4})/i },
+    // Short month with year: Jan 15, 2024 or Jan. 15 2024
+    { regex: /((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\.?\s+\d{1,2},?\s+\d{4})/i },
     // Day Month Year: 15 January 2024
-    /(\d{1,2}\s+(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4})/i,
+    { regex: /(\d{1,2}\s+(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4})/i },
+    // Short month with @ time: Jan 13 @ 10:00am (Capital Factory format)
+    { regex: /((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\.?\s+\d{1,2}\s*@\s*\d{1,2}:\d{2}\s*(?:am|pm)?)/i, addYear: true },
+    // Short month without year: Jan 15 or Jan. 15 (assume current year)
+    { regex: /((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\.?\s+\d{1,2})(?!\s*,?\s*\d{4})/i, addYear: true },
+    // Full month without year: January 15 (assume current year)
+    { regex: /((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2})(?!\s*,?\s*\d{4})/i, addYear: true },
+    // Numeric short: 1/15 or 01/15 (assume current year)
+    { regex: /(\d{1,2}\/\d{1,2})(?!\/\d)/, addYear: true },
   ];
 
-  for (const pattern of patterns) {
-    const match = text.match(pattern);
+  for (const { regex, addYear } of patterns) {
+    const match = text.match(regex);
     if (match) {
-      return match[1];
+      let dateStr = match[1];
+      if (addYear) {
+        dateStr = dateStr + ', ' + currentYear;
+      }
+      return dateStr;
     }
   }
 
