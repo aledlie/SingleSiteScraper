@@ -3,8 +3,8 @@ import { EnhancedScraper } from '../../../src/analytics/enhancedScraper';
 import { HTMLObjectAnalyzer } from '../../../src/analytics/htmlObjectAnalyzer';
 import { PerformanceMonitor } from '../../../src/analytics/performanceMonitor';
 
-// Mock the original scraper
-vi.mock('../scraper/scrapeWebsite', () => ({
+// Mock the original scraper - path relative to test file
+vi.mock('../../../src/scraper/scrapeWebsite', () => ({
   scrapeWebsite: vi.fn().mockResolvedValue({
     data: {
       title: 'Test Page',
@@ -14,6 +14,7 @@ vi.mock('../scraper/scrapeWebsite', () => ({
       text: ['Test content'],
       metadata: { author: 'Test Author' },
       events: [],
+      html: '<html><body><h1>Test</h1><p>Content</p></body></html>',
       status: {
         success: true,
         responseTime: 1500,
