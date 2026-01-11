@@ -1,7 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { validateUrl, sanitizeUrl, cleanText } from '../../../src/utils/validators';
+import { validateUrl, sanitizeUrl } from '../../../src/utils/validators';
 import { getLinks, getText, getImages, getMetadata } from '../../../src/utils/parse';
-import { HTMLElement } from 'node-html-parser';
 import { parse } from 'node-html-parser';
 
 // Mock console to avoid noise in test output
@@ -379,7 +378,7 @@ describe('Security - Data Integrity & Content Security', () => {
       expect(typeof metadata).toBe('object');
 
       // Check all metadata values are sanitized
-      Object.entries(metadata).forEach(([key, value]) => {
+      Object.entries(metadata).forEach(([_key, value]) => {
         if (typeof value === 'string') {
           // Should not contain dangerous HTML or scripts
           expect(value).not.toMatch(/<script[\s\S]*?<\/script>/i);
@@ -530,8 +529,8 @@ describe('Security - Data Integrity & Content Security', () => {
       
       // Should handle deep nesting without stack overflow
       expect(() => {
-        const text = getText(root, 50);
-        const metadata = getMetadata(root);
+        const _text = getText(root, 50);
+        const _metadata = getMetadata(root);
       }).not.toThrow();
     });
   });

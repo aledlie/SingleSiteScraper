@@ -1,15 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { parse } from 'node-html-parser';
-import { 
-  getImages, 
-  getWebSite, 
-  getWebPage, 
+import {
+  getImages,
+  getWebSite,
+  getWebPage,
   getOrganizationFromMetadata,
-  getTitle,
-  getDescription,
-  getMetadata,
-  getLinks,
-  getText
+  getMetadata
 } from '../../../src/utils/parse';
 
 describe('Schema.org Parse Functions', () => {

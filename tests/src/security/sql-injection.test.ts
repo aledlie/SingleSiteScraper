@@ -297,7 +297,7 @@ describe('Security - SQL Injection Prevention', () => {
       const timeoutIntegration = new SQLMagicIntegration(timeoutConfig);
       
       // Should handle timeout gracefully
-      const connectResult = await timeoutIntegration.connect();
+      const _connectResult = await timeoutIntegration.connect();
       
       // Even if connection fails, cleanup should work
       expect(() => timeoutIntegration.cleanup()).not.toThrow();
@@ -410,7 +410,7 @@ describe('Security - SQL Injection Prevention', () => {
       
       // Check for reasonable data type constraints
       schema.forEach(table => {
-        Object.entries(table.schema).forEach(([column, type]) => {
+        Object.entries(table.schema).forEach(([_column, type]) => {
           // VARCHAR fields should have reasonable limits
           if (type.includes('VARCHAR')) {
             expect(type).toMatch(/VARCHAR\(\d+\)/);

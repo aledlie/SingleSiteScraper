@@ -312,7 +312,7 @@ function extractEventFromGenericElement(el: HTMLElement): ExtractedEvent | null 
 
   // Try to find date information from multiple sources
   let startDate = '';
-  let endDate = '';
+  const endDate = '';
 
   // 1. Check for time elements with datetime attribute
   const timeEl = el.querySelector('time[datetime]');

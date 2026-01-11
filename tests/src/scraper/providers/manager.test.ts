@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { ProviderManager, FallbackStrategy } from '../../../../src/scraper/providers/manager';
+import { ProviderManager } from '../../../../src/scraper/providers/manager';
 import { BaseScrapeProvider, ScrapingOptions, ScrapingResult, ScrapingCapabilities, ProviderHealthCheck } from '../../../../src/scraper/providers/base';
 
 // Mock console methods
@@ -18,7 +18,7 @@ class MockFastProvider extends BaseScrapeProvider {
     avgResponseTime: 500,
   };
 
-  async scrape(url: string, options?: ScrapingOptions): Promise<ScrapingResult> {
+  async scrape(url: string, _options?: ScrapingOptions): Promise<ScrapingResult> {
     const result: ScrapingResult = {
       html: '<html>Fast mock content</html>',
       url,
@@ -28,7 +28,7 @@ class MockFastProvider extends BaseScrapeProvider {
       cost: 0,
       metadata: { finalUrl: url },
     };
-    
+
     this.updateMetrics(true, 500, 0);
     return result;
   }
@@ -53,7 +53,7 @@ class MockJSProvider extends BaseScrapeProvider {
     avgResponseTime: 2000,
   };
 
-  async scrape(url: string, options?: ScrapingOptions): Promise<ScrapingResult> {
+  async scrape(url: string, _options?: ScrapingOptions): Promise<ScrapingResult> {
     const result: ScrapingResult = {
       html: '<html>JS-rendered content</html>',
       url,
@@ -63,7 +63,7 @@ class MockJSProvider extends BaseScrapeProvider {
       cost: 0.005,
       metadata: { finalUrl: url },
     };
-    
+
     this.updateMetrics(true, 2000, 0.005);
     return result;
   }
@@ -88,7 +88,7 @@ class MockFailingProvider extends BaseScrapeProvider {
     avgResponseTime: 1000,
   };
 
-  async scrape(url: string, options?: ScrapingOptions): Promise<ScrapingResult> {
+  async scrape(_url: string, _options?: ScrapingOptions): Promise<ScrapingResult> {
     this.updateMetrics(false, 1000, 0);
     throw new Error('Mock provider always fails');
   }
@@ -117,7 +117,7 @@ class MockUnavailableProvider extends BaseScrapeProvider {
     avgResponseTime: 1500,
   };
 
-  async scrape(url: string, options?: ScrapingOptions): Promise<ScrapingResult> {
+  async scrape(_url: string, _options?: ScrapingOptions): Promise<ScrapingResult> {
     throw new Error('Provider is unavailable');
   }
 

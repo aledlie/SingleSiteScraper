@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { validateUrl, normalizeUrl, cleanText, htmlEntityEncode, sanitizeUrl } from '../../../src/utils/validators';
+import { validateUrl, normalizeUrl, sanitizeUrl } from '../../../src/utils/validators';
 
 // Mock console to avoid noise in test output
 vi.spyOn(console, 'log').mockImplementation(() => {});

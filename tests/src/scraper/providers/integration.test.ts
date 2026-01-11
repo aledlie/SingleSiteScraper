@@ -279,7 +279,7 @@ describe('Provider Integration Tests - Fallback Scenarios', () => {
       const allFailingManager = new ProviderManager({ enabledProviders: [] });
 
       // Create providers that report as available but fail during scrape
-      const failing1 = new FastFreeProvider({ shouldFail: false, failureRate: 1.0 });
+      const _failing1 = new FastFreeProvider({ shouldFail: false, failureRate: 1.0 });
       const failing2 = new SlowExpensiveProvider({ shouldFail: false });
       // Make SlowExpensive fail by setting shouldFail after creation
       failing2.setFailureState(true);

@@ -22,15 +22,15 @@ class RateLimitedProvider extends BaseScrapeProvider {
   private lastRequestTime = 0;
   private readonly minInterval = 500; // Minimum 500ms between requests
 
-  async scrape(url: string, options?: ScrapingOptions): Promise<ScrapingResult> {
+  async scrape(url: string, _options?: ScrapingOptions): Promise<ScrapingResult> {
     const currentTime = Date.now();
-    
+
     // Simulate rate limiting
     if (currentTime - this.lastRequestTime < this.minInterval) {
       this.updateMetrics(false, 0, 0);
       throw new Error('Rate limit exceeded - requests too frequent');
     }
-    
+
     this.requestCount++;
     this.lastRequestTime = currentTime;
     
@@ -75,9 +75,9 @@ class ExpensiveProvider extends BaseScrapeProvider {
     avgResponseTime: 2000,
   };
 
-  async scrape(url: string, options?: ScrapingOptions): Promise<ScrapingResult> {
+  async scrape(url: string, _options?: ScrapingOptions): Promise<ScrapingResult> {
     await new Promise(resolve => setTimeout(resolve, 200));
-    
+
     const result: ScrapingResult = {
       html: '<html><body>Expensive response</body></html>',
       url,
@@ -152,14 +152,14 @@ describe('Security - Rate Limiting & Resource Protection', () => {
     it('should respect provider concurrency limits', async () => {
       // Create more concurrent requests than provider can handle
       const urls = Array.from({ length: 10 }, (_, i) => `https://example${i}.com`);
-      
-      const startTime = Date.now();
-      const promises = urls.map(url => 
+
+      const _startTime = Date.now();
+      const promises = urls.map(url =>
         rateLimitedProvider.scrape(url).catch(error => ({ error: error.message }))
       );
-      
+
       const results = await Promise.all(promises);
-      const endTime = Date.now();
+      const _endTime = Date.now();
       
       // Some requests should fail due to rate limiting
       const errorResults = results.filter(r => 'error' in r);
@@ -177,19 +177,18 @@ describe('Security - Rate Limiting & Resource Protection', () => {
     it('should implement proper backoff and retry mechanisms', async () => {
       // Test with manager that should handle provider failures
       const urls = ['https://test1.com', 'https://test2.com'];
-      
+
       let successCount = 0;
-      let errorCount = 0;
-      
+
       for (const url of urls) {
         try {
           const result = await manager.scrape(url);
           successCount++;
           expect(result.url).toBe(url);
-        } catch (error) {
-          errorCount++;
+        } catch (_error) {
+          // Error count not needed for this test
         }
-        
+
         // Add delay between requests to test backoff
         await new Promise(resolve => setTimeout(resolve, 600));
       }
@@ -230,7 +229,7 @@ describe('Security - Rate Limiting & Resource Protection', () => {
             // Should stop making requests after budget exceeded
             break;
           }
-        } catch (error) {
+        } catch (_error) {
           // May fail due to rate limiting, which is acceptable
         }
       }
@@ -391,15 +390,15 @@ describe('Security - Rate Limiting & Resource Protection', () => {
       const startTime = Date.now();
       
       try {
-        const result = await timeoutManager.scrape('https://timeout-test.com', { 
+        const _result = await timeoutManager.scrape('https://timeout-test.com', {
           timeout: 2000 // 2 second timeout
         });
-        
+
         // If it succeeds, should be within reasonable time
         const elapsed = Date.now() - startTime;
         expect(elapsed).toBeLessThan(15000); // Max 15 seconds
-        
-      } catch (error) {
+
+      } catch (_error) {
         // May timeout, which is acceptable
         const elapsed = Date.now() - startTime;
         expect(elapsed).toBeLessThan(15000); // Should not hang indefinitely
@@ -417,7 +416,7 @@ describe('Security - Rate Limiting & Resource Protection', () => {
       for (const url of urls) {
         try {
           await manager.scrape(url);
-        } catch (error) {
+        } catch (_error) {
           // Expected failures due to rate limiting
         }
       }
@@ -493,7 +492,7 @@ describe('Security - Rate Limiting & Resource Protection', () => {
         try {
           const result = await flakeyManager.scrape(`https://flakey${i}.com`);
           results.push(result);
-        } catch (error) {
+        } catch (_error) {
           // Expected failures
         }
       }
@@ -572,7 +571,7 @@ describe('Security - Rate Limiting & Resource Protection', () => {
         if (recentRequests.length <= maxRequests) {
           try {
             await manager.scrape(`https://rate-test${i}.com`);
-          } catch (error) {
+          } catch (_error) {
             // May fail due to provider rate limits
           }
         } else {

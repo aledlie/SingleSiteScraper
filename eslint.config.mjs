@@ -4,6 +4,20 @@ import pluginReactConfig from 'eslint-plugin-react/configs/recommended.js';
 
 export default [
   {
+    ignores: [
+      'node_modules/**',
+      'dist/**',
+      'build/**',
+      'coverage/**',
+      '*.d.ts',
+      'public/**',
+      'scripts/**',
+      'tests/test/**',
+      'tests/test_*.js',
+      'tests/test-enhanced-scraper.js',
+    ],
+  },
+  {
     languageOptions: {
       globals: globals.browser,
     },

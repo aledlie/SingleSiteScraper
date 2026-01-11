@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { scrapeWebsite } from '../../src/scraper/scrapeWebsite';
 import { extractEvents } from '../../src/utils/parseEvents';
-import { getImages, getWebSite, getWebPage } from '../../src/utils/parse';
+import { getImages } from '../../src/utils/parse';
 import { parse } from 'node-html-parser';
 import type { ScrapeOptions } from '../../src/types';
 

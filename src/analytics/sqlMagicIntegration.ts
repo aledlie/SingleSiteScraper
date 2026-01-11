@@ -678,7 +678,7 @@ ORDER BY hour`;
     }
 
     // Sanitize parameters
-    const sanitizedParameters = parameters ? this.sanitizeQueryParameters(parameters) : undefined;
+    const _sanitizedParameters = parameters ? this.sanitizeQueryParameters(parameters) : undefined;
 
     try {
       // Mock execution with sanitized query
