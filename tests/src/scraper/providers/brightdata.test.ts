@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // Mock console methods to avoid noise in test output
@@ -42,7 +43,7 @@ describe('BrightDataProvider', () => {
         expect(instructions).toContain('API credentials');
         expect(instructions).toContain('Web Unlocker');
         expect(instructions).toContain('Scraping Browser');
-      } catch (error) {
+      } catch {
         // Provider not available or not compatible, skip this test
         console.log('BrightDataProvider not available in current structure');
       }
@@ -75,7 +76,7 @@ describe('BrightDataProvider', () => {
           renderJs: false,
           timeout: 30000,
         });
-      } catch (error) {
+      } catch {
         console.log('BrightDataProvider not available, skipping config tests');
       }
     });
@@ -90,7 +91,7 @@ describe('BrightDataProvider', () => {
 
         const browserCost = provider.estimateCost(100, true);
         expect(browserCost).toBe(0.3); // 100 * 0.003
-      } catch (error) {
+      } catch {
         console.log('BrightDataProvider not available, skipping cost tests');
       }
     });
@@ -139,7 +140,7 @@ describe('BrightDataProvider', () => {
           ipUsed: '192.168.1.1',
           processingTime: 1500,
         });
-      } catch (error) {
+      } catch {
         console.log('BrightDataProvider not available, skipping API tests');
       }
     });
@@ -175,7 +176,7 @@ describe('BrightDataProvider', () => {
 
         expect(result.success).toBe(true);
         expect(result.providerUsed).toBe('BrightData');
-      } catch (error) {
+      } catch {
         console.log('BrightDataProvider not available, skipping browser tests');
       }
     });
@@ -197,7 +198,7 @@ describe('BrightDataProvider', () => {
 
         expect(result.success).toBe(false);
         expect(result.error).toContain('BrightData API error');
-      } catch (error) {
+      } catch {
         console.log('BrightDataProvider not available, skipping error tests');
       }
     });
@@ -215,7 +216,7 @@ describe('BrightDataProvider', () => {
 
         expect(result.success).toBe(false);
         expect(result.error).toContain('Network error');
-      } catch (error) {
+      } catch {
         console.log('BrightDataProvider not available, skipping network error tests');
       }
     });
@@ -230,7 +231,7 @@ describe('BrightDataProvider', () => {
         await expect(provider.initialize()).rejects.toThrow(
           'BrightData API key is required'
         );
-      } catch (error) {
+      } catch {
         console.log('BrightDataProvider not available, skipping validation tests');
       }
     });
@@ -244,7 +245,7 @@ describe('BrightDataProvider', () => {
 
         const isHealthy = await provider.healthCheck();
         expect(typeof isHealthy).toBe('boolean');
-      } catch (error) {
+      } catch {
         console.log('BrightDataProvider not available, skipping health check tests');
       }
     });
@@ -265,7 +266,7 @@ describe('BrightDataProvider', () => {
           expect(sessionId1).toMatch(/^session_\d+_[a-z0-9]+$/);
           expect(sessionId1).not.toBe(sessionId2);
         }
-      } catch (error) {
+      } catch {
         console.log('BrightDataProvider not available, skipping session tests');
       }
     });
@@ -301,7 +302,7 @@ describe('BrightDataProvider', () => {
             body: expect.stringContaining('custom-session-123'),
           })
         );
-      } catch (error) {
+      } catch {
         console.log('BrightDataProvider not available, skipping session management tests');
       }
     });
@@ -342,7 +343,7 @@ describe('BrightDataProvider', () => {
             body: expect.stringContaining('UK'),
           })
         );
-      } catch (error) {
+      } catch {
         console.log('BrightDataProvider not available, skipping geo-targeting tests');
       }
     });
@@ -363,7 +364,7 @@ describe('BrightDataProvider', () => {
           expect(mockContent).toContain('https://example.com');
           expect(mockContent).toContain('Enterprise-Grade Scraping');
         }
-      } catch (error) {
+      } catch {
         console.log('BrightDataProvider not available, skipping mock content tests');
       }
     });
@@ -390,7 +391,7 @@ describe('BrightDataProvider', () => {
 
         expect(result.success).toBe(false);
         expect(result.error).toContain('timeout');
-      } catch (error) {
+      } catch {
         console.log('BrightDataProvider not available, skipping timeout tests');
       }
     });
@@ -461,7 +462,7 @@ describe('BrightDataProvider', () => {
         expect(adapter.capabilities.supportsJavaScript).toBe(true);
         expect(adapter.capabilities.isCommercial).toBe(true);
 
-      } catch (error) {
+      } catch {
         console.log('BrightDataProvider not available, adapter pattern test not applicable');
       }
     });
