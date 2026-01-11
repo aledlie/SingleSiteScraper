@@ -8,7 +8,11 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./tests/src/test-setup.ts'],
-    exclude: ['**/node_modules/**', '**/dist/**'],
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      'src/utils/events/eventParser.test.ts', // Uses custom test runner, not vitest
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],

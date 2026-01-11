@@ -9,8 +9,8 @@
     "build:with-sentry": "doppler run --project integrity-studio --config prd -- vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest",
-    "test:coverage": "vitest run --coverage",
+    "test": "vitest --config tests/vitest.config.ts",
+    "test:coverage": "vitest run --coverage --config tests/vitest.config.ts",
     "postinstall": "node scripts/install-rollup-native.cjs"
   },
   "dependencies": {
