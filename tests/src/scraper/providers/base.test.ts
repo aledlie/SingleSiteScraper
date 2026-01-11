@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { 
   BaseScrapeProvider, 
   ScrapingCapabilities, 
@@ -20,9 +20,8 @@ class MockScrapeProvider extends BaseScrapeProvider {
   };
 
   async scrape(url: string, options?: ScrapingOptions): Promise<ScrapingResult> {
-    const startTime = Date.now();
     const responseTime = 1500;
-    
+
     // Simulate scraping
     const result: ScrapingResult = {
       html: '<html><body>Mock content</body></html>',
@@ -66,7 +65,7 @@ class FailingMockProvider extends BaseScrapeProvider {
     avgResponseTime: 3000,
   };
 
-  async scrape(url: string, options?: ScrapingOptions): Promise<ScrapingResult> {
+  async scrape(_url: string): Promise<ScrapingResult> {
     const responseTime = 3000;
     this.updateMetrics(false, responseTime, 0);
     throw new Error('Mock provider failure');
@@ -190,7 +189,7 @@ describe('BaseScrapeProvider', () => {
       
       try {
         await failingProvider.scrape(url);
-      } catch (error) {
+      } catch {
         // Expected failure
       }
 
