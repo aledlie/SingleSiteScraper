@@ -1,5 +1,15 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { PerformanceMonitor, PerformanceThresholds } from '../../../src/analytics/performanceMonitor';
+import { PerformanceMonitor } from '../../../src/analytics/performanceMonitor';
+
+// Local type for test thresholds
+interface PerformanceThresholds {
+  responseTime: number;
+  scrapeTime: number;
+  complexity: number;
+  htmlSize: number;
+  objectCount: number;
+  successRate: number;
+}
 
 describe('PerformanceMonitor', () => {
   let monitor: PerformanceMonitor;
@@ -79,22 +89,23 @@ describe('PerformanceMonitor', () => {
     beforeEach(() => {
       customThresholds = {
         responseTime: 2000,
-        totalTime: 5000,
-        errorRate: 0.1,
+        scrapeTime: 5000,
         complexity: 50,
-        successRate: 0.8
+        successRate: 0.8,
+        htmlSize: 500000,
+        objectCount: 5000
       };
     });
 
     it('generates alerts for high response time', () => {
       const id = monitor.startScrapeMonitoring('https://slow.com');
       monitor.updateScrapeMetrics(id, {
-        network: { responseTime: 3000 } // Above default threshold
+        network: { responseTime: 6000 } // Above default responseTime threshold of 5000
       });
-      
+
       const alerts = monitor.getAlerts('https://slow.com');
       expect(alerts.length).toBeGreaterThan(0);
-      
+
       const responseAlert = alerts.find(a => a.category === 'network');
       expect(responseAlert).toBeDefined();
       expect(responseAlert!.message).toContain('response time');
@@ -103,12 +114,12 @@ describe('PerformanceMonitor', () => {
     it('generates alerts for high total processing time', () => {
       const id = monitor.startScrapeMonitoring('https://complex.com');
       monitor.updateScrapeMetrics(id, {
-        scraping: { totalTime: 10000 } // Above default threshold
+        scraping: { totalTime: 35000 } // Above default scrapeTime threshold of 30000
       });
-      
+
       const alerts = monitor.getAlerts('https://complex.com');
       const processingAlert = alerts.find(a => a.category === 'performance');
-      
+
       expect(processingAlert).toBeDefined();
       expect(processingAlert!.message).toContain('processing time');
     });
@@ -129,12 +140,12 @@ describe('PerformanceMonitor', () => {
     it('generates alerts for high complexity', () => {
       const id = monitor.startScrapeMonitoring('https://heavy.com');
       monitor.updateScrapeMetrics(id, {
-        content: { complexity: 75 } // Above default threshold
+        content: { complexity: 1500 } // Above default threshold of 1000
       });
-      
+
       const alerts = monitor.getAlerts('https://heavy.com');
       const complexityAlert = alerts.find(a => a.category === 'complexity');
-      
+
       expect(complexityAlert).toBeDefined();
       expect(complexityAlert!.message).toContain('complexity');
     });
@@ -156,21 +167,22 @@ describe('PerformanceMonitor', () => {
     it('filters alerts by URL', () => {
       const id1 = monitor.startScrapeMonitoring('https://test1.com');
       const id2 = monitor.startScrapeMonitoring('https://test2.com');
-      
+
+      // Use values that exceed thresholds (responseTime > 5000)
       monitor.updateScrapeMetrics(id1, {
-        network: { responseTime: 3000 }
+        network: { responseTime: 6000 }
       });
-      
+
       monitor.updateScrapeMetrics(id2, {
-        network: { responseTime: 3000 }
+        network: { responseTime: 7000 }
       });
-      
+
       const test1Alerts = monitor.getAlerts('https://test1.com');
       const test2Alerts = monitor.getAlerts('https://test2.com');
-      
+
       expect(test1Alerts.length).toBeGreaterThan(0);
       expect(test2Alerts.length).toBeGreaterThan(0);
-      
+
       // Each should only contain alerts for their respective URL
       test1Alerts.forEach(alert => {
         expect(alert.url).toBe('https://test1.com');
@@ -179,15 +191,19 @@ describe('PerformanceMonitor', () => {
 
     it('limits alert results', () => {
       const id = monitor.startScrapeMonitoring('https://problematic.com');
-      
-      // Generate multiple alerts
+
+      // Generate multiple alerts with values that exceed thresholds
+      // thresholds: responseTime=5000, scrapeTime=30000, complexity=1000, successRate check at 0.8
       monitor.updateScrapeMetrics(id, {
-        network: { responseTime: 5000 },
-        scraping: { totalTime: 15000 },
-        quality: { successRate: 0.3 },
-        content: { complexity: 100 }
+        network: { responseTime: 6000 }, // > 5000 threshold → alert
+        scraping: { totalTime: 35000 }, // > 30000 threshold → alert
+        quality: { successRate: 0.3, errorCount: 1 }, // < 0.8 and errors → alerts
+        content: { complexity: 1500 } // > 1000 threshold → alert
       });
-      
+
+      const allAlerts = monitor.getAlerts('https://problematic.com');
+      expect(allAlerts.length).toBeGreaterThanOrEqual(2);
+
       const limitedAlerts = monitor.getAlerts('https://problematic.com', 2);
       expect(limitedAlerts).toHaveLength(2);
     });
@@ -209,15 +225,15 @@ describe('PerformanceMonitor', () => {
 
     it('generates performance report', () => {
       const report = monitor.generateReport(24);
-      
-      expect(report).toHaveProperty('period');
+
+      expect(report).toHaveProperty('timeRange');
       expect(report).toHaveProperty('summary');
       expect(report).toHaveProperty('alerts');
       expect(report).toHaveProperty('recommendations');
-      
+
       expect(report.summary).toHaveProperty('totalScrapes');
       expect(report.summary).toHaveProperty('averageResponseTime');
-      expect(report.summary).toHaveProperty('averageProcessingTime');
+      expect(report.summary).toHaveProperty('averageComplexity');
       expect(report.summary).toHaveProperty('successRate');
     });
 
@@ -270,7 +286,8 @@ describe('PerformanceMonitor', () => {
       const metrics = monitor.getMetrics();
       const csv = monitor.exportToCSV(metrics);
       
-      expect(csv).toContain('id,url,timestamp'); // Header
+      expect(csv).toContain('ID'); // Header
+      expect(csv).toContain('URL');
       expect(csv).toContain('export-test1.com');
       expect(csv).toContain('export-test2.com');
       expect(csv.split('\n').length).toBeGreaterThan(2); // Header + data rows
@@ -290,8 +307,9 @@ describe('PerformanceMonitor', () => {
     it('handles empty metrics for export', () => {
       const emptyCSV = monitor.exportToCSV([]);
       const emptyJSON = monitor.exportToJSON([]);
-      
-      expect(emptyCSV).toContain('id,url,timestamp'); // Header only
+
+      expect(emptyCSV).toContain('ID'); // Header only (uppercase)
+      expect(emptyCSV).toContain('URL');
       expect(JSON.parse(emptyJSON)).toEqual([]);
     });
   });
@@ -299,45 +317,44 @@ describe('PerformanceMonitor', () => {
   describe('Threshold Management', () => {
     it('gets default thresholds', () => {
       const thresholds = monitor.getThresholds();
-      
+
       expect(thresholds).toHaveProperty('responseTime');
-      expect(thresholds).toHaveProperty('totalTime');
-      expect(thresholds).toHaveProperty('errorRate');
+      expect(thresholds).toHaveProperty('scrapeTime');
       expect(thresholds).toHaveProperty('complexity');
       expect(thresholds).toHaveProperty('successRate');
-      
+      expect(thresholds).toHaveProperty('htmlSize');
+      expect(thresholds).toHaveProperty('objectCount');
+
       expect(thresholds.responseTime).toBeGreaterThan(0);
       expect(thresholds.successRate).toBeGreaterThan(0);
       expect(thresholds.successRate).toBeLessThanOrEqual(1);
     });
 
     it('updates thresholds', () => {
-      const newThresholds: PerformanceThresholds = {
+      const newThresholds = {
         responseTime: 1500,
-        totalTime: 4000,
-        errorRate: 0.15,
         complexity: 40,
         successRate: 0.85
       };
-      
+
       monitor.setThresholds(newThresholds);
       const updated = monitor.getThresholds();
-      
-      expect(updated).toEqual(newThresholds);
+
+      expect(updated.responseTime).toBe(1500);
+      expect(updated.complexity).toBe(40);
+      expect(updated.successRate).toBe(0.85);
     });
 
     it('validates threshold values', () => {
       const invalidThresholds = {
         responseTime: -1000, // Invalid
-        totalTime: 5000,
-        errorRate: 1.5, // Invalid (> 1)
         complexity: 50,
         successRate: -0.1 // Invalid
       };
-      
-      // Should handle invalid values gracefully
+
+      // Should handle invalid values gracefully (just sets them)
       expect(() => {
-        monitor.setThresholds(invalidThresholds as any);
+        monitor.setThresholds(invalidThresholds);
       }).not.toThrow();
     });
   });

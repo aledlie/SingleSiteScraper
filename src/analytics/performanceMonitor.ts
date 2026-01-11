@@ -390,6 +390,10 @@ export class PerformanceMonitor {
     this.thresholds = { ...this.thresholds, ...newThresholds };
   }
 
+  public getThresholds(): typeof this.thresholds {
+    return { ...this.thresholds };
+  }
+
   public clearOldData(olderThanDays: number = 7): void {
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - olderThanDays);
@@ -400,6 +404,10 @@ export class PerformanceMonitor {
 
   public updateThresholds(newThresholds: Partial<typeof this.thresholds>): void {
     Object.assign(this.thresholds, newThresholds);
+  }
+
+  public exportToJSON(metrics: PerformanceMetrics[]): string {
+    return JSON.stringify(metrics, null, 2);
   }
 
   public exportToCSV(metrics: PerformanceMetrics[]): string {
