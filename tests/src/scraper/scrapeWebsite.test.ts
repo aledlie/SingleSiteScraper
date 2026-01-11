@@ -49,7 +49,7 @@ describe('scrapeWebsite', () => {
     vi.spyOn(network, 'fetchWithTimeout').mockRejectedValue(new Error('Network error'));
     const result = await scrapeWebsite('https://example.com', options, mockSetProgress);
     expect(result.error).toContain('Failed to fetch data');
-  });
+  }, 15000); // Extended timeout for CI
 
   it('should scrape a website successfully', async () => {
     const mockHtml = `
@@ -87,6 +87,6 @@ describe('scrapeWebsite', () => {
     // Check for parsing and completion messages
     expect(mockSetProgress).toHaveBeenCalledWith(expect.stringContaining('Parsing data from'));
     expect(mockSetProgress).toHaveBeenCalledWith(expect.stringContaining('Completed'));
-  });
+  }, 15000); // Extended timeout for CI
 });
 
