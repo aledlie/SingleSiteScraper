@@ -73,11 +73,9 @@ export default defineConfig({
           }
         }
       },
-      // Enable tree shaking
+      // Enable tree shaking (keep moduleSideEffects true for CommonJS compat)
       treeshake: {
-        moduleSideEffects: false,
-        propertyReadSideEffects: false,
-        unknownGlobalSideEffects: false
+        propertyReadSideEffects: false
       }
     },
     // Reduce chunk size warning threshold
