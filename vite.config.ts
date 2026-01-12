@@ -33,17 +33,31 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          // Vendor libraries
+          // Vendor libraries - split large deps into separate chunks
           if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom')) {
+            // React core
+            if (id.includes('react-dom')) {
+              return 'react-dom-vendor';
+            }
+            if (id.includes('/react/') || id.includes('react/')) {
               return 'react-vendor';
             }
-            if (id.includes('lucide-react') || id.includes('date-fns')) {
-              return 'ui-vendor';
+            // Sentry error tracking (large)
+            if (id.includes('@sentry')) {
+              return 'sentry-vendor';
             }
-            if (id.includes('node-html-parser')) {
+            // UI libraries
+            if (id.includes('lucide-react')) {
+              return 'icons-vendor';
+            }
+            if (id.includes('date-fns')) {
+              return 'date-vendor';
+            }
+            // HTML parser
+            if (id.includes('node-html-parser') || id.includes('he/') || id.includes('css-select') || id.includes('domhandler') || id.includes('domutils') || id.includes('htmlparser2')) {
               return 'parser-vendor';
             }
+            // Remaining small vendor deps
             return 'vendor';
           }
           
