@@ -1,10 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { BarChart3, Network, Globe, Activity, Download, Eye, TrendingUp } from 'lucide-react';
-import { WordCloudViz } from '../visualizations/WordCloudViz';
-import { NetworkGraphViz } from '../visualizations/NetworkGraphViz';
-import { MetricsCharts } from '../visualizations/MetricsCharts';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
+import { BarChart3, Network, Globe, Activity, Download, Eye, TrendingUp, Loader2 } from 'lucide-react';
 import { EnhancedScraper } from '../analytics/enhancedScraper';
 import { HTMLObjectAnalyzer } from '../analytics/htmlObjectAnalyzer';
+
+// Lazy load heavy visualization components
+const WordCloudViz = lazy(() => import('../visualizations/WordCloudViz').then(m => ({ default: m.WordCloudViz })));
+const NetworkGraphViz = lazy(() => import('../visualizations/NetworkGraphViz').then(m => ({ default: m.NetworkGraphViz })));
+const MetricsCharts = lazy(() => import('../visualizations/MetricsCharts').then(m => ({ default: m.MetricsCharts })));
+
+// Loading fallback for visualizations
+const VizLoadingFallback: React.FC<{ height?: number }> = ({ height = 250 }) => (
+  <div style={{
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height,
+    color: '#6b7280'
+  }}>
+    <Loader2 className="w-5 h-5 animate-spin mr-2" />
+    <span>Loading visualization...</span>
+  </div>
+);
 
 // Mock data based on typical fisterra.org content structure
 const createFisterraMockData = () => {
@@ -424,7 +440,9 @@ export const FisterraVisualizationDashboard: React.FC = () => {
                   <BarChart3 className="w-5 h-5 text-blue-600" />
                   Content Word Cloud
                 </h3>
-                <WordCloudViz words={data.wordData.slice(0, 25)} width={400} height={250} />
+                <Suspense fallback={<VizLoadingFallback height={250} />}>
+                  <WordCloudViz words={data.wordData.slice(0, 25)} width={400} height={250} />
+                </Suspense>
               </div>
 
               {/* Network Graph Preview */}
@@ -445,7 +463,9 @@ export const FisterraVisualizationDashboard: React.FC = () => {
                   <Network className="w-5 h-5 text-green-600" />
                   HTML Structure Graph
                 </h3>
-                <NetworkGraphViz graph={data.htmlGraph} width={400} height={250} />
+                <Suspense fallback={<VizLoadingFallback height={250} />}>
+                  <NetworkGraphViz graph={data.htmlGraph} width={400} height={250} />
+                </Suspense>
               </div>
             </div>
 
@@ -467,10 +487,12 @@ export const FisterraVisualizationDashboard: React.FC = () => {
                 <TrendingUp className="w-5 h-5 text-purple-600" />
                 Key Insights
               </h3>
-              <MetricsCharts 
-                insights={insights} 
-                performanceMetrics={data.performanceMetrics}
-              />
+              <Suspense fallback={<VizLoadingFallback height={200} />}>
+                <MetricsCharts
+                  insights={insights}
+                  performanceMetrics={data.performanceMetrics}
+                />
+              </Suspense>
             </div>
           </div>
         )}
@@ -517,8 +539,10 @@ export const FisterraVisualizationDashboard: React.FC = () => {
                 Export Image
               </button>
             </div>
-            <WordCloudViz words={data.wordData} width={1000} height={600} />
-            
+            <Suspense fallback={<VizLoadingFallback height={600} />}>
+              <WordCloudViz words={data.wordData} width={1000} height={600} />
+            </Suspense>
+
             {/* Word List */}
             <div style={{ marginTop: '24px' }}>
               <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '16px' }}>
@@ -593,7 +617,9 @@ export const FisterraVisualizationDashboard: React.FC = () => {
                 </button>
               </div>
             </div>
-            <NetworkGraphViz graph={data.htmlGraph} width={1200} height={700} />
+            <Suspense fallback={<VizLoadingFallback height={700} />}>
+              <NetworkGraphViz graph={data.htmlGraph} width={1200} height={700} />
+            </Suspense>
           </div>
         )}
 
@@ -642,10 +668,12 @@ export const FisterraVisualizationDashboard: React.FC = () => {
                 Export Data
               </button>
             </div>
-            <MetricsCharts 
-              insights={insights} 
-              performanceMetrics={data.performanceMetrics}
-            />
+            <Suspense fallback={<VizLoadingFallback height={400} />}>
+              <MetricsCharts
+                insights={insights}
+                performanceMetrics={data.performanceMetrics}
+              />
+            </Suspense>
           </div>
         )}
       </div>
