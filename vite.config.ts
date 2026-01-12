@@ -4,7 +4,7 @@ import { sentryVitePlugin } from '@sentry/vite-plugin';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/SingleSiteScraper/',
+  base: '/',
   test: {
     environment: 'jsdom',
     setupFiles: ['./vitest.setup.ts'],
