@@ -2,8 +2,16 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- DNS Prefetch & Preconnect for external resources -->
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+    <link rel="dns-prefetch" href="https://www.google-analytics.com" />
+    <link rel="dns-prefetch" href="https://connect.facebook.net" />
+    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="google-site-verification" content="N0i0YZ1-gQvtOicfKEGXEBAcJUyN7gwv0vmVj0lkkbM" />
     <meta name="description" content="Professional web scraping tool with advanced analytics, graph modeling, and Schema.org data extraction. Extract structured data from any website with enhanced performance monitoring." />
     <meta name="keywords" content="web scraper, data extraction, html analysis, schema.org, analytics, graph modeling, website scraping tool" />
@@ -322,6 +330,6 @@ src="https://www.facebook.com/tr?id=25629020546684786&ev=PageView&noscript=1"/><
 
     
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <script type="module" src="/src/main.tsx" fetchpriority="high"></script>
   </body>
 </html>

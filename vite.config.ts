@@ -30,6 +30,21 @@ export default defineConfig({
     }),
   ].filter(Boolean),
   build: {
+    // Module preload configuration for better loading performance
+    modulePreload: {
+      polyfill: true, // Enable polyfill for older browsers
+      resolveDependencies: (_filename, deps, { hostId: _hostId, hostType: _hostType }) => {
+        // Prioritize critical React chunks
+        const criticalChunks = ['react-vendor', 'react-dom-vendor'];
+        return deps.sort((a, b) => {
+          const aIsCritical = criticalChunks.some(c => a.includes(c));
+          const bIsCritical = criticalChunks.some(c => b.includes(c));
+          if (aIsCritical && !bIsCritical) return -1;
+          if (!aIsCritical && bIsCritical) return 1;
+          return 0;
+        });
+      }
+    },
     rollupOptions: {
       output: {
         manualChunks: (id) => {
