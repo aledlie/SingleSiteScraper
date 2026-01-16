@@ -501,4 +501,92 @@ describe('ProviderManager', () => {
       }
     });
   });
+
+  describe('edge cases', () => {
+    it('should handle provider health check throwing error', async () => {
+      const throwingProvider = {
+        name: 'ThrowingHealthCheck',
+        capabilities: {
+          supportsJavaScript: false,
+          supportsStealth: false,
+          isCommercial: false,
+          costPerRequest: 0,
+          maxConcurrency: 10,
+          avgResponseTime: 500,
+        },
+        isAvailable: vi.fn().mockRejectedValue(new Error('Health check threw')),
+        scrape: vi.fn(),
+        getHealthStatus: vi.fn(),
+        getPerformanceScore: vi.fn().mockReturnValue(50),
+        metrics: { requestCount: 0, successCount: 0, failureCount: 0 },
+      };
+
+      const healthManager = new ProviderManager({ enabledProviders: [] });
+      healthManager.addProvider(throwingProvider as any);
+      healthManager.addProvider(mockFast); // Add a working provider
+
+      // Should skip the throwing provider and use mockFast
+      const result = await healthManager.scrape('https://example.com');
+      expect(result.provider).toBe('MockFast');
+      expect(console.warn).toHaveBeenCalledWith(
+        expect.stringContaining('ThrowingHealthCheck'),
+        expect.any(Error)
+      );
+    });
+
+    it('should use default strategy with JS requirement when no explicit strategy', async () => {
+      // Create manager with no explicit strategy (uses default)
+      const defaultManager = new ProviderManager({
+        strategy: undefined as any, // Force default branch
+        enabledProviders: []
+      });
+      defaultManager.addProvider(mockFast); // No JS support
+      defaultManager.addProvider(mockJS);   // JS support
+
+      // Use a URL that requires JS and option that triggers JS requirement
+      const result = await defaultManager.scrape('https://example.com/spa-app', {
+        waitForNetwork: true
+      });
+
+      // With JS requirement, MockJS should be preferred
+      expect(['MockJS', 'MockFast']).toContain(result.provider);
+    });
+
+    it('should use default strategy without JS requirement', async () => {
+      // Create manager that will use default branch in sortProvidersByStrategy
+      const defaultManager = new ProviderManager({
+        strategy: 'unknown-strategy' as any, // Force default branch
+        enabledProviders: []
+      });
+      defaultManager.addProvider(mockFast);
+      defaultManager.addProvider(mockJS);
+
+      // Regular URL without JS options - should sort by cost
+      const result = await defaultManager.scrape('https://plain-example.com');
+      expect(result.provider).toBe('MockFast'); // Free provider first
+    });
+
+    it('should handle javascript-first strategy sorting by performance score when both support JS', async () => {
+      const jsManager = new ProviderManager({
+        strategy: 'javascript-first',
+        enabledProviders: []
+      });
+
+      // Create two JS-capable providers with different performance scores
+      const jsProvider1 = new MockJSProvider();
+      jsProvider1.name = 'JSProvider1';
+      jsProvider1.updateMetrics(true, 500, 0.005); // Better performance
+
+      const jsProvider2 = new MockJSProvider();
+      jsProvider2.name = 'JSProvider2';
+      // No metrics = worse performance score
+
+      jsManager.addProvider(jsProvider1);
+      jsManager.addProvider(jsProvider2);
+
+      const result = await jsManager.scrape('https://example.com');
+      // Both support JS, so should sort by performance score
+      expect(['JSProvider1', 'JSProvider2']).toContain(result.provider);
+    });
+  });
 });

@@ -315,7 +315,32 @@ describe('PlaywrightProvider - Mock Playwright Available', () => {
   });
 
   describe('simulated successful operations', () => {
-    it('should handle browser info when browser is available', async () => {
+    it('should handle browser info when browser is available with proper mock', async () => {
+      const mockPage1 = { close: vi.fn() };
+      const mockPage2 = { close: vi.fn() };
+      const mockContext1 = { pages: vi.fn().mockResolvedValue([mockPage1]) };
+      const mockContext2 = { pages: vi.fn().mockResolvedValue([mockPage2]) };
+
+      const fullMockBrowser = {
+        version: vi.fn().mockResolvedValue('1.40.0'),
+        contexts: vi.fn().mockResolvedValue([mockContext1, mockContext2]),
+        close: vi.fn(),
+      };
+
+      (provider as any).browser = fullMockBrowser;
+
+      const info = await provider.getBrowserInfo();
+
+      expect(info).toEqual({
+        version: '1.40.0',
+        contexts: 2,
+        pages: 2,
+      });
+      expect(fullMockBrowser.version).toHaveBeenCalled();
+      expect(fullMockBrowser.contexts).toHaveBeenCalled();
+    });
+
+    it('should handle browser info when browser is available but returns null', async () => {
       (provider as any).browser = mockBrowser;
 
       const info = await provider.getBrowserInfo();
