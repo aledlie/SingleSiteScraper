@@ -89,7 +89,7 @@ export async function fetchWithTimeout(
 
 /**
  * Secure proxy services with enhanced validation
- * Replaced third-party proxies with safer alternatives
+ * Uses reliable free CORS proxies as fallbacks
  */
 export const proxyServices = (url: string): Array<Proxies> => {
   // Validate URL before creating proxy requests
@@ -97,23 +97,33 @@ export const proxyServices = (url: string): Array<Proxies> => {
   if (!sanitizedUrl || !validateUrl(sanitizedUrl)) {
     throw new Error('Invalid or potentially dangerous URL provided');
   }
-  
+
+  const encodedUrl = encodeURIComponent(sanitizedUrl);
+
   return [
-    // Direct fetch - preferred method
+    // AllOrigins - most reliable, returns JSON
     {
-      name: 'Direct',
-      url: sanitizedUrl,
-    },
-    // Only use trusted CORS proxies as fallback
-    {
-      name: 'CORS-Anywhere-Backup',
-      url: `https://cors-anywhere.herokuapp.com/${encodeURIComponent(sanitizedUrl)}`,
+      name: 'AllOrigins',
+      url: `https://api.allorigins.win/get?url=${encodedUrl}`,
       headers: {
-        'X-Requested-With': 'XMLHttpRequest',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Cache-Control': 'no-cache'
+        'Accept': 'application/json',
       }
-    }
+    },
+    // AllOrigins raw endpoint - returns HTML directly
+    {
+      name: 'AllOrigins-Raw',
+      url: `https://api.allorigins.win/raw?url=${encodedUrl}`,
+    },
+    // corsproxy.io - good availability
+    {
+      name: 'CorsProxy',
+      url: `https://corsproxy.io/?${encodedUrl}`,
+    },
+    // codetabs proxy
+    {
+      name: 'CodeTabs',
+      url: `https://api.codetabs.com/v1/proxy?quest=${encodedUrl}`,
+    },
   ];
 };
 

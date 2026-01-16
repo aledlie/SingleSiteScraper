@@ -17,11 +17,16 @@ export class LegacyProxyProvider extends BaseScrapeProvider {
     avgResponseTime: 2000,
   };
 
+  // CORS proxies ordered by reliability (most reliable first)
   private readonly corsProxies = [
+    // AllOrigins - generally reliable, returns JSON with contents
     'https://api.allorigins.win/get?url=',
+    // Alternative AllOrigins endpoint
+    'https://api.allorigins.win/raw?url=',
+    // corsproxy.io - good availability
     'https://corsproxy.io/?',
-    'https://proxy.cors.sh/',
-    'https://cors-anywhere.herokuapp.com/',
+    // codetabs proxy - another reliable option
+    'https://api.codetabs.com/v1/proxy?quest=',
   ];
 
   async scrape(url: string, options?: ScrapingOptions): Promise<ScrapingResult> {
@@ -79,11 +84,12 @@ export class LegacyProxyProvider extends BaseScrapeProvider {
       };
 
       let proxyUrl: string;
-      
-      if (proxy.includes('allorigins.win')) {
+
+      // Build proxy URL based on proxy type
+      if (proxy.includes('allorigins.win') || proxy.includes('codetabs.com')) {
         proxyUrl = `${proxy}${encodeURIComponent(url)}`;
       } else {
-        proxyUrl = `${proxy}${url}`;
+        proxyUrl = `${proxy}${encodeURIComponent(url)}`;
       }
 
       const response = await fetch(proxyUrl, {
@@ -102,10 +108,18 @@ export class LegacyProxyProvider extends BaseScrapeProvider {
       let finalUrl = url;
       const redirects = 0;
 
-      if (proxy.includes('allorigins.win')) {
+      // Handle different proxy response formats
+      if (proxy.includes('allorigins.win/get')) {
+        // JSON response with contents field
         const jsonResponse = await response.json();
         html = jsonResponse.contents;
         finalUrl = jsonResponse.status?.url || url;
+      } else if (proxy.includes('allorigins.win/raw')) {
+        // Raw HTML response
+        html = await response.text();
+      } else if (proxy.includes('codetabs.com')) {
+        // Raw HTML response
+        html = await response.text();
       } else {
         html = await response.text();
       }

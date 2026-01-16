@@ -47,13 +47,25 @@ export const scrapeWebsiteLegacy = async (
         // normalize response w/ contentType from responseData
         contentType = responseData.headers.get('content-type') || 'text/html';
         proxyUsed = proxy.name;
+
+        // Handle different proxy response formats
         if (proxy.name === 'AllOrigins') {
+          // AllOrigins returns JSON with contents field
           const json = await responseData.json();
           if (typeof json === 'object' && json !== null && 'contents' in json) {
             response = (json as { contents?: string }).contents || '';
           }
         } else {
+          // AllOrigins-Raw, CorsProxy, CodeTabs return HTML directly
           response = await responseData.text();
+        }
+
+        // Validate we got actual HTML content
+        if (response && response.trim().length > 100) {
+          break; // Success, exit retry loop
+        } else {
+          response = null; // Reset and try next
+          throw new Error('Response too short or empty');
         }
 
       } catch (error) {
