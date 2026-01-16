@@ -30,11 +30,23 @@ describe('Schema.org Implementation Summary Tests', () => {
         </html>
       `;
 
-      global.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        status: 200,
-        headers: new Map([['content-type', 'text/html']]),
-        text: () => Promise.resolve(mockHtml),
+      // Mock fetch to handle AllOrigins proxy format
+      global.fetch = vi.fn().mockImplementation((url: string) => {
+        if (url.includes('allorigins.win/get')) {
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            headers: new Map([['content-type', 'application/json']]),
+            json: () => Promise.resolve({ contents: mockHtml, status: { url: 'https://test.com' } }),
+            text: () => Promise.resolve(JSON.stringify({ contents: mockHtml })),
+          });
+        }
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          headers: new Map([['content-type', 'text/html']]),
+          text: () => Promise.resolve(mockHtml),
+        });
       });
 
       const options: ScrapeOptions = {
@@ -49,9 +61,12 @@ describe('Schema.org Implementation Summary Tests', () => {
         maxTextElements: 5,
         timeout: 5000,
         retryAttempts: 1,
+        useEnhancedScraper: false, // Use legacy scraper for consistent testing
       };
 
       const result = await scrapeWebsite('https://test.com', options, () => {});
+      expect(result.error).toBeUndefined();
+      expect(result.data).toBeDefined();
       const data = result.data!;
 
       // Test Dataset schema.org compliance
@@ -162,13 +177,27 @@ describe('Schema.org Implementation Summary Tests', () => {
     });
 
     it('generates valid JSON-LD output', async () => {
-      const html = '<html><head><title>Valid Site</title></head><body><p>Content</p></body></html>';
-      
-      global.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        status: 200,
-        headers: new Map([['content-type', 'text/html']]),
-        text: () => Promise.resolve(html),
+      const html = '<html><head><title>Valid Site</title></head><body><p>Content for testing JSON-LD output validation</p></body></html>';
+
+      // Mock fetch to handle AllOrigins proxy format (returns JSON with contents field)
+      global.fetch = vi.fn().mockImplementation((url: string) => {
+        // AllOrigins proxy returns JSON with contents field
+        if (url.includes('allorigins.win/get')) {
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            headers: new Map([['content-type', 'application/json']]),
+            json: () => Promise.resolve({ contents: html, status: { url: 'https://valid.com' } }),
+            text: () => Promise.resolve(JSON.stringify({ contents: html })),
+          });
+        }
+        // Other proxies return HTML directly
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          headers: new Map([['content-type', 'text/html']]),
+          text: () => Promise.resolve(html),
+        });
       });
 
       const options: ScrapeOptions = {
@@ -183,9 +212,14 @@ describe('Schema.org Implementation Summary Tests', () => {
         maxTextElements: 0,
         timeout: 5000,
         retryAttempts: 1,
+        useEnhancedScraper: false, // Use legacy scraper for consistent testing
       };
 
       const result = await scrapeWebsite('https://valid.com', options, () => {});
+
+      // Ensure we got data and not an error
+      expect(result.error).toBeUndefined();
+      expect(result.data).toBeDefined();
       const data = result.data!;
 
       // Should be able to serialize as valid JSON-LD
@@ -223,11 +257,23 @@ describe('Schema.org Implementation Summary Tests', () => {
         </html>
       `;
 
-      global.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        status: 200,
-        headers: new Map([['content-type', 'text/html']]),
-        text: () => Promise.resolve(errorHtml),
+      // Mock fetch to handle AllOrigins proxy format
+      global.fetch = vi.fn().mockImplementation((url: string) => {
+        if (url.includes('allorigins.win/get')) {
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            headers: new Map([['content-type', 'application/json']]),
+            json: () => Promise.resolve({ contents: errorHtml, status: { url: 'https://error.com' } }),
+            text: () => Promise.resolve(JSON.stringify({ contents: errorHtml })),
+          });
+        }
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          headers: new Map([['content-type', 'text/html']]),
+          text: () => Promise.resolve(errorHtml),
+        });
       });
 
       const options: ScrapeOptions = {
@@ -242,9 +288,12 @@ describe('Schema.org Implementation Summary Tests', () => {
         maxTextElements: 5,
         timeout: 5000,
         retryAttempts: 1,
+        useEnhancedScraper: false, // Use legacy scraper for consistent testing
       };
 
       const result = await scrapeWebsite('https://error.com', options, () => {});
+      expect(result.error).toBeUndefined();
+      expect(result.data).toBeDefined();
       const data = result.data!;
 
       // Should still maintain schema.org structure
