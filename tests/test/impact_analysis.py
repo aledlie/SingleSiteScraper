@@ -16,6 +16,37 @@ from typing import Dict, List, Any, Tuple
 import seaborn as sns
 from pathlib import Path
 
+# ---------------------------------------------------------------------------
+# Data-Driven Recommendation Mappings
+# ---------------------------------------------------------------------------
+# Maps (category, metric_keyword) -> recommendation text
+# Used by _generate_recommendations to avoid nested if/elif chains
+
+RECOMMENDATION_MAPPINGS: Dict[str, Dict[str, str]] = {
+    'seo_metrics': {
+        'structured_data': "Implement comprehensive Schema.org markup across all page types",
+        'meta_completeness': "Optimize meta titles and descriptions for all pages",
+        'header_hierarchy': "Restructure content with proper H1-H6 hierarchy",
+    },
+    'llm_metrics': {
+        'readability': "Simplify content language and sentence structure",
+        'semantic_html': "Replace generic divs with semantic HTML5 elements",
+        'entity_recognition': "Add structured data for better entity identification",
+    },
+    'performance_metrics': {
+        'page_load_time': "Implement image optimization and lazy loading",
+        'lcp': "Optimize critical rendering path and largest content elements",
+        'cls': "Reserve space for dynamic content to prevent layout shifts",
+    },
+}
+
+DEFAULT_RECOMMENDATIONS: List[str] = [
+    "Continue monitoring performance trends",
+    "Implement A/B testing for further optimizations",
+    "Set up automated performance alerts",
+]
+
+
 class ImpactAnalyzer:
     """
     Analyzes and visualizes the impact of website optimizations
@@ -426,72 +457,36 @@ class ImpactAnalyzer:
         
         return "\n".join(report_lines)
     
+    def _get_metric_recommendation(self, category: str, metric: str) -> str | None:
+        """Look up recommendation for a specific metric from the mapping."""
+        category_mappings = RECOMMENDATION_MAPPINGS.get(category, {})
+        for keyword, recommendation in category_mappings.items():
+            if keyword in metric:
+                return recommendation
+        return None
+
     def _generate_recommendations(self, improvements: Dict) -> List[str]:
         """Generate actionable recommendations based on the analysis."""
         recommendations = []
-        
-        # Analyze each category for specific recommendations
+
         for category, data in improvements.items():
-            worst_metrics = sorted(data.items(), 
-                                 key=lambda x: x[1]['percentage_improvement'])[:2]
-            
-            if category == 'seo_metrics':
-                for metric, values in worst_metrics:
-                    if values['percentage_improvement'] < 0:
-                        if 'structured_data' in metric:
-                            recommendations.append(
-                                "Implement comprehensive Schema.org markup across all page types"
-                            )
-                        elif 'meta_completeness' in metric:
-                            recommendations.append(
-                                "Optimize meta titles and descriptions for all pages"
-                            )
-                        elif 'header_hierarchy' in metric:
-                            recommendations.append(
-                                "Restructure content with proper H1-H6 hierarchy"
-                            )
-            
-            elif category == 'llm_metrics':
-                for metric, values in worst_metrics:
-                    if values['percentage_improvement'] < 0:
-                        if 'readability' in metric:
-                            recommendations.append(
-                                "Simplify content language and sentence structure"
-                            )
-                        elif 'semantic_html' in metric:
-                            recommendations.append(
-                                "Replace generic divs with semantic HTML5 elements"
-                            )
-                        elif 'entity_recognition' in metric:
-                            recommendations.append(
-                                "Add structured data for better entity identification"
-                            )
-            
-            elif category == 'performance_metrics':
-                for metric, values in worst_metrics:
-                    if values['percentage_improvement'] < 0:
-                        if 'page_load_time' in metric:
-                            recommendations.append(
-                                "Implement image optimization and lazy loading"
-                            )
-                        elif 'lcp' in metric:
-                            recommendations.append(
-                                "Optimize critical rendering path and largest content elements"
-                            )
-                        elif 'cls' in metric:
-                            recommendations.append(
-                                "Reserve space for dynamic content to prevent layout shifts"
-                            )
-        
-        # Add general recommendations if no specific issues found
+            # Get the 2 worst-performing metrics in this category
+            worst_metrics = sorted(
+                data.items(),
+                key=lambda x: x[1]['percentage_improvement']
+            )[:2]
+
+            for metric, values in worst_metrics:
+                if values['percentage_improvement'] < 0:
+                    rec = self._get_metric_recommendation(category, metric)
+                    if rec and rec not in recommendations:
+                        recommendations.append(rec)
+
+        # Use default recommendations if no specific issues found
         if not recommendations:
-            recommendations = [
-                "Continue monitoring performance trends",
-                "Implement A/B testing for further optimizations",
-                "Set up automated performance alerts"
-            ]
-        
-        return recommendations[:5]  # Limit to top 5 recommendations
+            recommendations = DEFAULT_RECOMMENDATIONS.copy()
+
+        return recommendations[:5]
     
     def save_all_visualizations(self, improvements: Dict, filename_prefix: str = "impact_analysis"):
         """Save all visualization charts to files."""
