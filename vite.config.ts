@@ -31,7 +31,42 @@ export default defineConfig({
   ].filter(Boolean),
   build: {
     rollupOptions: {
-      // Keep treeshaking simple for CommonJS compat
+      output: {
+        // Safe chunk splitting - keeps React together to avoid initialization issues
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            // Keep ALL React packages together - critical for initialization order
+            if (id.includes('react') || id.includes('scheduler')) {
+              return 'react-vendor';
+            }
+            // Sentry - independent error tracking
+            if (id.includes('@sentry')) {
+              return 'sentry-vendor';
+            }
+            // HTML parser and dependencies - independent CommonJS
+            if (id.includes('node-html-parser') ||
+                id.includes('htmlparser2') ||
+                id.includes('domhandler') ||
+                id.includes('domutils') ||
+                id.includes('css-select') ||
+                id.includes('entities') ||
+                id.includes('/he/')) {
+              return 'parser-vendor';
+            }
+            // Icons - independent, tree-shakeable
+            if (id.includes('lucide-react')) {
+              return 'icons-vendor';
+            }
+            // Date utilities - independent
+            if (id.includes('date-fns')) {
+              return 'date-vendor';
+            }
+            // All other vendor code stays in default vendor chunk
+          }
+          // Don't split app code - let Vite handle it naturally
+          return undefined;
+        }
+      },
       treeshake: true
     },
     // Reduce chunk size warning threshold
