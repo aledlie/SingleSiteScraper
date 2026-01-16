@@ -26,3 +26,4 @@ dist-ssr
 .claude
 aledlie-schema-audit-report.md
 results
+coverage/
