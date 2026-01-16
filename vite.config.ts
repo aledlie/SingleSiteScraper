@@ -30,82 +30,9 @@ export default defineConfig({
     }),
   ].filter(Boolean),
   build: {
-    // Module preload configuration for better loading performance
-    modulePreload: {
-      polyfill: true, // Enable polyfill for older browsers
-      resolveDependencies: (_filename, deps, { hostId: _hostId, hostType: _hostType }) => {
-        // Prioritize critical React chunks
-        const criticalChunks = ['react-vendor', 'react-dom-vendor'];
-        return deps.sort((a, b) => {
-          const aIsCritical = criticalChunks.some(c => a.includes(c));
-          const bIsCritical = criticalChunks.some(c => b.includes(c));
-          if (aIsCritical && !bIsCritical) return -1;
-          if (!aIsCritical && bIsCritical) return 1;
-          return 0;
-        });
-      }
-    },
     rollupOptions: {
-      output: {
-        manualChunks: (id) => {
-          // Vendor libraries - split large deps into separate chunks
-          if (id.includes('node_modules')) {
-            // React core
-            if (id.includes('react-dom')) {
-              return 'react-dom-vendor';
-            }
-            if (id.includes('/react/') || id.includes('react/')) {
-              return 'react-vendor';
-            }
-            // Sentry error tracking (large)
-            if (id.includes('@sentry')) {
-              return 'sentry-vendor';
-            }
-            // UI libraries
-            if (id.includes('lucide-react')) {
-              return 'icons-vendor';
-            }
-            if (id.includes('date-fns')) {
-              return 'date-vendor';
-            }
-            // HTML parser
-            if (id.includes('node-html-parser') || id.includes('he/') || id.includes('css-select') || id.includes('domhandler') || id.includes('domutils') || id.includes('htmlparser2')) {
-              return 'parser-vendor';
-            }
-            // Remaining small vendor deps
-            return 'vendor';
-          }
-          
-          // Large scraping modules
-          if (id.includes('scraper/')) {
-            return 'scraper';
-          }
-          
-          // Analytics and performance modules
-          if (id.includes('analytics/')) {
-            return 'analytics';
-          }
-          
-          // Visualization components
-          if (id.includes('visualizations/')) {
-            return 'visualizations';
-          }
-          
-          // Large dashboard components
-          if (id.includes('AnalyticsDashboard') || id.includes('FisterraVisualizationDashboard')) {
-            return 'dashboards';
-          }
-          
-          // Utils and smaller components
-          if (id.includes('utils/') || id.includes('types/')) {
-            return 'utils';
-          }
-        }
-      },
-      // Enable tree shaking (keep moduleSideEffects true for CommonJS compat)
-      treeshake: {
-        propertyReadSideEffects: false
-      }
+      // Keep treeshaking simple for CommonJS compat
+      treeshake: true
     },
     // Reduce chunk size warning threshold
     chunkSizeWarningLimit: 200,
