@@ -288,8 +288,8 @@ export function createSanitizationMiddleware() {
         throw new Error('URL too long');
       }
 
-      // Remove dangerous characters
-      const cleaned = url.replace(/[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F\\x7F]/g, '');
+      // Remove dangerous characters (control characters)
+      const cleaned = url.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
       
       try {
         const urlObj = new URL(cleaned);
@@ -324,18 +324,18 @@ export function createSanitizationMiddleware() {
     detectInjectionAttempt: (input: string): boolean => {
       const injectionPatterns = [
         // SQL injection patterns
-        /('|(\\x27)|(\\x2D\\x2D)|(%27)|(%2D%2D))/i,
+        /('|(\x27)|(\x2D\x2D)|(%27)|(%2D%2D))/i,
         /(union|select|insert|delete|drop|create|alter|exec|execute)/i,
-        
+
         // XSS patterns
         /(<script|<iframe|<object|<embed|javascript:|vbscript:)/i,
-        /(on\\w+\\s*=|expression\\s*\\(|@import)/i,
-        
+        /(on\w+\s*=|expression\s*\(|@import)/i,
+
         // Path traversal
-        /(\\.\\.[\\/\\\\]|%2e%2e[\\/\\\\])/i,
-        
+        /(\.\.[\\/\\]|%2e%2e[\\/\\])/i,
+
         // Command injection
-        /(;\\s*(cat|ls|pwd|whoami|id|uname)|\\|\\s*(cat|ls|pwd))/i
+        /(;\s*(cat|ls|pwd|whoami|id|uname)|\|\s*(cat|ls|pwd))/i
       ];
 
       return injectionPatterns.some(pattern => pattern.test(input));
