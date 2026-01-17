@@ -28,10 +28,33 @@
     <title>Web Scraper Pro - Advanced Data Extraction & Analytics Tool</title>
     
     <!-- Schema.org JSON-LD Structured Data -->
+
+    <!-- Organization Entity (referenced by other schemas) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "@id": "https://webscraper.pro#organization",
+      "name": "Web Scraper Pro",
+      "description": "Developer of professional web scraping and data extraction tools",
+      "url": "https://webscraper.pro",
+      "logo": {
+        "@type": "ImageObject",
+        "@id": "https://webscraper.pro#logo",
+        "url": "https://webscraper.pro/images/logo.png",
+        "width": 200,
+        "height": 200,
+        "caption": "Web Scraper Pro Logo"
+      }
+    }
+    </script>
+
+    <!-- WebApplication Schema -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebApplication",
+      "@id": "https://webscraper.pro#webapplication",
       "name": "Web Scraper Pro",
       "alternativeName": "Beautiful Web Scraper Application",
       "description": "Professional web scraping application with advanced analytics, graph modeling, and Schema.org data extraction capabilities. Extract structured data from any website with performance monitoring and comprehensive analysis tools.",
@@ -77,17 +100,7 @@
         }
       ],
       "author": {
-        "@type": "Organization",
-        "@id": "https://webscraper.pro#organization",
-        "name": "Web Scraper Pro",
-        "description": "Developer of professional web scraping and data extraction tools",
-        "url": "https://webscraper.pro",
-        "logo": {
-          "@type": "ImageObject",
-          "url": "https://webscraper.pro/images/logo.png",
-          "width": 200,
-          "height": 200
-        }
+        "@id": "https://webscraper.pro#organization"
       },
       "creator": {
         "@id": "https://webscraper.pro#organization"
@@ -166,6 +179,7 @@
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
+      "@id": "https://webscraper.pro#website",
       "name": "Web Scraper Pro",
       "url": "https://webscraper.pro",
       "description": "Professional web scraping and data extraction platform",
@@ -217,6 +231,7 @@
     {
       "@context": "https://schema.org",
       "@type": "FAQPage",
+      "@id": "https://webscraper.pro#faqpage",
       "mainEntity": [
         {
           "@type": "Question",
