@@ -76,7 +76,7 @@ const App: React.FC = () => {
         
         <footer className="mt-12 border-t border-gray-700 py-8">
           <div className="max-w-4xl mx-auto px-6">
-            <p className="text-center text-gray-400 mb-6">&copy; 2024 Web Scraper Pro. Powered by RepoViz MCP Integration.</p>
+            <p className="text-center text-gray-400 mb-6">&copy; 2024 Web Scraper Pro. <a href="https://www.integritystudio.ai" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">Powered by IntegrityStudio.ai</a></p>
             <div className="flex justify-center gap-8">
               <div className="flex items-center gap-2 text-gray-400">
                 <BarChart3 className="w-4 h-4" />
